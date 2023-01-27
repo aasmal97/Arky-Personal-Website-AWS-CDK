@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { AppStack } from '../lib/app-stack';
-
+import { RestAPIStack } from '../lib/restAPI/restAPIStack';
+import { WebhooksStack } from '../lib/webhooks/webhooks-stack';
 const app = new cdk.App();
-new AppStack(app, 'AppStack', {
+new RestAPIStack(app, 'RestApiStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
@@ -19,3 +19,6 @@ new AppStack(app, 'AppStack', {
 
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
+new WebhooksStack(app, 'WebhooksStack', {
+  
+})
