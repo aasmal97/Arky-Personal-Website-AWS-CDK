@@ -11,12 +11,12 @@ export class RestAPIStack extends cdk.Stack {
     const hobbiesDb = createDatabase({
       stack: this,
       tableName: "hobbies",
-      pkName: "imageId",
+      pkName: "id",
     });
     const projectsDb = createDatabase({
       stack: this,
       tableName: "projects",
-      pkName: "projectId",
+      pkName: "id",
     });
   }
 }
