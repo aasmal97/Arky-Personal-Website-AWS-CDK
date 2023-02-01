@@ -5,6 +5,7 @@ import {
   DeleteItemCommandInput,
   AttributeValue,
 } from "@aws-sdk/client-dynamodb";
+import { deleteTemplate } from "../../../utils/apiTemplates/deleteTemplate";
 const convertToAttributeStr = (s: any) => ({
   S: typeof s === "string" ? s : "",
 });
@@ -32,22 +33,12 @@ export async function handler(
     id: convertToAttributeStr(id),
   };
   try {
-    const params: DeleteItemCommandInput = {
-      TableName: "hobbies",
-      Key: document,
-    };
-    const client = new DynamoDBClient({
-      region: "us-east-1",
+    const result = await deleteTemplate({
+      document,
+      tableName: "hobbies",
+      successMessage: "deleted user image in hobbies",
     });
-    const command = new DeleteItemCommand(params);
-    await client.send(command);
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "deleted user image in hobbies",
-        document: document,
-      }),
-    };
+    return result;
   } catch (e) {
     return {
       statusCode: 500,

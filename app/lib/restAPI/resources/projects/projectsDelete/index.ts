@@ -4,51 +4,24 @@ import {
   DeleteObjectCommand,
   DeleteObjectCommandInput,
 } from "@aws-sdk/client-s3";
-import {
-  DynamoDBClient,
-  DeleteItemCommand,
-  DeleteItemCommandInput,
-  AttributeValue,
-} from "@aws-sdk/client-dynamodb";
+import { AttributeValue } from "@aws-sdk/client-dynamodb";
+import { deleteTemplate } from "../../../utils/apiTemplates/deleteTemplate";
 const convertToAttributeStr = (s: any) => ({
   S: typeof s === "string" ? s : "",
 });
-const deleteProjectDoc = async (document: Record<string, AttributeValue>) => {
-  try {
-    const params: DeleteItemCommandInput = {
-      TableName: "projects",
-      Key: document,
-    };
-    const client = new DynamoDBClient({
-      region: "us-east-1",
-    });
-    const command = new DeleteItemCommand(params);
-    await client.send(command);
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: "deleted record from projects",
-        document: document,
-      }),
-    };
-  } catch (e) {
-    return {
-      statusCode: 500,
-      body: "Bad Request",
-    };
-  }
-};
+
 const deleteProjectImgFromS3 = async (key: string) => {
   const bucketName = process.env.S3_MEDIA_FILES_BUCKET_NAME;
   const client = new S3Client({
     region: "us-east-1",
   });
   const input: DeleteObjectCommandInput = {
-    key: key,
-    bucket: bucketName,
+    Key: key,
+    Bucket: bucketName,
   };
   const command = new DeleteObjectCommand(input);
-  const response = client.send(command);
+  const response = await client.send(command);
+  return response;
 };
 export async function handler(
   e: APIGatewayEvent
@@ -74,14 +47,34 @@ export async function handler(
     id: convertToAttributeStr(id),
   };
   //delete record in dyanmo db table
-  const result = await deleteProjectDoc(document);
+  const result = await deleteTemplate({
+    document,
+    tableName: "projects",
+    successMessage: "deleted record from projects",
+  });
+  if (result.statusCode !== 200) return result;
   //delete images referenced in projects
   //this is optional and only occurs if src and placeholder src are provided
   const promiseArr = [];
+  if (!src && !placeholderSrc)
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "deleted record from projects",
+        document: document,
+      }),
+    };
   if (src) promiseArr.push(deleteProjectImgFromS3(src));
   if (placeholderSrc) promiseArr.push(deleteProjectImgFromS3(placeholderSrc));
   try {
     const deleteImgResult = await Promise.all(promiseArr);
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "deleted project and media from projects table",
+        document: document,
+      }),
+    };
   } catch (e) {
     return {
       statusCode: 200,
@@ -94,14 +87,4 @@ export async function handler(
       }),
     };
   }
-
-  if (result.statusCode === 500) return result;
-  //delete s3 items linked to project doc
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: "deleted record from projects",
-      document: document,
-    }),
-  };
 }
