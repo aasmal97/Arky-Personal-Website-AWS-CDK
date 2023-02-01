@@ -6,6 +6,7 @@ import {
   QueryCommandOutput,
   AttributeValue,
 } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 function isAPIGatewayResult(e: any): e is APIGatewayProxyResult {
   return e.statusCode && e.body;
 }
@@ -55,6 +56,37 @@ function mergeArrUntilLength<T>(arr1: T[], arr2: T[], maxLength: number) {
   }
   return results;
 }
+function unmarshallItems(items: Record<string, AttributeValue>[]) {
+  return items.map((i) => unmarshall(i));
+}
+const successResponse = (
+  result: Omit<QueryCommandOutput, "$metadata">,
+  successMessage: string
+) => {
+  if (!result.Items)
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: successMessage,
+        result: {
+          ...result,
+          Items: [],
+          Count: 0,
+        },
+      }),
+    };
+  const jsonItems = unmarshallItems(result.Items);
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: successMessage,
+      result: {
+        ...result,
+        Items: jsonItems,
+      },
+    }),
+  };
+};
 const queryUntilRequestPageNum = async ({
   successMessage,
   tableName,
@@ -73,15 +105,6 @@ const queryUntilRequestPageNum = async ({
   let queryOutput: QueryCommandOutput | APIGatewayProxyResult | undefined;
   let numLeft = resultsToBeReturned;
   let startKey: undefined | Record<string, AttributeValue>;
-  const successResponse = (
-    newResults: Omit<QueryCommandOutput, "$metadata">
-  ) => ({
-    statusCode: 200,
-    body: JSON.stringify({
-      message: successMessage,
-      newResults: newResults,
-    }),
-  });
 
   while (lastEval) {
     queryOutput = await queryOnce({
@@ -91,7 +114,7 @@ const queryUntilRequestPageNum = async ({
     //this means an error has occurred
     if (isAPIGatewayResult(queryOutput)) return queryOutput;
     const newItems = queryOutput.Items;
-    if (!newItems) return successResponse(results);
+    if (!newItems) return successResponse(results, successMessage);
     if (!results.Items)
       results.Items = mergeArrUntilLength([], newItems, numLeft);
     else results.Items = mergeArrUntilLength(results.Items, newItems, numLeft);
@@ -101,7 +124,7 @@ const queryUntilRequestPageNum = async ({
         ...queryOutput,
       };
       delete newOutput["$metadata"];
-      return successResponse(newOutput);
+      return successResponse(newOutput, successMessage);
     }
     //generate new last eval key
     results.LastEvaluatedKey = generateLastEvalKey(
@@ -114,7 +137,7 @@ const queryUntilRequestPageNum = async ({
       break;
     }
   }
-  return successResponse(results);
+  return successResponse(results, successMessage);
 };
 export const getTemplate = async ({
   e,
