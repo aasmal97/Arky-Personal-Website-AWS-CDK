@@ -13,11 +13,16 @@ function isAPIGatewayResult(e: any): e is APIGatewayProxyResult {
 const queryOnce = async ({
   tableName,
   startKey,
+  query,
 }: {
   tableName: string;
   startKey?: Record<string, AttributeValue>;
+  query: QueryCommandInput;
 }): Promise<QueryCommandOutput | APIGatewayProxyResult> => {
   const params: QueryCommandInput = {
+    ...query,
+    //these override the user-given query because they are either
+    //fully or partially managed by the template, and not by user input
     TableName: tableName,
     ExclusiveStartKey: startKey,
   };
@@ -91,7 +96,9 @@ const queryUntilRequestPageNum = async ({
   successMessage,
   tableName,
   maxResults = 50,
+  query,
 }: {
+  query: QueryCommandInput;
   tableName: string;
   successMessage: string;
   maxResults?: number;
@@ -104,12 +111,14 @@ const queryUntilRequestPageNum = async ({
   const resultsToBeReturned = maxResults > 100 ? 100 : maxResults;
   let queryOutput: QueryCommandOutput | APIGatewayProxyResult | undefined;
   let numLeft = resultsToBeReturned;
-  let startKey: undefined | Record<string, AttributeValue>;
+  let startKey: undefined | Record<string, AttributeValue> =
+    query.ExclusiveStartKey;
 
   while (lastEval) {
     queryOutput = await queryOnce({
       tableName,
       startKey: startKey,
+      query: query,
     });
     //this means an error has occurred
     if (isAPIGatewayResult(queryOutput)) return queryOutput;
@@ -143,13 +152,13 @@ export const getTemplate = async ({
   e,
   tableName,
   successMessage,
-  query,
+  generateQuery,
   maxResults,
 }: {
   tableName: string;
   e: APIGatewayProxyEvent;
   successMessage: string;
-  query: QueryCommandInput;
+  generateQuery: (e: APIGatewayProxyEvent) => QueryCommandInput;
   maxResults?: number;
 }): Promise<APIGatewayProxyResult> => {
   if (e.httpMethod !== "GET")
@@ -162,6 +171,7 @@ export const getTemplate = async ({
       statusCode: 400,
       body: "Please provide valid parameters",
     };
+  const query = generateQuery(e);
   if (!query)
     return {
       statusCode: 400,
@@ -171,6 +181,7 @@ export const getTemplate = async ({
     tableName,
     successMessage,
     maxResults,
+    query,
   });
   return result;
 };

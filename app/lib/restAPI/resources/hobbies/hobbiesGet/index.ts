@@ -5,7 +5,6 @@ const dynamoDb =new DynamoDBClient({
 });
 
 export async function handler(event: APIGatewayEvent) {
-  if (event.httpMethod !== "GET") return;
   if (!event.queryStringParameters) return;
   const { id, creationDate, name } = event.queryStringParameters;
     //const if
