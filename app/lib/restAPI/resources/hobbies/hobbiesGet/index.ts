@@ -1,43 +1,95 @@
+import { QueryCommandInput } from "@aws-sdk/client-dynamodb";
 import { APIGatewayEvent } from "aws-lambda";
-import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
-const dynamoDb =new DynamoDBClient({
-    region: "us-east-1"
-});
-
-export async function handler(event: APIGatewayEvent) {
-  if (!event.queryStringParameters) return;
-  const { id, creationDate, name } = event.queryStringParameters;
-    //const if
-  // Define parameters for the DynamoDB query
-  const params = {
-    TableName: "projects",
-    // KeyConditionExpression:
-    //   "#id = :idValue and #creationDate = :creationDateValue and #name = :nameValue",
-    ExpressionAttributeNames: {
-    //   "#id": "id",
-    //   "#creationDate": "creationDate",
-    //   "#name": "name",
-    },
-    ExpressionAttributeValues: {
-    //   ":idValue": id,
-    //   ":creationDateValue": creationDate,
-    //   ":nameValue": name,
-    }
+import { getTemplate } from "../../../utils/apiTemplates/getTemplate";
+import { marshall } from "@aws-sdk/util-dynamodb";
+export type HobbiesQueryProps = {
+  id?: string;
+  name?: string;
+  description?: string;
+  orientation: "vertical" | "horizontal";
+  sortBy?: {
+    dateCreated?: 1 | -1;
+    dateTaken?: 1 | -1;
   };
-const command = new QueryCommand(params)
+};
+export function isHobbyQueryProps(e: any): e is HobbiesQueryProps {
   try {
-    // Perform the DynamoDB query
-    const result = await dynamoDb.send(command);
-
-    // Return the result
-    return {
-      statusCode: 200,
-      body: JSON.stringify(result.Items),
-    };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify(error),
-    };
+    return e.orientation;
+  } catch (err) {
+    return false;
   }
+}
+const generateGetExpression = (e: HobbiesQueryProps) => {
+  let expression = `#orientationAtt = :orientationVal`;
+  let filterExpArr: string[] = [];
+  let scanDirection = true;
+  let index: string | undefined;
+  const expAttr: Record<string, string> = {
+    "#orientationAtt": "orientation",
+  };
+  const expValMap: Record<string, any> = { ":orientationVal": e.orientation };
+  const addParamater = (
+    key: string,
+    value: any,
+    expType: "contains" | "equals"
+  ) => {
+    const expKey = `#${key}`;
+    const expKeyVal = `:${key}val`;
+    expAttr[expKey] = key;
+    expValMap[expKeyVal] = value;
+    const containsExp = `contains(${expKey}, ${expKeyVal})`;
+    const equalExp = `${expKey} = ${expKeyVal}`;
+    filterExpArr.push(expType === "contains" ? containsExp : equalExp);
+  };
+  if (typeof e.id === "string") addParamater("id", e.id, "equals");
+  if (typeof e.name === "string") addParamater("name", e.name, "contains");
+  if (typeof e.description === "string")
+    addParamater("description", e.description, "contains");
+  if (e.sortBy) {
+    const dateCreated = e.sortBy.dateCreated;
+    const dateTaken = e.sortBy.dateTaken;
+    if (dateCreated === -1) scanDirection = false;
+    if (!dateCreated && dateTaken === -1) scanDirection = false;
+    if (!dateCreated && dateTaken) {
+      index = "SortByDateTaken";
+    }
+  }
+  const expVal = marshall(expValMap);
+  const filterExp = filterExpArr.reduce((a, b) => a + " AND " + b);
+  return {
+    keyExp: expression,
+    expVal,
+    expAttr,
+    filterExp,
+    scanDirection,
+    index,
+  };
+};
+const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
+  if (!e.queryStringParameters) return null;
+  const { startKey, query } = e.queryStringParameters;
+  const parsedStartKey = startKey ? JSON.parse(startKey) : {};
+  const parsedQuery = query ? JSON.parse(query) : {};
+  if (!isHobbyQueryProps(parsedQuery)) return null;
+  const { keyExp, expVal, expAttr, filterExp, scanDirection, index } =
+    generateGetExpression(parsedQuery);
+  const dynamoQuery: QueryCommandInput = {
+    TableName: "hobbies",
+    KeyConditionExpression: keyExp,
+    FilterExpression: filterExp,
+    ExpressionAttributeNames: expAttr,
+    ExpressionAttributeValues: expVal,
+    ExclusiveStartKey: parsedStartKey,
+    ScanIndexForward: scanDirection,
+    IndexName: index,
+  };
+  return dynamoQuery;
+};
+export async function handler(event: APIGatewayEvent) {
+  return await getTemplate({
+    e: event,
+    tableName: "hobbies",
+    successMessage: "Retrieved hobby results",
+    generateQuery: generateQuery,
+  });
 }

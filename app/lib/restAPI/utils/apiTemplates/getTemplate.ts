@@ -153,13 +153,11 @@ export const getTemplate = async ({
   tableName,
   successMessage,
   generateQuery,
-  maxResults,
 }: {
   tableName: string;
   e: APIGatewayProxyEvent;
   successMessage: string;
-  generateQuery: (e: APIGatewayProxyEvent) => QueryCommandInput;
-  maxResults?: number;
+  generateQuery: (e: APIGatewayProxyEvent) => QueryCommandInput | null;
 }): Promise<APIGatewayProxyResult> => {
   if (e.httpMethod !== "GET")
     return {
@@ -172,6 +170,9 @@ export const getTemplate = async ({
       body: "Please provide valid parameters",
     };
   const query = generateQuery(e);
+  //for pagaination
+  const { max } = e.queryStringParameters;
+  const maxResults = typeof max === "string" ? parseInt(max) : undefined;
   if (!query)
     return {
       statusCode: 400,

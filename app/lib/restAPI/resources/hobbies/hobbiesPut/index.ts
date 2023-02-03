@@ -1,12 +1,10 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
-import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { v4 as uuid } from "uuid";
 import {
   putTemplate,
   isString,
-  convertToAttributeStr,
-  convertToAttributeNum,
 } from "../../../utils/apiTemplates/putTemplate";
+import { marshall } from "@aws-sdk/util-dynamodb";
 const createDocument = (e: APIGatewayEvent) => {
   if (!e.body)
     return {
@@ -32,16 +30,24 @@ const createDocument = (e: APIGatewayEvent) => {
       statusCode: 400,
       body: "Invalid types assigned to either name, description, src or placeholderSrc",
     };
-  const document: Record<string, AttributeValue> = {
-    id: convertToAttributeStr(uuid()),
-    name: convertToAttributeStr(name),
-    description: convertToAttributeStr(description),
-    src: convertToAttributeStr(src),
-    placeholderSrc: convertToAttributeStr(placeholderSrc),
-    height: convertToAttributeNum(height),
-    width: convertToAttributeNum(width),
+  const currDate = new Date().toISOString();
+  const document = {
+    pk: {
+      orientation: width / height >= 1 ? "horizontal" : "vertical",
+      dateCreated: currDate,
+    },
+    recordType: "hobbies",
+    id: uuid(),
+    name: name,
+    description: description,
+    src: src,
+    placeholderSrc: placeholderSrc,
+    height: height,
+    width: width,
+    dateCreated: currDate,
+    orientation: width / height >= 1 ? "horizontal" : "vertical",
   };
-  return document;
+  return marshall(document);
 };
 export async function handler(
   e: APIGatewayEvent

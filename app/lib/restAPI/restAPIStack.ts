@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import { AttributeType, ProjectionType } from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 import restAPIMap from "./restApiMap";
 import { createApi } from "./utils/createApiTree";
@@ -11,12 +12,30 @@ export class RestAPIStack extends cdk.Stack {
     const hobbiesDb = createDatabase({
       stack: this,
       tableName: "hobbies",
-      pkName: "id",
+      pkName: "orientation",
+      sortKey: "dateCreated",
+      secondaryIndex: {
+        indexName: "SortByDateTaken",
+        sortKey: {
+          name: "dateTaken",
+          type: AttributeType.STRING,
+        },
+        projectionType: ProjectionType.ALL,
+      },
     });
     const projectsDb = createDatabase({
       stack: this,
       tableName: "projects",
-      pkName: "id",
+      pkName: "recordType",
+      sortKey: "startDate",
+      secondaryIndex: {
+        indexName: "SortByDateEnded",
+        sortKey: {
+          name: "endDate",
+          type: AttributeType.STRING,
+        },
+        projectionType: ProjectionType.ALL,
+      },
     });
   }
 }

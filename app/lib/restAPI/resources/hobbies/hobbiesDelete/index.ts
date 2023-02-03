@@ -1,14 +1,9 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
-import {
-  DynamoDBClient,
-  DeleteItemCommand,
-  DeleteItemCommandInput,
-  AttributeValue,
-} from "@aws-sdk/client-dynamodb";
+import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { deleteTemplate } from "../../../utils/apiTemplates/deleteTemplate";
-const convertToAttributeStr = (s: any) => ({
-  S: typeof s === "string" ? s : "",
-});
+// const convertToAttributeStr = (s: any) => ({
+//   S: typeof s === "string" ? s : "",
+// });
 export async function handler(
   e: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
@@ -23,14 +18,14 @@ export async function handler(
       statusCode: 400,
       body: "You must provide the id of the resource you want to delete",
     };
-  const { id } = params;
-  if (!id)
+  const { key } = params;
+  if (!key)
     return {
       statusCode: 400,
       body: "You must provide the id of the resource you want to delete",
     };
   const document: Record<string, AttributeValue> = {
-    id: convertToAttributeStr(id),
+    key: JSON.parse(key),
   };
   try {
     const result = await deleteTemplate({

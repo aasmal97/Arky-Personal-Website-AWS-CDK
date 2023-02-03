@@ -63,19 +63,17 @@ export async function postTemplate({
       statusCode: 400,
       body: "Please provide a valid response body",
     };
-  const { id } = JSON.parse(e.body);
+  const { key } = JSON.parse(e.body);
   const document = callback(e);
   if (isAPIGatewayResult(document)) return document;
   const filteredDoc = filterNullValues(document);
-  const expression = generateUpdateExpression(filteredDoc);
+  const [updateExp, expAttr] = generateUpdateExpression(filteredDoc);
   try {
     const params: UpdateItemCommandInput = {
       TableName: tableName,
-      Key: {
-        id: id.toString(),
-      },
-      UpdateExpression: expression[0],
-      ExpressionAttributeValues: expression[1],
+      Key: key,
+      UpdateExpression: updateExp,
+      ExpressionAttributeValues: expAttr,
       ReturnValues: "UPDATED_NEW",
     };
     const client = new DynamoDBClient({

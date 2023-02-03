@@ -3,15 +3,12 @@ import {
   DynamoDBClient,
   PutItemCommand,
   PutItemCommandInput,
-  AttributeValue,
 } from "@aws-sdk/client-dynamodb";
+import { marshall } from "@aws-sdk/util-dynamodb";
 import { v4 as uuid } from "uuid";
 const isString = (e: any): e is string => {
   return typeof e === "string";
 };
-const convertToAttributeStr = (s: any) => ({
-  S: typeof s === "string" ? s : "",
-});
 export async function handler(
   e: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
@@ -46,23 +43,29 @@ export async function handler(
       statusCode: 400,
       body: "Invalid types assigned to either name, description",
     };
-
-  const document: Record<string, AttributeValue> = {
-    id: convertToAttributeStr(uuid()),
-    imgDescription: convertToAttributeStr(imgDescription),
-    appURL: convertToAttributeStr(appURL),
-    imgURL: convertToAttributeStr(src),
-    placeholderURL: convertToAttributeStr(placeholderSrc),
-    projectName: convertToAttributeStr(projectName),
-    githubURL: convertToAttributeStr(githubURL),
-    description: convertToAttributeStr(description),
-    startDate: convertToAttributeStr(startDate),
-    endDate: convertToAttributeStr(endDate),
+  const currDate = new Date().toISOString();
+  const document = {
+    pk: {
+      recordType: "projects",
+      startDate: currDate,
+    },
+    recordType: "projects",
+    id: uuid(),
+    imgDescription: imgDescription,
+    appURL: appURL,
+    imgURL: src,
+    placeholderURL: placeholderSrc,
+    projectName: projectName,
+    githubURL: githubURL,
+    description: description,
+    startDate: startDate,
+    endDate: endDate,
+    dateCreated: currDate,
   };
   try {
     const params: PutItemCommandInput = {
       TableName: "projects",
-      Item: document,
+      Item: marshall(document),
     };
     const client = new DynamoDBClient({
       region: "us-east-1",
