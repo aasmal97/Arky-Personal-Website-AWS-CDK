@@ -1,4 +1,4 @@
-import { RestAPIType } from "../restApiMap";
+import { isRestAPILambdaProps, RestAPILambdaProps, RestAPIType } from "../restApiMap";
 
 export const apiMethods = {
   get: true,
@@ -32,18 +32,15 @@ export function hasEndingMethod(str: string): string {
   });
   return ending;
 }
-export const createFuncLocationMap = (
-  apiMap: { [key: string]: RestAPIType | string },
-  id?: string
-) => {
-  let map: { [key: string]: string } = {};
+export const createFuncLocationMap = (apiMap: RestAPIType, id?: string) => {
+  let map: { [key: string]: RestAPILambdaProps} = {};
   const entries = Object.entries(apiMap);
   for (let [key, value] of entries) {
     let newKey = `${id ? id + " " : ""}${key}`;
-    let addMap: { [key: string]: string } = {};
-    if (key in apiMethods && typeof value === "string")
+    let addMap: { [key: string]: RestAPILambdaProps} = {};
+    if (key in apiMethods && isRestAPILambdaProps(value))
       addMap[camelCase(newKey)] = value;
-    else if (typeof value !== "string")
+    else if (!isRestAPILambdaProps(value))
       addMap = createFuncLocationMap(value, newKey);
     map = { ...map, ...addMap };
   }

@@ -8,7 +8,6 @@ import { createDatabase } from "./utils/createDatabase";
 export class RestAPIStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-    const api = createApi(this, restAPIMap);
     const hobbiesDb = createDatabase({
       stack: this,
       tableName: "hobbies",
@@ -23,6 +22,8 @@ export class RestAPIStack extends cdk.Stack {
         projectionType: ProjectionType.ALL,
       },
     });
+    hobbiesDb.tableArn;
+    hobbiesDb.tableName;
     const projectsDb = createDatabase({
       stack: this,
       tableName: "projects",
@@ -37,5 +38,16 @@ export class RestAPIStack extends cdk.Stack {
         projectionType: ProjectionType.ALL,
       },
     });
+    const tablesMap = {
+      hobbies: {
+        id: hobbiesDb.tableName,
+        arn: hobbiesDb.tableArn,
+      },
+      projects: {
+        id: projectsDb.tableName,
+        arn: projectsDb.tableArn,
+      },
+    };
+    const api = createApi(this, restAPIMap(this, tablesMap));
   }
 }
