@@ -1,7 +1,7 @@
-import { apiMethods, camelCase } from "../utils/createResources/createFuncLocationMap";
+import { apiMethods, camelCase } from "../../../utils/createResources/createFuncLocationMap";
 import { aws_iam, Stack } from "aws-cdk-lib";
-import { createLambdaRole } from "../utils/rolesFuncs/createLambdaRole";
-import { createDynamoPolicy } from "../utils/rolesFuncs/createDynamoPolicy";
+import { createLambdaRole } from "../../../utils/rolesFuncs/createLambdaRole";
+import { createDynamoPolicy } from "../../../utils/rolesFuncs/createDynamoPolicy";
 export type RestAPILambdaProps = {
   location: string;
   role?: aws_iam.IRole;

@@ -1,7 +1,7 @@
 import restApiMap from "./restApiMap";
+import createFuncLocationMap from "../../../utils/createResources/createFuncLocationMap";
 import process = require("child_process");
-import createFuncLocationMap from "../utils/createResources/createFuncLocationMap";
-const outPath = "build";
+const outPath = "../../../build/app/lib/restAPI/resources";
 //this will match resources directory in path, and replace it with
 //the name of the outDirectory path
 export function replaceDirToBuild(pathStr: string, directory: string) {
@@ -26,12 +26,12 @@ function execShellCommand(cmd: string) {
     );
   });
 }
-const locationFuncMap = createFuncLocationMap(restApiMap);
+const locationFuncMap = createFuncLocationMap(restApiMap());
 const locationArr = Object.entries(locationFuncMap).map(([key, value]) => {
-  const newPath = value + "/index.js";
+  const newPath = value.location + "/index.ts";
   const subPath = newPath.substring(2, newPath.length);
   return subPath;
 });
 const command = locationArr.reduce((a, b) => a + " " + b);
 
-execShellCommand(`esbuild ${command} --bundle --outdir=${outPath}`);
+execShellCommand(`esbuild ${command} --bundle --platform=node --outdir=${outPath}`)

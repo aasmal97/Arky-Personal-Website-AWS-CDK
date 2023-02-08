@@ -1,6 +1,6 @@
 import { APIGatewayEvent } from "aws-lambda";
 import { QueryCommandInput } from "@aws-sdk/client-dynamodb";
-import { getTemplate } from "../../../../utils/apiTemplates/getTemplate";
+import { getTemplate } from "../../../../../../utils/apiTemplates/getTemplate";
 import { marshall } from "@aws-sdk/util-dynamodb";
 export type ProjectQueryProps = {
   id?: string;

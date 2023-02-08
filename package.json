@@ -5,7 +5,8 @@
     "app": "app/bin/app.js"
   },
   "scripts": {
-    "build": "tsc",
+    "deploy": "app\\buildScript.bat",
+    "build": "tsc -noEmit",
     "watch": "tsc -w",
     "test": "jest",
     "template": "app\\buildScript.bat",

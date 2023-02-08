@@ -14,10 +14,10 @@ export const mapS3AndCloudfront = ({
   domainNames: string[];
   certificate: ICertificate;
 }): [cdk.aws_s3.Bucket, cdk.aws_cloudfront.Distribution] => {
-  const s3Bucket = createS3Bucket(stack, `${bucketName}Bucket`);
+  const s3Bucket = createS3Bucket(stack, `${bucketName}-bucket`);
   const cloudfrontDist = createCloudfrontDist({
     stack: stack,
-    name: `${bucketName}Distribution`,
+    name: `${bucketName}-distribution`,
     bucket: s3Bucket,
     domainNames: domainNames,
     certificate: certificate,

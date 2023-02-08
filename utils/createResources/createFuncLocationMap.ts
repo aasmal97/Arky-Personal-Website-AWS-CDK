@@ -1,4 +1,4 @@
-import { isRestAPILambdaProps, RestAPILambdaProps, RestAPIType } from "../../restAPI/restApiMap";
+import { isRestAPILambdaProps, RestAPILambdaProps, RestAPIType } from "../../app/lib/restAPI/restApiMap";
 
 export const apiMethods = {
   get: true,

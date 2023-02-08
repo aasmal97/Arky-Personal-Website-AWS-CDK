@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 import {
   putTemplate,
   isString,
-} from "../../../../utils/apiTemplates/putTemplate";
+} from "../../../../../../utils/apiTemplates/putTemplate";
 import { marshall } from "@aws-sdk/util-dynamodb";
 const createDocument = (e: APIGatewayEvent) => {
   if (!e.body)

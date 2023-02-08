@@ -1,13 +1,13 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { createCertificate } from "../utils/createResources/createCertificate";
-import { createHostedZone } from "../utils/createResources/createHostedZone";
+import { createCertificate } from "../../../utils/createResources/createCertificate";
+import { createHostedZone } from "../../../utils/createResources/createHostedZone";
 import { IHostedZone } from "aws-cdk-lib/aws-route53";
-import { mapS3AndCloudfront } from "../utils/mapResources/mapS3AndCloudfront";
+import { mapS3AndCloudfront } from "../../../utils/mapResources/mapS3AndCloudfront";
 import {
   createAliasRecord,
   createCnameRecord,
-} from "../utils/createResources/createRecords";
+} from "../../../utils/createResources/createRecords";
 import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 export class HostingStack extends cdk.Stack {
   getClientBucket: () => cdk.aws_s3.Bucket;
@@ -48,13 +48,13 @@ export class HostingStack extends cdk.Stack {
     });
     const [imgBucket, imgDistrubition] = mapS3AndCloudfront({
       stack: this,
-      bucketName: "mediaFiles",
+      bucketName: "media-files",
       domainNames: ["mediaFiles.arkyasmal.com"],
       certificate: certificate,
     });
     const [clientBucket, clientDistrubition] = mapS3AndCloudfront({
       stack: this,
-      bucketName: "clientAppBucket",
+      bucketName: "client-app-bucket",
       domainNames: ["arkyasmal.com", "www.arkyasmal.com"],
       certificate: certificate,
     });

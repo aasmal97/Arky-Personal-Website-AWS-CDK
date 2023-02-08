@@ -2,8 +2,8 @@ import * as cdk from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import path = require("path");
-import { replaceDirToBuild } from "../../restAPI/bundleApiFuncs";
-import { isRestAPILambdaProps, RestAPIType } from "../../restAPI/restApiMap";
+import { replaceDirToBuild } from "../../app/lib/restAPI/bundleApiFuncs";
+import { isRestAPILambdaProps, RestAPIType } from "../../app/lib/restAPI/restApiMap";
 import createFuncLocationMap, {
   apiMethods,
   camelCase,

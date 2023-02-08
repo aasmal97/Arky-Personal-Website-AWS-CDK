@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { AttributeValue } from "@aws-sdk/client-dynamodb";
-import { postTemplate } from "../../../../utils/apiTemplates/postTemplate";
+import { postTemplate } from "../../../../../../utils/apiTemplates/postTemplate";
 const convertToAttributeStr = (s: any) => {
   if (!s) return null;
   if (!(typeof s === "string")) return null;

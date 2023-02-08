@@ -1,7 +1,7 @@
 import { QueryCommandInput } from "@aws-sdk/client-dynamodb";
 import { APIGatewayEvent } from "aws-lambda";
-import { getTemplate } from "../../../../utils/apiTemplates/getTemplate";
 import { marshall } from "@aws-sdk/util-dynamodb";
+import { getTemplate } from "../../../../../../utils/apiTemplates/getTemplate";
 export type HobbiesQueryProps = {
   id?: string;
   name?: string;

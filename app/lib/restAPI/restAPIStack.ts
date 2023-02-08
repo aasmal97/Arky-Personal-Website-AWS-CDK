@@ -2,9 +2,9 @@ import * as cdk from "aws-cdk-lib";
 import { AttributeType, ProjectionType } from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 import restAPIMap from "./restApiMap";
-import { createApi } from "../utils/createResources/createApiTree";
-import { createDatabase } from "../utils/createResources/createDatabase";
-import { createAliasRecord } from "../utils/createResources/createRecords";
+import { createApi } from "../../../utils/createResources/createApiTree";
+import { createDatabase } from "../../../utils/createResources/createDatabase";
+import { createAliasRecord } from "../../../utils/createResources/createRecords";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
 
 export class RestAPIStack extends cdk.Stack {

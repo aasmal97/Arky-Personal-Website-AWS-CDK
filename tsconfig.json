@@ -2,9 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
-    "lib": [
-      "es2020"
-    ],
+    "lib": ["es2020"],
     "outDir": "./build",
     "declaration": true,
     "strict": true,
@@ -20,13 +18,7 @@
     "inlineSources": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "typeRoots": [
-      "./node_modules/@types"
-    ]
+    "typeRoots": ["./node_modules/@types"]
   },
-  "exclude": [
-    "build",
-    "node_modules",
-    "cdk.out"
-  ]
+  "exclude": ["build", "node_modules", "app/cdk.out"]
 }
