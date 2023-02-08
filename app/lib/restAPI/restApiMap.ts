@@ -8,7 +8,6 @@ import { createDynamoPolicy } from "../../../utils/rolesFuncs/createDynamoPolicy
 import path = require("path");
 export type RestAPILambdaProps = {
   location: {
-
     relative: string;
     absolute: string;
   };

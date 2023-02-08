@@ -5,11 +5,11 @@
     "app": "app/bin/app.js"
   },
   "scripts": {
-    "deploy": "app\\buildScript.bat",
+    "deploy": "ts-node app\\buildScript.ts",
     "build": "tsc -noEmit",
     "watch": "tsc -w",
     "test": "jest",
-    "template": "app\\buildScript.bat",
+    "template": "ts-node app\\buildScript.ts",
     "cdk": "cdk"
   },
   "devDependencies": {
