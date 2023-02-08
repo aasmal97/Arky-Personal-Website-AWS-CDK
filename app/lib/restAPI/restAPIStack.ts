@@ -2,10 +2,16 @@ import * as cdk from "aws-cdk-lib";
 import { AttributeType, ProjectionType } from "aws-cdk-lib/aws-dynamodb";
 import { Construct } from "constructs";
 import restAPIMap from "./restApiMap";
-import { createApi } from "./utils/createApiTree";
-import { createDatabase } from "./utils/createDatabase";
+import { createApi } from "../utils/createResources/createApiTree";
+import { createDatabase } from "../utils/createResources/createDatabase";
+import { createAliasRecord } from "../utils/createResources/createRecords";
+import * as targets from "aws-cdk-lib/aws-route53-targets";
 
 export class RestAPIStack extends cdk.Stack {
+  getRestApi: () => cdk.aws_apigateway.RestApi;
+  mapAPIToHostedZone: (
+    hostingZone: cdk.aws_route53.IHostedZone
+  ) => [cdk.aws_route53.ARecord, cdk.aws_apigateway.RestApi];
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     const hobbiesDb = createDatabase({
@@ -22,8 +28,6 @@ export class RestAPIStack extends cdk.Stack {
         projectionType: ProjectionType.ALL,
       },
     });
-    hobbiesDb.tableArn;
-    hobbiesDb.tableName;
     const projectsDb = createDatabase({
       stack: this,
       tableName: "projects",
@@ -49,5 +53,16 @@ export class RestAPIStack extends cdk.Stack {
       },
     };
     const api = createApi(this, restAPIMap(this, tablesMap));
+    this.getRestApi = () => api;
+    this.mapAPIToHostedZone = (e) => {
+      const record = createAliasRecord({
+        stack: this,
+        zone: e,
+        id: "restAPIARecord",
+        aliasTarget: new targets.ApiGateway(api),
+        recordName: "api.arkyasmal.com",
+      });
+      return [record, api];
+    };
   }
 }

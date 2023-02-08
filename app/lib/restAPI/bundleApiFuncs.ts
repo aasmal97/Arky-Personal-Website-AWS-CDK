@@ -1,6 +1,6 @@
 import restApiMap from "./restApiMap";
 import process = require("child_process");
-import createFuncLocationMap from "./utils/createFuncLocationMap";
+import createFuncLocationMap from "../utils/createResources/createFuncLocationMap";
 const outPath = "build";
 //this will match resources directory in path, and replace it with
 //the name of the outDirectory path

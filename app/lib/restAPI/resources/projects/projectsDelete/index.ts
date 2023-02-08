@@ -5,7 +5,7 @@ import {
   DeleteObjectCommandInput,
 } from "@aws-sdk/client-s3";
 import { AttributeValue } from "@aws-sdk/client-dynamodb";
-import { deleteTemplate } from "../../../utils/apiTemplates/deleteTemplate";
+import { deleteTemplate } from "../../../../utils/apiTemplates/deleteTemplate";
 const convertToAttributeStr = (s: any) => ({
   S: typeof s === "string" ? s : "",
 });
