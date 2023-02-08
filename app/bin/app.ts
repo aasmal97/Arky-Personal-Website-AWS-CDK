@@ -20,6 +20,7 @@ const restAPIStack = new RestAPIStack(app, "RestApiStack", {
 });
 //map rest api gateway stack
 const hostingZone = hostingStack.getHostedZone();
-restAPIStack.mapAPIToHostedZone(hostingZone);
+const certificate = hostingStack.getCertificate();
+restAPIStack.mapAPIToHostedZone(hostingZone, certificate);
 
 const webhooksStack = new WebhooksStack(app, "WebhooksStack", {});

@@ -1,9 +1,17 @@
-import { apiMethods, camelCase } from "../../../utils/createResources/createFuncLocationMap";
+import {
+  apiMethods,
+  camelCase,
+} from "../../../utils/createResources/createFuncLocationMap";
 import { aws_iam, Stack } from "aws-cdk-lib";
 import { createLambdaRole } from "../../../utils/rolesFuncs/createLambdaRole";
 import { createDynamoPolicy } from "../../../utils/rolesFuncs/createDynamoPolicy";
+import path = require("path");
 export type RestAPILambdaProps = {
-  location: string;
+  location: {
+
+    relative: string;
+    absolute: string;
+  };
   role?: aws_iam.IRole;
 };
 export type RestAPIType = {
@@ -16,15 +24,21 @@ export function isRestAPILambdaProps(e: any): e is RestAPILambdaProps {
     return false;
   }
 }
-const generateLocation = (path: string[]) => {
-  let location = "./resources/" + path[0];
-  for (let i in path) {
+
+const generateLocation = (providedPath: string[]) => {
+  let location = "resources/" + providedPath[0];
+  for (let i in providedPath) {
     if (parseInt(i) <= 0) continue;
-    if (path[i] in apiMethods)
-      location += "/" + path[parseInt(i) - 1] + " " + path[i];
-    else location += "/" + path[i];
+    if (providedPath[i] in apiMethods)
+      location += "/" + providedPath[parseInt(i) - 1] + " " + providedPath[i];
+    else location += "/" + providedPath[i];
   }
-  return camelCase(location);
+  const relative = camelCase(location);
+  const absolute = path.join(__dirname, relative);
+  return {
+    relative,
+    absolute,
+  };
 };
 
 const restAPIMap = (

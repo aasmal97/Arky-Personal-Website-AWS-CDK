@@ -10,7 +10,8 @@ import * as targets from "aws-cdk-lib/aws-route53-targets";
 export class RestAPIStack extends cdk.Stack {
   getRestApi: () => cdk.aws_apigateway.RestApi;
   mapAPIToHostedZone: (
-    hostingZone: cdk.aws_route53.IHostedZone
+    hostingZone: cdk.aws_route53.IHostedZone,
+    certificate: cdk.aws_certificatemanager.Certificate
   ) => [cdk.aws_route53.ARecord, cdk.aws_apigateway.RestApi];
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -54,10 +55,14 @@ export class RestAPIStack extends cdk.Stack {
     };
     const api = createApi(this, restAPIMap(this, tablesMap));
     this.getRestApi = () => api;
-    this.mapAPIToHostedZone = (e) => {
+    this.mapAPIToHostedZone = (zone, certificate) => {
+      api.addDomainName("apiDefaultDomainName", {
+        domainName: "api.arkyasmal.com",
+        certificate: certificate,
+      });
       const record = createAliasRecord({
         stack: this,
-        zone: e,
+        zone: zone,
         id: "restAPIARecord",
         aliasTarget: new targets.ApiGateway(api),
         recordName: "api.arkyasmal.com",

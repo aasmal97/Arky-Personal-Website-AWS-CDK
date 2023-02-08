@@ -2,8 +2,10 @@ import * as cdk from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import path = require("path");
-import { replaceDirToBuild } from "../../app/lib/restAPI/bundleApiFuncs";
-import { isRestAPILambdaProps, RestAPIType } from "../../app/lib/restAPI/restApiMap";
+import {
+  isRestAPILambdaProps,
+  RestAPIType,
+} from "../../app/lib/restAPI/restApiMap";
 import createFuncLocationMap, {
   apiMethods,
   camelCase,
@@ -168,11 +170,11 @@ export const createLambdaFuncs = (e: cdk.Stack, restAPIMap: RestAPIType) => {
   } = {};
   //create lambda functions and lambda integrations
   for (let [key, value] of funcLocationArr) {
-    const buildPath = replaceDirToBuild(value.location, "resources");
+    const buildPath = value.location;
     const newFunc = new lambda.Function(e, key, {
       runtime: lambda.Runtime.NODEJS_16_X,
       handler: `index.handler`,
-      code: lambda.Code.fromAsset(path.join(__dirname, buildPath)),
+      code: lambda.Code.fromAsset(buildPath.absolute),
       role: value.role,
     });
     const integration = new apigateway.LambdaIntegration(newFunc);

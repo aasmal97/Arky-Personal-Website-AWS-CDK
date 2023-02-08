@@ -18,6 +18,7 @@ export class HostingStack extends cdk.Stack {
   getClientAliasRecord: () => cdk.aws_route53.AaaaRecord;
   getImgAliasRecord: () => cdk.aws_route53.AaaaRecord;
   getWWWCnameRecord: () => cdk.aws_route53.CnameRecord;
+  getCertificate: () => cdk.aws_certificatemanager.Certificate;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -84,5 +85,6 @@ export class HostingStack extends cdk.Stack {
     this.getClientCloudfrontDist = () => clientDistrubition;
     this.getImgBucket = () => imgBucket;
     this.getImgCloudfrontDist = () => imgDistrubition;
+    this.getCertificate = () => certificate;
   }
 }
