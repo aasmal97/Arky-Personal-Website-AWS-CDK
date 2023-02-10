@@ -40,4 +40,5 @@ jobs:
         run: cd ./app && cdk bootstrap
       - name: Deploy To AWS
         shell: bash
-        run: cd ./app && cdk deploy '**'
+        run: cd ./app && cdk deploy '**' --require-approval never
+
