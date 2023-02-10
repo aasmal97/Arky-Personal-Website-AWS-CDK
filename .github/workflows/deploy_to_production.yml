@@ -2,7 +2,9 @@ name: Deploy to main
 on:
   push:
     branches:
-      - main #here we choose to deploy only when a push is on main branch
+      - main
+      - master
+     #here we choose to deploy only when a push is on main branch
 jobs:
   Deploy:
     runs-on: ubuntu-latest
