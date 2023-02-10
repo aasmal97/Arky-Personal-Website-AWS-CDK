@@ -4,7 +4,7 @@ on:
     branches:
       - main
       - master
-     #here we choose to deploy only when a push is on main branch
+      #here we choose to deploy only when a push is on main branch
 jobs:
   Deploy:
     runs-on: ubuntu-latest
@@ -34,4 +34,5 @@ jobs:
           aws-region: us-east-1
       - name: Deploy To AWS
         shell: bash
-        run: cdk deploy *
+        run: cd ./app
+          cdk deploy *
