@@ -49,7 +49,7 @@ export class HostingStack extends cdk.Stack {
     });
     const [imgBucket, imgDistrubition] = mapS3AndCloudfront({
       stack: this,
-      bucketName: "media-files",
+      bucketName: "media-files-bucket",
       domainNames: ["mediaFiles.arkyasmal.com"],
       certificate: certificate,
     });
