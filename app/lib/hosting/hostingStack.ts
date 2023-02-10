@@ -30,8 +30,8 @@ export class HostingStack extends cdk.Stack {
     //add a cname record that maps www domain to main one
     const wwwCnameRecord = createCnameRecord({
       stack: this,
-      recordName: "arkyasmal.com",
-      domainName: "www.arkyasmal.com",
+      recordName: "www.arkyasmal.com",
+      domainName: "arkyasmal.com",
       zone: hostedZone,
       id: "wwwCnameRecord",
     });
