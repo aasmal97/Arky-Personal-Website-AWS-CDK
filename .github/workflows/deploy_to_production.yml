@@ -1,0 +1,35 @@
+name: Deploy to main
+on:
+  push:
+    branches:
+      - main #here we choose to deploy only when a push is on main branch
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: prd
+      url: https://www.arkyasmal.com
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+      - name: Install AWS CDK
+        shell: bash
+        run: npm install -g aws-cdk
+      - name: Install dependencies
+        shell: bash
+        run: npm install
+      - name: Generate Cloud Template
+        shell: bash
+        run: npm run deploy
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_DEPLOY_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_DEPLOY_SECRET_KEY }}
+          aws-region: us-east-1
+      - name: Deploy To AWS
+        shell: bash
+        run: cdk deploy *

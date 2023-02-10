@@ -6,7 +6,9 @@ node_modules
 # CDK asset staging directory
 .cdk.staging
 cdk.out
-
+build
 build/**
+# this is part of our utils, we don't want to ignore this
+!buildFuncs
 package-lock.json
 .vscode
