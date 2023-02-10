@@ -38,7 +38,7 @@ export class HostingStack extends cdk.Stack {
     const domainNames = {
       "arkyasmal.com": hostedZone,
       "www.arkyasmal.com": hostedZone,
-      "mediaFiles.arkyasmal.com": hostedZone,
+      "mediafiles.arkyasmal.com": hostedZone,
       "api.arkyasmal.com": hostedZone,
     };
     const certificate = createCertificate({
@@ -50,7 +50,7 @@ export class HostingStack extends cdk.Stack {
     const [imgBucket, imgDistrubition] = mapS3AndCloudfront({
       stack: this,
       bucketName: "arkyasmal-media-files-bucket",
-      domainNames: ["mediaFiles.arkyasmal.com"],
+      domainNames: ["mediafiles.arkyasmal.com"],
       certificate: certificate,
     });
     const [clientBucket, clientDistrubition] = mapS3AndCloudfront({
@@ -74,7 +74,7 @@ export class HostingStack extends cdk.Stack {
       aliasTarget: imgDistTarget,
       stack: this,
       id: "imgCloudfrontAliasRecord",
-      recordName: "mediaFiles.arkyasmal.com",
+      recordName: "mediafiles.arkyasmal.com",
     });
     //assign resources to created methods
     this.getClientAliasRecord = () => clientAliasRecord;

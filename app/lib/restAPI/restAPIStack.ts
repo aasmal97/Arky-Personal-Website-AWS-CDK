@@ -15,9 +15,10 @@ export class RestAPIStack extends cdk.Stack {
   ) => [cdk.aws_route53.ARecord, cdk.aws_apigateway.RestApi];
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+    const hobbiesDbTableName = "hobbies"
     const hobbiesDb = createDatabase({
       stack: this,
-      tableName: "hobbies",
+      tableName: hobbiesDbTableName,
       pkName: "orientation",
       sortKey: "dateCreated",
       secondaryIndex: {
@@ -29,9 +30,10 @@ export class RestAPIStack extends cdk.Stack {
         projectionType: ProjectionType.ALL,
       },
     });
+    const projectsDBTableName = "projects"
     const projectsDb = createDatabase({
       stack: this,
-      tableName: "projects",
+      tableName: projectsDBTableName,
       pkName: "recordType",
       sortKey: "startDate",
       secondaryIndex: {
@@ -45,11 +47,11 @@ export class RestAPIStack extends cdk.Stack {
     });
     const tablesMap = {
       hobbies: {
-        id: hobbiesDb.tableName,
+        id: hobbiesDbTableName,
         arn: hobbiesDb.tableArn,
       },
       projects: {
-        id: projectsDb.tableName,
+        id: projectsDBTableName,
         arn: projectsDb.tableArn,
       },
     };

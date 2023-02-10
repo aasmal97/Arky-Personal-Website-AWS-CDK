@@ -39,7 +39,7 @@ export const createS3BucketPolicy = (
   return new aws_iam.PolicyDocument({
     statements: [
       new aws_iam.PolicyStatement({
-        sid: `${bucket.id}-${actionType}`,
+        sid: `${bucket.id}${actionType}`,
         effect: aws_iam.Effect.ALLOW,
         actions: [...actions],
         resources: bucket.arn ? [bucket.arn] : [],

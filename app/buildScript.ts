@@ -9,6 +9,10 @@ execShellCommand(`tsc`, __dirname)
     console.log(bundleResult);
     const cloudFormationResult = await execShellCommand(`cdk synth`, __dirname);
     console.log(cloudFormationResult);
+    const cloudDiffResult = await execShellCommand("cdk diff", __dirname);
+    console.log(cloudDiffResult);
+    const cloudBootstrap = await execShellCommand("cdk bootstrap", __dirname);
+    console.log(cloudBootstrap);
   })
   .catch((err) => {
     console.error(err);
