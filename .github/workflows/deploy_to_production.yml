@@ -37,7 +37,7 @@ jobs:
         run: cd ./app && cdk diff
       - name: Bootstrap app and stacks
         shell: bash
-        run: cd ./app cdk bootstrap
+        run: cd ./app && cdk bootstrap
       - name: Deploy To AWS
         shell: bash
         run: cd ./app && cdk deploy '**'
