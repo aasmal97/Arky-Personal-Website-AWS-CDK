@@ -2,7 +2,7 @@
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import { RestAPIStack } from "../lib/restAPI/restAPIStack";
-import { WebhooksStack } from "../lib/webhooks/webhooks-stack";
+import { WebhooksStack } from "../lib/webhooks/webhooksStack";
 import { HostingStack } from "../lib/hosting/hostingStack";
 const app = new cdk.App();
 const hostingStack = new HostingStack(app, "HostingStack");
@@ -22,7 +22,9 @@ const restAPIStack = new RestAPIStack(app, "RestApiStack", {
 const hostingZone = hostingStack.getHostedZone();
 const certificate = hostingStack.getCertificate();
 //create apo
-restAPIStack.createAPI(hostingStack)
+restAPIStack.createAPI(hostingStack);
 restAPIStack.mapAPIToHostedZone(hostingZone, certificate);
 
 const webhooksStack = new WebhooksStack(app, "WebhooksStack", {});
+const webhooksCertificate = webhooksStack.createCertificate(hostingZone);
+webhooksStack.mapAPIToHostedZone(hostingZone, webhooksCertificate);

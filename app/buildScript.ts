@@ -7,6 +7,11 @@ execShellCommand(`tsc`, __dirname)
       __dirname
     );
     console.log(bundleResult);
+    const webhooksBundleResult = await execShellCommand(
+      `npx ts-node ./lib/webhooks/webhooksBundleApiFuncs.ts`,
+      __dirname
+    );
+    console.log(webhooksBundleResult);
     const cloudFormationResult = await execShellCommand(`cdk synth`, __dirname);
     console.log(cloudFormationResult);
     const cloudBootstrap = await execShellCommand("cdk bootstrap", __dirname);

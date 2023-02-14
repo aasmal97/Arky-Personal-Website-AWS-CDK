@@ -1,69 +1,15 @@
 import {
-  apiMethods,
-  camelCase,
-} from "../../../utils/createResources/createFuncLocationMap";
-import { aws_iam, Stack } from "aws-cdk-lib";
+  searchForSecretsWrapper,
+} from "../../../utils/buildFuncs/searchForSecrets";
+import { Stack } from "aws-cdk-lib";
 import { createLambdaRole } from "../../../utils/rolesFuncs/createLambdaRole";
 import { createDynamoPolicy } from "../../../utils/rolesFuncs/createDynamoPolicy";
-import path = require("path");
-import { FunctionOptions } from "aws-cdk-lib/aws-lambda";
-import * as dotenv from "dotenv";
 import { HostingStack } from "../hosting/hostingStack";
-export type RestAPILambdaProps = {
-  location: {
-    relative: string;
-    absolute: string;
-  };
-  role?: aws_iam.IRole;
-  env?: FunctionOptions["environment"];
-};
-export type RestAPIType = {
-  [key: string]: RestAPILambdaProps | RestAPIType;
-};
-export function isRestAPILambdaProps(e: any): e is RestAPILambdaProps {
-  try {
-    return e.location;
-  } catch (err) {
-    return false;
-  }
-}
+import {
+  generateLocation,
+  RestAPIType,
+} from "../../../utils/createResources/createApiTree";
 
-const generateLocation = (providedPath: string[]) => {
-  let location = "resources/" + providedPath[0];
-  for (let i in providedPath) {
-    if (parseInt(i) <= 0) continue;
-    if (providedPath[i] in apiMethods)
-      location += "/" + providedPath[parseInt(i) - 1] + " " + providedPath[i];
-    else location += "/" + providedPath[i];
-  }
-  const relative = camelCase(location);
-  const absolute = path.join(__dirname, relative);
-  return {
-    relative,
-    absolute,
-  };
-};
-const searchForSecrets = (strPath: string): dotenv.DotenvConfigOutput => {
-  try {
-    if (strPath.length <= 0) return {};
-    //this is here to ensure all environment variables are reached
-    //in github action runner or when deploying locally
-    const pathToENV = path.resolve(strPath, ".env");
-    const currConfig = dotenv.config({
-      path: pathToENV,
-    });
-    if (currConfig.parsed) return currConfig.parsed;
-    else {
-      const newPath = path.resolve(strPath, "..");
-      //we've reached the root directory
-      if (newPath === strPath) return {};
-      return searchForSecrets(newPath);
-    }
-  } catch (err) {
-    console.error(err);
-    return {};
-  }
-};
 const restAPIMap = ({
   hostingStack,
   stack,
@@ -78,16 +24,11 @@ const restAPIMap = ({
     };
   };
 }): RestAPIType => {
-  // const autoConfig = dotenv.config();
-  let obj: { [key: string]: string | undefined } = {};
-  const currConfig = searchForSecrets(__dirname);
-  const currProcess = process.env;
-  obj = { ...currProcess, ...currConfig.parsed };
-  const parsed = obj;
+  const parsed = searchForSecretsWrapper(__dirname);
   return {
     userMetrics: {
       get: {
-        location: generateLocation(["userMetrics", "get"]),
+        location: generateLocation(["userMetrics", "get"], __dirname),
         env: {
           GIT_HUB_PERSONAL_ACCESS_TOKEN: parsed.GIT_HUB_PERSONAL_ACCESS_TOKEN
             ? parsed.GIT_HUB_PERSONAL_ACCESS_TOKEN
@@ -97,7 +38,7 @@ const restAPIMap = ({
     },
     hobbies: {
       get: {
-        location: generateLocation(["hobbies", "get"]),
+        location: generateLocation(["hobbies", "get"], __dirname),
         role: createLambdaRole(
           "HobbiesGetRole",
           {
@@ -109,7 +50,7 @@ const restAPIMap = ({
         ),
       },
       post: {
-        location: generateLocation(["hobbies", "post"]),
+        location: generateLocation(["hobbies", "post"], __dirname),
         role: createLambdaRole(
           "HobbiesPostRole",
           {
@@ -121,7 +62,7 @@ const restAPIMap = ({
         ),
       },
       put: {
-        location: generateLocation(["hobbies", "put"]),
+        location: generateLocation(["hobbies", "put"], __dirname),
         role: createLambdaRole(
           "HobbiesPutRole",
           {
@@ -133,7 +74,7 @@ const restAPIMap = ({
         ),
       },
       delete: {
-        location: generateLocation(["hobbies", "delete"]),
+        location: generateLocation(["hobbies", "delete"], __dirname),
         role: createLambdaRole(
           "HobbiesDeleteRole",
           {
@@ -147,7 +88,7 @@ const restAPIMap = ({
     },
     projects: {
       get: {
-        location: generateLocation(["projects", "get"]),
+        location: generateLocation(["projects", "get"], __dirname),
         role: createLambdaRole(
           "ProjectsGetRole",
           {
@@ -159,7 +100,7 @@ const restAPIMap = ({
         ),
       },
       post: {
-        location: generateLocation(["projects", "post"]),
+        location: generateLocation(["projects", "post"], __dirname),
         role: createLambdaRole(
           "ProjectsPostRole",
           {
@@ -171,7 +112,7 @@ const restAPIMap = ({
         ),
       },
       put: {
-        location: generateLocation(["projects", "put"]),
+        location: generateLocation(["projects", "put"], __dirname),
         role: createLambdaRole(
           "ProjectsPutRole",
           {
@@ -183,7 +124,7 @@ const restAPIMap = ({
         ),
       },
       delete: {
-        location: generateLocation(["projects", "delete"]),
+        location: generateLocation(["projects", "delete"], __dirname),
         role: createLambdaRole(
           "ProjectsDeleteRole",
           {

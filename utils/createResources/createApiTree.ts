@@ -2,14 +2,45 @@ import * as cdk from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import path = require("path");
-import {
-  isRestAPILambdaProps,
-  RestAPIType,
-} from "../../app/lib/restAPI/restApiMap";
 import createFuncLocationMap, {
   apiMethods,
   camelCase,
 } from "./createFuncLocationMap";
+import { aws_iam, Stack } from "aws-cdk-lib";
+import { FunctionOptions } from "aws-cdk-lib/aws-lambda";
+export const generateLocation = (providedPath: string[], dirname: string) => {
+  let location = "resources/" + providedPath[0];
+  for (let i in providedPath) {
+    if (parseInt(i) <= 0) continue;
+    if (providedPath[i] in apiMethods)
+      location += "/" + providedPath[parseInt(i) - 1] + " " + providedPath[i];
+    else location += "/" + providedPath[i];
+  }
+  const relative = camelCase(location);
+  const absolute = path.join(dirname, relative);
+  return {
+    relative,
+    absolute,
+  };
+};
+export type RestAPILambdaProps = {
+  location: {
+    relative: string;
+    absolute: string;
+  };
+  role?: aws_iam.IRole;
+  env?: FunctionOptions["environment"];
+};
+export type RestAPIType = {
+  [key: string]: RestAPILambdaProps | RestAPIType;
+};
+export function isRestAPILambdaProps(e: any): e is RestAPILambdaProps {
+  try {
+    return e.location;
+  } catch (err) {
+    return false;
+  }
+}
 
 export type KeyWordsResources = {
   [key: string]: any;

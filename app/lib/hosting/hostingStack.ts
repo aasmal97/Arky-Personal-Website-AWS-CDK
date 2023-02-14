@@ -41,6 +41,7 @@ export class HostingStack extends cdk.Stack {
       "mediafiles.arkyasmal.com": hostedZone,
       "api.arkyasmal.com": hostedZone,
     };
+
     const certificate = createCertificate({
       stack: this,
       certName: "generalCertificate",
