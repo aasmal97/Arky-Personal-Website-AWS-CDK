@@ -21,6 +21,8 @@ const restAPIStack = new RestAPIStack(app, "RestApiStack", {
 //map rest api gateway stack
 const hostingZone = hostingStack.getHostedZone();
 const certificate = hostingStack.getCertificate();
+//create apo
+restAPIStack.createAPI(hostingStack)
 restAPIStack.mapAPIToHostedZone(hostingZone, certificate);
 
 const webhooksStack = new WebhooksStack(app, "WebhooksStack", {});

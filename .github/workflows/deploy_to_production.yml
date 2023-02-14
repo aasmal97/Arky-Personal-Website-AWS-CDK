@@ -32,8 +32,11 @@ jobs:
       - name: Generate Cloud Template and Bootstrap
         shell: bash
         run: npm run bootstrap
-        
+        env:
+          GIT_HUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GIT_HUB_PERSONAL_ACCESS_TOKEN }}
+          STACKOVERFLOW_API_ID: ${{secrets.STACKOVERFLOW_API_ID}}
+          STACKOVERFLOW_API_KEY: ${{secrets.STACKOVERFLOW_API_KEY}}
+          STACKOVERFLOW_API_SECRET: ${{secrets.STACKOVERFLOW_API_SECRET}}
       - name: Deploy To AWS
         shell: bash
         run: npm run deploy
-

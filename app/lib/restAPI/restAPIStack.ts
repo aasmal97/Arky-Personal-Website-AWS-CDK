@@ -6,16 +6,18 @@ import { createApi } from "../../../utils/createResources/createApiTree";
 import { createDatabase } from "../../../utils/createResources/createDatabase";
 import { createAliasRecord } from "../../../utils/createResources/createRecords";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
+import { HostingStack } from "../hosting/hostingStack";
 
 export class RestAPIStack extends cdk.Stack {
-  getRestApi: () => cdk.aws_apigateway.RestApi;
+  createAPI: (e: HostingStack) => cdk.aws_apigateway.RestApi;
+  getRestApi: () => cdk.aws_apigateway.RestApi | undefined;
   mapAPIToHostedZone: (
     hostingZone: cdk.aws_route53.IHostedZone,
     certificate: cdk.aws_certificatemanager.Certificate
-  ) => [cdk.aws_route53.ARecord, cdk.aws_apigateway.RestApi];
+  ) => [cdk.aws_route53.ARecord, cdk.aws_apigateway.RestApi] | null;
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-    const hobbiesDbTableName = "hobbies"
+    const hobbiesDbTableName = "hobbies";
     const hobbiesDb = createDatabase({
       stack: this,
       tableName: hobbiesDbTableName,
@@ -30,7 +32,7 @@ export class RestAPIStack extends cdk.Stack {
         projectionType: ProjectionType.ALL,
       },
     });
-    const projectsDBTableName = "projects"
+    const projectsDBTableName = "projects";
     const projectsDb = createDatabase({
       stack: this,
       tableName: projectsDBTableName,
@@ -55,9 +57,18 @@ export class RestAPIStack extends cdk.Stack {
         arn: projectsDb.tableArn,
       },
     };
-    const api = createApi(this, restAPIMap(this, tablesMap));
+    let api: cdk.aws_apigateway.RestApi | undefined;
     this.getRestApi = () => api;
+    this.createAPI = (hostingStack: HostingStack) => {
+      api = createApi(
+        this,
+        restAPIMap({ hostingStack, stack: this, tablesInfoMap: tablesMap })
+      );
+      return api;
+    };
+
     this.mapAPIToHostedZone = (zone, certificate) => {
+      if (!api) return null;
       api.addDomainName("apiDefaultDomainName", {
         domainName: "api.arkyasmal.com",
         certificate: certificate,

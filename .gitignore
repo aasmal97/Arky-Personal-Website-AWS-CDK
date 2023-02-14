@@ -12,3 +12,4 @@ build/**
 !buildFuncs
 package-lock.json
 .vscode
+.env

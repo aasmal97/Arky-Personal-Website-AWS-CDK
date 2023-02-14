@@ -176,6 +176,7 @@ export const createLambdaFuncs = (e: cdk.Stack, restAPIMap: RestAPIType) => {
       handler: `index.handler`,
       code: lambda.Code.fromAsset(buildPath.absolute),
       role: value.role,
+      environment: value.env
     });
     const integration = new apigateway.LambdaIntegration(newFunc);
     integrationMap[key] = integration;
