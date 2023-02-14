@@ -64,6 +64,15 @@ export class RestAPIStack extends cdk.Stack {
         this,
         restAPIMap({ hostingStack, stack: this, tablesInfoMap: tablesMap })
       );
+      const plan = api.addUsagePlan("restAPIUsagePlan", {
+        name: "Easy",
+        throttle: {
+          rateLimit: 10,
+          burstLimit: 2,
+        },
+      });
+      const key = api.addApiKey("ApiKey");
+      plan.addApiKey(key);
       return api;
     };
 

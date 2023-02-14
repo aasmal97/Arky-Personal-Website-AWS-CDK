@@ -58,7 +58,8 @@ export const addMethod = ({
         const integration = integrationMap[newCurrPath];
         name[key] = {
           apiMethod: resource.addMethod(key, integration, {
-            apiKeyRequired: true,
+            //only add key to non-get methods
+            apiKeyRequired: key !== "get",
           }),
         };
       }
@@ -176,7 +177,7 @@ export const createLambdaFuncs = (e: cdk.Stack, restAPIMap: RestAPIType) => {
       handler: `index.handler`,
       code: lambda.Code.fromAsset(buildPath.absolute),
       role: value.role,
-      environment: value.env
+      environment: value.env,
     });
     const integration = new apigateway.LambdaIntegration(newFunc);
     integrationMap[key] = integration;
