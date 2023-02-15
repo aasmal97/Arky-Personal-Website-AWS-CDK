@@ -215,9 +215,9 @@ export const createLambdaFuncs = (e: cdk.Stack, restAPIMap: RestAPIType) => {
   }
   return integrationMap;
 };
-export const createApi = (stack: cdk.Stack, restAPIMap: RestAPIType) => {
+export const createApi = (stack: cdk.Stack, restAPIMap: RestAPIType, id: string) => {
   const integrationFuncsMap = createLambdaFuncs(stack, restAPIMap);
-  const api = new apigateway.RestApi(stack, "rest-api");
+  const api = new apigateway.RestApi(stack, id);
   const rootResourcesMap = rootApiResources(api, restAPIMap);
   //this creates all the resources
   //and methods needed for the api,

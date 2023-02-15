@@ -38,6 +38,7 @@
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
     "from": "^0.1.7",
+    "googleapis": "^111.0.0",
     "graphql": "^16.6.0",
     "html-to-text": "^9.0.4",
     "lodash": "^4.17.21",

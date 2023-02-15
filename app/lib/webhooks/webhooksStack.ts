@@ -14,24 +14,32 @@ export class WebhooksStack extends cdk.Stack {
     hostingZone: cdk.aws_route53.IHostedZone,
     certificate: cdk.aws_certificatemanager.Certificate
   ) => [cdk.aws_route53.ARecord, cdk.aws_apigateway.RestApi] | null;
+  createAPI: () => cdk.aws_apigateway.RestApi;
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-    const api = createApi(this, webhooksAPIMap({}));
-    const plan = api.addUsagePlan("webhooksUsagePlan", {
-      name: "webhooksEasyPlan",
-      throttle: {
-        rateLimit: 20,
-        burstLimit: 3,
-      },
-    });
+    let api: cdk.aws_apigateway.RestApi | undefined;
+    const webhooksAPIDomainName = "webhooks.api.arkyasmal.com"
+    this.createAPI = () => {
+      api = createApi(this, webhooksAPIMap({
+        webhooksAPIDomainName: webhooksAPIDomainName
+      }), "webhooks-api");
+      const plan = api.addUsagePlan("webhooksUsagePlan", {
+        name: "webhooksEasyPlan",
+        throttle: {
+          rateLimit: 20,
+          burstLimit: 3,
+        },
+      });
+      return api
+    };
     this.createCertificate = (hostedZone) => {
       const webhookDomainNames = {
-        "webhooks.api.arkyasmal.com": hostedZone,
+        [webhooksAPIDomainName]: hostedZone,
       };
       const certificate = createCertificate({
         stack: this,
         certName: "webhooksCertificate",
-        primaryDomainName: "webhooks.api.arkyasmal.com",
+        primaryDomainName: webhooksAPIDomainName,
         domainValidations: webhookDomainNames,
       });
       return certificate;
@@ -39,7 +47,7 @@ export class WebhooksStack extends cdk.Stack {
     this.mapAPIToHostedZone = (zone, certificate) => {
       if (!api) return null;
       api.addDomainName("webhooksAPIDefaultDomainName", {
-        domainName: "webhooks.api.arkyasmal.com",
+        domainName: webhooksAPIDomainName,
         certificate: certificate,
       });
       const record = createAliasRecord({
@@ -47,7 +55,7 @@ export class WebhooksStack extends cdk.Stack {
         zone: zone,
         id: "webhooksAPIARecord",
         aliasTarget: new targets.ApiGateway(api),
-        recordName: "webhooks.api.arkyasmal.com",
+        recordName: webhooksAPIDomainName,
       });
       return [record, api];
     };

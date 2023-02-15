@@ -62,7 +62,8 @@ export class RestAPIStack extends cdk.Stack {
     this.createAPI = (hostingStack: HostingStack) => {
       api = createApi(
         this,
-        restAPIMap({ hostingStack, stack: this, tablesInfoMap: tablesMap })
+        restAPIMap({ hostingStack, stack: this, tablesInfoMap: tablesMap }),
+        "rest-api"
       );
       const plan = api.addUsagePlan("restAPIUsagePlan", {
         name: "Easy",
