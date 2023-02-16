@@ -116,6 +116,7 @@ export const addResource = ({
 }) => {
   if (!resourceName) return;
   const name = e[resourceName];
+  if (!name) return 
   if (
     !(name instanceof cdk.aws_apigateway.Resource) &&
     !(name instanceof cdk.aws_apigateway.Method)
@@ -128,7 +129,7 @@ export const addResource = ({
     const newMap = apiMap[key];
     if (!isRestAPILambdaProps(newMap))
       callback({
-        e: name[key],
+        e: {[key]: name[key]},
         apiMap: newMap,
         integrationMap,
         resourceName: key,
@@ -158,9 +159,7 @@ export const createApiTree = ({
           resourceName: key,
           currPath: camelCase(`${currPath} ${key}`),
         });
-    } else if (key in apiMethods)
-      addMethod({ key, e, integrationMap, resourceName, currPath });
-    else if (!resourceKeyWords[key])
+    } else if (!resourceKeyWords[key] && !(key in apiMethods)){
       addResource({
         key,
         e,
@@ -170,6 +169,10 @@ export const createApiTree = ({
         resourceName,
         currPath,
       });
+    }
+
+    else if (key in apiMethods)
+      addMethod({ key, e, integrationMap, resourceName, currPath });
   }
   return map;
 };
@@ -191,6 +194,7 @@ export const rootApiResources = (
     if (typeof key === "string" && typeof value !== "string")
       rootResourcesMap[key] = value;
   }
+
   return rootResourcesMap;
 };
 export const createLambdaFuncs = (e: cdk.Stack, restAPIMap: RestAPIType) => {
@@ -215,7 +219,11 @@ export const createLambdaFuncs = (e: cdk.Stack, restAPIMap: RestAPIType) => {
   }
   return integrationMap;
 };
-export const createApi = (stack: cdk.Stack, restAPIMap: RestAPIType, id: string) => {
+export const createApi = (
+  stack: cdk.Stack,
+  restAPIMap: RestAPIType,
+  id: string
+) => {
   const integrationFuncsMap = createLambdaFuncs(stack, restAPIMap);
   const api = new apigateway.RestApi(stack, id);
   const rootResourcesMap = rootApiResources(api, restAPIMap);

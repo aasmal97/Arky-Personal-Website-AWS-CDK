@@ -10,7 +10,7 @@ const convertToStr = (str: string | undefined) => {
 const webhooksApiMap = ({
   webhooksAPIDomainName,
 }: {
-  webhooksAPIDomainName: string;
+  webhooksAPIDomainName?: string;
 }): RestAPIType => {
   const parsed = searchForSecretsWrapper(__dirname);
   return {
@@ -36,23 +36,23 @@ const webhooksApiMap = ({
       },
     },
     watch: {
-      github: {
+      githubChannel: {
         put: {
-          location: generateLocation(["watch", "github", "put"], __dirname),
+          location: generateLocation(["watch", "githubChannel", "put"], __dirname),
           env: {},
         },
       },
-      googleDrive: {
+      googleDriveChannel: {
         put: {
           location: generateLocation(
-            ["watch", "googleDrive", "put"],
+            ["watch", "googleDriveChannel", "put"],
             __dirname
           ),
           env: {
             GOOGLE_CLIENT_ID: convertToStr(parsed.GOOGLE_CLIENT_ID),
             GOOGLE_CLIENT_SECRET: convertToStr(parsed.GOOGLE_CLIENT_SECRET),
             GOOGLE_REFRESH_TOKEN: convertToStr(parsed.GOOGLE_REFRESH_TOKEN),
-            WEBHOOKS_API_DOMAIN_NAME: webhooksAPIDomainName,
+            WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
             WEBHOOKS_API_TOKEN: convertToStr(parsed.WEBHOOKS_API_TOKEN),
             GOOGLE_DRIVE_FOLDER_NAME: convertToStr(
               parsed.GOOGLE_DRIVE_FOLDER_NAME

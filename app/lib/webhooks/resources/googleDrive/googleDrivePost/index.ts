@@ -8,7 +8,14 @@ export async function handler(
         statusCode: 405,
         body: "Wrong http request",
       };
-  
+    const token = e.headers.token
+    if(token !== process.env.WEBHOOKS_API_TOKEN) return {
+      statusCode: 403,
+      body:"Access is denied"
+    }
+    const body = {
+      
+    }
     try {
       return {
         statusCode: 200,
