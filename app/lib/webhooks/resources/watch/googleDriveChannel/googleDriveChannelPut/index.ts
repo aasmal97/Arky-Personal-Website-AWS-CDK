@@ -9,14 +9,14 @@ const convertToStr = (str: string | undefined) => {
 };
 const identifyCorrectFolder = async (
   drive: drive_v3.Drive,
-  arr: (string | null | undefined)[],
+  arr: (string| null | undefined)[],
   matchName: string
 ) => {
   const promiseArr = arr.map((str) =>
     typeof str === "string"
       ? drive.files.get({
           fileId: str,
-          fields: `files(id,parents,name)`,
+          fields: "id,parents,name",
         })
       : null
   );
@@ -54,9 +54,10 @@ export async function handler(
       statusCode: 500,
       body: `Folder called ${folderName} cannot be found`,
     };
+  const parentIds = folders.map((e) => (e.parents ? e.parents[0] : null));
   const correctIdx = await identifyCorrectFolder(
     drive,
-    folders.map((e) => e.id),
+    parentIds,
     convertToStr(process.env.GOOGLE_DRIVE_PARENT_FOLDER_NAME)
   );
   if (correctIdx === undefined)
@@ -84,7 +85,7 @@ export async function handler(
   } catch (e) {
     return {
       statusCode: 500,
-      body: "Bad Request",
+      body: JSON.stringify(e),
     };
   }
 }
