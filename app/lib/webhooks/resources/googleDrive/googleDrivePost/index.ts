@@ -1,4 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
+import { convertToStr } from "../../../../../../utils/general/convertToStr";
+import * as jwt from "jsonwebtoken";
 type RequestProps = {
   token: string;
   resourseId: string;
@@ -10,10 +12,7 @@ type RequestProps = {
 function isAPIGatewayResult(e: any): e is APIGatewayProxyResult {
   return e.statusCode && e.body;
 }
-const convertToStr = (str: string | undefined) => {
-  if (typeof str === "string") return str;
-  else return "";
-};
+
 const validateRequest = (
   e: APIGatewayEvent
 ): RequestProps | APIGatewayProxyResult => {
@@ -30,11 +29,32 @@ const validateRequest = (
     "X-Goog-Resource-State": state,
     "X-Goog-Changed": contentChanged,
   } = headers;
-  if (token !== process.env.WEBHOOKS_API_TOKEN)
+  if (!token)
+    return {
+      statusCode: 403,
+      body: "Please provide a token. Access Denied",
+    };
+
+  const tokenSecret = process.env.WEBHOOKS_API_TOKEN_SECRET;
+  const apiKey = process.env.WEBHOOKS_API_KEY;
+  try {
+    const decoded = jwt.verify(token, convertToStr(tokenSecret));
+    if (
+      typeof decoded === "string" ||
+      (typeof decoded !== "string" && decoded.apiKey !== apiKey)
+    ) {
+      return {
+        statusCode: 403,
+        body: "Access is denied",
+      };
+    }
+  } catch (err) {
     return {
       statusCode: 403,
       body: "Access is denied",
     };
+  }
+
   if (!e.body)
     return {
       statusCode: 400,

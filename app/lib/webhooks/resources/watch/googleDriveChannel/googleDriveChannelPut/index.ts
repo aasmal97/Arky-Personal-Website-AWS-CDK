@@ -3,13 +3,10 @@ import { initalizeGoogleDrive } from "../../../../../../../utils/google/initaliz
 import { drive_v3 } from "googleapis";
 import { v4 as uuid } from "uuid";
 import { getUnixTime, add } from "date-fns";
-const convertToStr = (str: string | undefined) => {
-  if (typeof str === "string") return str;
-  else return "";
-};
+import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 const identifyCorrectFolder = async (
   drive: drive_v3.Drive,
-  arr: (string| null | undefined)[],
+  arr: (string | null | undefined)[],
   matchName: string
 ) => {
   const promiseArr = arr.map((str) =>
@@ -40,7 +37,7 @@ export async function handler(
   const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
   const currDate = new Date();
   const endWatchDate = add(currDate, {
-    days: 1,
+    hours: 12,
   });
   //create a channel watch
   const folderName = convertToStr(process.env.GOOGLE_DRIVE_FOLDER_NAME);
@@ -67,14 +64,20 @@ export async function handler(
     };
   const folderId = folders[parseInt(correctIdx)].id;
   try {
+    //get page token
+    const {
+      data: { startPageToken },
+    } = await drive.changes.getStartPageToken();
+    //get watch changes
     const watchRes = await drive.changes.watch({
+      pageToken: convertToStr(startPageToken),
       requestBody: {
         resourceId: folderId,
         id: uuid(),
         kind: "api#channel",
         token: process.env.WEBHOOKS_API_TOKEN,
         type: "web_hook",
-        expiration: getUnixTime(endWatchDate).toString(),
+        expiration: (getUnixTime(endWatchDate) * 1000).toString(),
         address: `https://${domainName}/googleDrive`,
       },
     });
@@ -82,10 +85,11 @@ export async function handler(
       statusCode: 200,
       body: JSON.stringify(watchRes),
     };
-  } catch (e) {
+  } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify(e),
+      body: JSON.stringify(err),
     };
   }
 }
+
