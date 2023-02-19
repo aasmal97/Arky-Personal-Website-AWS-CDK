@@ -10,7 +10,7 @@ export const createApiCallTaskTarget = ({
 }:CreateApiCallTaskTargetProps ) => {
   const target = new ApiGateway(restApi, {
     path: path,
-    method: "put",
+    method: "PUT",
   });
   return target;
 };
