@@ -30,10 +30,12 @@ export const createApiGatewayCronJob = ({
   hours,
   restApi,
   path,
+  headerParams
 }: Omit<CreateCronEventProps, "targets"> & CreateApiCallTaskTargetProps) => {
   const target = createApiCallTaskTarget({
     restApi,
-    path: path,
+    path,
+    headerParams
   });
   const event = createCronEvent({
     stack,

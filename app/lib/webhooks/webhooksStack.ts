@@ -6,6 +6,7 @@ import * as targets from "aws-cdk-lib/aws-route53-targets";
 import { createApi } from "../../../utils/createResources/createApiTree";
 import { createCertificate } from "../../../utils/createResources/createCertificate";
 import { createApiGatewayCronJob } from "../../../utils/createResources/createCronEvent";
+import { convertToStr } from "../../../utils/general/convertToStr";
 
 export class WebhooksStack extends cdk.Stack {
   createCertificate: (
@@ -36,10 +37,18 @@ export class WebhooksStack extends cdk.Stack {
           burstLimit: 3,
         },
       });
+      //add api key
+      const key = api.addApiKey("webhooksApiKey", {
+        value: convertToStr(process.env.WEBHOOKS_API_KEY),
+      });
+      plan.addApiKey(key);
       const cronProps = {
         stack: this,
         restApi: api,
         hours: 12,
+        headerParams: {
+          "x-api-key": convertToStr(process.env.WEBHOOKS_API_KEY),
+        },
       };
       const driveWatchChannelCron = createApiGatewayCronJob({
         ...cronProps,

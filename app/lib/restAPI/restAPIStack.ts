@@ -66,13 +66,15 @@ export class RestAPIStack extends cdk.Stack {
         "rest-api"
       );
       const plan = api.addUsagePlan("restAPIUsagePlan", {
-        name: "Easy",
+        name: "restAPIKeyEasy",
         throttle: {
           rateLimit: 10,
           burstLimit: 2,
         },
       });
-      const key = api.addApiKey("ApiKey");
+      const key = api.addApiKey("RestApiKey", {
+        value: process.env.AMAZON_REST_API_KEY,
+      });
       plan.addApiKey(key);
       return api;
     };
