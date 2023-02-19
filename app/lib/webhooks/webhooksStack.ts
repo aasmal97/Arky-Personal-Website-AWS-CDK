@@ -1,9 +1,9 @@
 import * as cdk from "aws-cdk-lib";
+import webhooksApiMap from "./webhooksApiMap";
 import { Construct } from "constructs";
 import { createAliasRecord } from "../../../utils/createResources/createRecords";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
 import { createApi } from "../../../utils/createResources/createApiTree";
-import webhooksAPIMap from "./webhooksAPIMap";
 import { createCertificate } from "../../../utils/createResources/createCertificate";
 
 export class WebhooksStack extends cdk.Stack {
@@ -21,7 +21,7 @@ export class WebhooksStack extends cdk.Stack {
     const webhooksAPIDomainName = "webhooks.api.arkyasmal.com"
     
     this.createAPI = () => {
-      api = createApi(this, webhooksAPIMap({
+      api = createApi(this, webhooksApiMap({
         webhooksAPIDomainName: webhooksAPIDomainName
       }), "webhooks-api");
       const plan = api.addUsagePlan("webhooksUsagePlan", {
