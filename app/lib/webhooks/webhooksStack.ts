@@ -5,6 +5,7 @@ import { createAliasRecord } from "../../../utils/createResources/createRecords"
 import * as targets from "aws-cdk-lib/aws-route53-targets";
 import { createApi } from "../../../utils/createResources/createApiTree";
 import { createCertificate } from "../../../utils/createResources/createCertificate";
+import { createApiGatewayCronJob } from "../../../utils/createResources/createCronEvent";
 
 export class WebhooksStack extends cdk.Stack {
   createCertificate: (
@@ -18,12 +19,16 @@ export class WebhooksStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     let api: cdk.aws_apigateway.RestApi | undefined;
-    const webhooksAPIDomainName = "webhooks.api.arkyasmal.com"
-    
+    const webhooksAPIDomainName = "webhooks.api.arkyasmal.com";
+
     this.createAPI = () => {
-      api = createApi(this, webhooksApiMap({
-        webhooksAPIDomainName: webhooksAPIDomainName
-      }), "webhooks-api");
+      api = createApi(
+        this,
+        webhooksApiMap({
+          webhooksAPIDomainName: webhooksAPIDomainName,
+        }),
+        "webhooks-api"
+      );
       const plan = api.addUsagePlan("webhooksUsagePlan", {
         name: "webhooksEasyPlan",
         throttle: {
@@ -31,7 +36,22 @@ export class WebhooksStack extends cdk.Stack {
           burstLimit: 3,
         },
       });
-      return api
+      const cronProps = {
+        stack: this,
+        restApi: api,
+        hours: 12,
+      };
+      const driveWatchChannelCron = createApiGatewayCronJob({
+        ...cronProps,
+        id: "googleDriveWatchChannelJob",
+        path: "/watch/googleDriveChannel",
+      });
+      const githubWatchChannelCron = createApiGatewayCronJob({
+        ...cronProps,
+        id: "githubWatchChannelJob",
+        path: "/watch/githubChannel",
+      });
+      return api;
     };
     this.createCertificate = (hostedZone) => {
       const webhookDomainNames = {
