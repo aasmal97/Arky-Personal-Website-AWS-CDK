@@ -45,7 +45,7 @@ const validateRequest = (
     ) {
       return {
         statusCode: 403,
-        body: "Access is denied",
+        body: "Access is denied. Invalid api key or token",
       };
     }
   } catch (err) {
