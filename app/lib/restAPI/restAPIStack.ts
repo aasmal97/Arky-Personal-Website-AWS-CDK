@@ -5,8 +5,9 @@ import restAPIMap from "./restApiMap";
 import { createApi } from "../../../utils/createResources/createApiTree";
 import { createDatabase } from "../../../utils/createResources/createDatabase";
 import { createAliasRecord } from "../../../utils/createResources/createRecords";
-import * as targets from "aws-cdk-lib/aws-route53-targets";
 import { HostingStack } from "../hosting/hostingStack";
+import { searchForSecretsWrapper } from "../../../utils/buildFuncs/searchForSecrets";
+import * as targets from "aws-cdk-lib/aws-route53-targets";
 
 export class RestAPIStack extends cdk.Stack {
   createAPI: (e: HostingStack) => cdk.aws_apigateway.RestApi;
@@ -58,6 +59,7 @@ export class RestAPIStack extends cdk.Stack {
       },
     };
     let api: cdk.aws_apigateway.RestApi | undefined;
+    const parsed = searchForSecretsWrapper(__dirname);
     this.getRestApi = () => api;
     this.createAPI = (hostingStack: HostingStack) => {
       api = createApi(
@@ -73,7 +75,7 @@ export class RestAPIStack extends cdk.Stack {
         },
       });
       const key = api.addApiKey("RestApiKey", {
-        value: process.env.AMAZON_REST_API_KEY,
+        value: parsed.AMAZON_REST_API_KEY,
       });
       plan.addApiKey(key);
       return api;

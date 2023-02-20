@@ -7,7 +7,7 @@ import { createApi } from "../../../utils/createResources/createApiTree";
 import { createCertificate } from "../../../utils/createResources/createCertificate";
 import { createApiGatewayCronJob } from "../../../utils/createResources/createCronEvent";
 import { convertToStr } from "../../../utils/general/convertToStr";
-
+import { searchForSecretsWrapper } from "../../../utils/buildFuncs/searchForSecrets";
 export class WebhooksStack extends cdk.Stack {
   createCertificate: (
     hostingZone: cdk.aws_route53.IHostedZone
@@ -21,7 +21,7 @@ export class WebhooksStack extends cdk.Stack {
     super(scope, id, props);
     let api: cdk.aws_apigateway.RestApi | undefined;
     const webhooksAPIDomainName = "webhooks.api.arkyasmal.com";
-
+    const parsed = searchForSecretsWrapper(__dirname);
     this.createAPI = () => {
       api = createApi(
         this,
@@ -47,7 +47,7 @@ export class WebhooksStack extends cdk.Stack {
         restApi: api,
         hours: 12,
         headerParams: {
-          "x-api-key": convertToStr(process.env.WEBHOOKS_API_KEY),
+          "x-api-key": convertToStr(parsed.WEBHOOKS_API_KEY),
         },
       };
       const driveWatchChannelCron = createApiGatewayCronJob({
