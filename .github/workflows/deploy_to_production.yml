@@ -29,23 +29,25 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_DEPLOY_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_DEPLOY_SECRET_KEY }}
           aws-region: us-east-1
+      - name: Create .env file
+        uses: ozaytsev86/create-env-file@v1
+        with:
+          ENV_AMAZON_REST_API_KEY: ${{ secrets.AMAZON_REST_API_KEY }}
+          ENV_GIT_HUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GIT_HUB_PERSONAL_ACCESS_TOKEN }}
+          ENV_GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          ENV_GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          ENV_GOOGLE_DRIVE_FOLDER_NAME: ${{ secrets.GOOGLE_DRIVE_FOLDER_NAME }}
+          ENV_GOOGLE_DRIVE_PARENT_FOLDER_NAME: ${{ secrets.GOOGLE_DRIVE_PARENT_FOLDER_NAME }}
+          ENV_GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          ENV_STACKOVERFLOW_API_ID: ${{ secrets.STACKOVERFLOW_API_ID }}
+          ENV_STACKOVERFLOW_API_KEY: ${{ secrets.STACKOVERFLOW_API_KEY }}
+          ENV_STACKOVERFLOW_API_SECRET: ${{ secrets.STACKOVERFLOW_API_SECRET }}
+          ENV_WEBHOOKS_API_KEY: ${{ secrets.WEBHOOKS_API_KEY }}
+          ENV_WEBHOOKS_API_TOKEN: ${{ secrets.WEBHOOKS_API_TOKEN }}
+          ENV_WEBHOOKS_API_TOKEN_SECRET: ${{ secrets.WEBHOOKS_API_TOKEN_SECRET }}
       - name: Generate Cloud Template and Bootstrap
         shell: bash
         run: npm run bootstrap
-        env:
-          AMAZON_REST_API_KEY: ${{ secrets.AMAZON_REST_API_KEY }}
-          GIT_HUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GIT_HUB_PERSONAL_ACCESS_TOKEN }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          GOOGLE_DRIVE_FOLDER_NAME: ${{ secrets.GOOGLE_DRIVE_FOLDER_NAME }}
-          GOOGLE_DRIVE_PARENT_FOLDER_NAME: ${{ secrets.GOOGLE_DRIVE_PARENT_FOLDER_NAME }}
-          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
-          STACKOVERFLOW_API_ID: ${{ secrets.STACKOVERFLOW_API_ID }}
-          STACKOVERFLOW_API_KEY: ${{ secrets.STACKOVERFLOW_API_KEY }}
-          STACKOVERFLOW_API_SECRET: ${{ secrets.STACKOVERFLOW_API_SECRET }}
-          WEBHOOKS_API_KEY: ${{ secrets.WEBHOOKS_API_KEY }}
-          WEBHOOKS_API_TOKEN: ${{ secrets.WEBHOOKS_API_TOKEN }}
-          WEBHOOKS_API_TOKEN_SECRET: ${{ secrets.WEBHOOKS_API_TOKEN_SECRET }}
       - name: Deploy To AWS
         shell: bash
         run: npm run deploy
