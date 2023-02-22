@@ -8,6 +8,7 @@ import createFuncLocationMap, {
 } from "./createFuncLocationMap";
 import { aws_iam, Stack } from "aws-cdk-lib";
 import { FunctionOptions } from "aws-cdk-lib/aws-lambda";
+import { MethodLoggingLevel } from "aws-cdk-lib/aws-apigateway";
 export const generateLocation = (providedPath: string[], dirname: string) => {
   let location = "resources/" + providedPath[0];
   for (let i in providedPath) {
@@ -116,7 +117,7 @@ export const addResource = ({
 }) => {
   if (!resourceName) return;
   const name = e[resourceName];
-  if (!name) return 
+  if (!name) return;
   if (
     !(name instanceof cdk.aws_apigateway.Resource) &&
     !(name instanceof cdk.aws_apigateway.Method)
@@ -129,7 +130,7 @@ export const addResource = ({
     const newMap = apiMap[key];
     if (!isRestAPILambdaProps(newMap))
       callback({
-        e: {[key]: name[key]},
+        e: { [key]: name[key] },
         apiMap: newMap,
         integrationMap,
         resourceName: key,
@@ -159,7 +160,7 @@ export const createApiTree = ({
           resourceName: key,
           currPath: camelCase(`${currPath} ${key}`),
         });
-    } else if (!resourceKeyWords[key] && !(key in apiMethods)){
+    } else if (!resourceKeyWords[key] && !(key in apiMethods)) {
       addResource({
         key,
         e,
@@ -169,9 +170,7 @@ export const createApiTree = ({
         resourceName,
         currPath,
       });
-    }
-
-    else if (key in apiMethods)
+    } else if (key in apiMethods)
       addMethod({ key, e, integrationMap, resourceName, currPath });
   }
   return map;
@@ -225,7 +224,19 @@ export const createApi = (
   id: string
 ) => {
   const integrationFuncsMap = createLambdaFuncs(stack, restAPIMap);
-  const api = new apigateway.RestApi(stack, id);
+  const logGroup = new cdk.aws_logs.LogGroup(
+    stack,
+    `${id}APIGatewayAccessLogs`
+  );
+  const api = new apigateway.RestApi(stack, id, {
+    deployOptions: {
+      accessLogDestination: new apigateway.LogGroupLogDestination(logGroup),
+      accessLogFormat: apigateway.AccessLogFormat.jsonWithStandardFields(),
+      dataTraceEnabled: true,
+      loggingLevel: MethodLoggingLevel.INFO,
+    },
+  });
+
   const rootResourcesMap = rootApiResources(api, restAPIMap);
   //this creates all the resources
   //and methods needed for the api,
