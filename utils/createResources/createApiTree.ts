@@ -228,7 +228,11 @@ export const createApi = (
     stack,
     `${id}APIGatewayAccessLogs`
   );
+  // const role = new cdk.aws_iam.Role(stack, `${id}APIGatewayCloudWatchLogRole`, {
+  //   assumedBy: new cdk.aws_iam.ServicePrincipal("apigateway.amazonaws.com"),
+  // });
   const api = new apigateway.RestApi(stack, id, {
+    cloudWatchRole: true,
     deployOptions: {
       accessLogDestination: new apigateway.LogGroupLogDestination(logGroup),
       accessLogFormat: apigateway.AccessLogFormat.jsonWithStandardFields(),

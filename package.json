@@ -8,6 +8,7 @@
     "build": "tsc -noEmit",
     "watch": "tsc -w",
     "test": "jest",
+    "serve": "npm run secrets && npm run bootstrap && npm run deploy",
     "bootstrap": "npx ts-node app/buildScript.ts",
     "deploy": "cd ./app && cdk deploy '**' --require-approval never",
     "secrets": "doppler secrets download --no-file --format env > .env"

@@ -19,6 +19,7 @@ export const createCronEvent = ({
   const rule = new Rule(stack, id, {
     schedule: Schedule.cron({
       hour: hours.toString(),
+      minute: "0",
     }),
     targets: targets,
   });
