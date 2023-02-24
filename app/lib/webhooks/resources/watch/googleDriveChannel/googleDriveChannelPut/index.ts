@@ -37,7 +37,7 @@ export async function handler(
   const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
   const currDate = new Date();
   const endWatchDate = add(currDate, {
-    hours: 12,
+    hours: 13,
   });
   //create a channel watch
   const folderName = convertToStr(process.env.GOOGLE_DRIVE_FOLDER_NAME);
