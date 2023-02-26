@@ -59,6 +59,9 @@ export class HostingStack extends cdk.Stack {
       bucketName: "arkyasmal-client-app-bucket",
       domainNames: ["arkyasmal.com", "www.arkyasmal.com"],
       certificate: certificate,
+      isWebsite: {
+        rootObjPath: "index.html"
+      }
     });
     //add records from cloudfront created resources to hosted zone
     const clientDistTarget = new CloudFrontTarget(clientDistrubition);
