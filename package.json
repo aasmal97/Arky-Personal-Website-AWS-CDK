@@ -14,6 +14,8 @@
     "secrets": "doppler secrets download --no-file --format env > .env"
   },
   "devDependencies": {
+    "@octokit/webhooks-schemas": "^6.10.0",
+    "@octokit/webhooks-types": "^6.10.0",
     "@types/aws-lambda": "^8.10.110",
     "@types/babel__core": "^7.20.0",
     "@types/html-to-text": "^9.0.0",

@@ -6,7 +6,9 @@ import { searchForSecretsWrapper } from "../../../utils/buildFuncs/searchForSecr
 import { convertToStr } from "../../../utils/general/convertToStr";
 const webhooksApiMap = ({
   webhooksAPIDomainName,
+  restApiDomainName,
 }: {
+  restApiDomainName?: string;
   webhooksAPIDomainName?: string;
 }): RestAPIType => {
   const parsed = searchForSecretsWrapper(__dirname);
@@ -15,6 +17,7 @@ const webhooksApiMap = ({
       post: {
         location: generateLocation(["github", "post"], __dirname),
         env: {
+          AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
           WEBHOOKS_API_TOKEN_SECRET: convertToStr(
             parsed.WEBHOOKS_API_TOKEN_SECRET
           ),
@@ -27,6 +30,7 @@ const webhooksApiMap = ({
       post: {
         location: generateLocation(["googleDrive", "post"], __dirname),
         env: {
+          AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
           AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
           WEBHOOKS_API_KEY: convertToStr(parsed.WEBHOOKS_API_KEY),
           WEBHOOKS_API_TOKEN_SECRET: convertToStr(

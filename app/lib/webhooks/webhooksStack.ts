@@ -16,17 +16,18 @@ export class WebhooksStack extends cdk.Stack {
     hostingZone: cdk.aws_route53.IHostedZone,
     certificate: cdk.aws_certificatemanager.Certificate
   ) => [cdk.aws_route53.ARecord, cdk.aws_apigateway.RestApi] | null;
-  createAPI: () => cdk.aws_apigateway.RestApi;
+  createAPI: (restApiDomainName?: string) => cdk.aws_apigateway.RestApi;
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     let api: cdk.aws_apigateway.RestApi | undefined;
     const webhooksAPIDomainName = "webhooks.api.arkyasmal.com";
     const parsed = searchForSecretsWrapper(__dirname);
-    this.createAPI = () => {
+    this.createAPI = (restApiDomainName) => {
       api = createApi(
         this,
         webhooksApiMap({
           webhooksAPIDomainName: webhooksAPIDomainName,
+          restApiDomainName: restApiDomainName,
         }),
         "webhooks-api"
       );

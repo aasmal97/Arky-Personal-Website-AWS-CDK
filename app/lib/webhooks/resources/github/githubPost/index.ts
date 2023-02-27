@@ -1,13 +1,15 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import * as jwt from "jsonwebtoken";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
+import { WebhookEvent, RepositoryEvent } from "@octokit/webhooks-types";
+import { respondToRepositoryChanges } from "./repoActions";
 const validateIncomingResponse = (e: APIGatewayEvent) => {
   if (e.httpMethod !== "POST")
     return {
       statusCode: 405,
       body: "Wrong http request",
     };
-  const { "x-hub-signature": token } = e.headers;
+  const { "X-Hub-Signature": token } = e.headers;
   const secret = convertToStr(process.env.WEBHOOKS_API_TOKEN_SECRET);
   try {
     if (!token)
@@ -22,19 +24,34 @@ const validateIncomingResponse = (e: APIGatewayEvent) => {
       body: "Access is denied. Invalid token",
     };
   }
-  if (!e.body)
-    return {
-      statusCode: 400,
-      body: "Please provide a valid body",
-    };
+
   return true;
 };
+
 export async function handler(
   e: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
   const isValid = validateIncomingResponse(e);
   if (isValid !== true) isValid;
-  
+  if (!e.body)
+    return {
+      statusCode: 400,
+      body: "Please provide a valid body",
+    };
+  const { "X-GitHub-Event": eventType } = e.headers;
+  const data: WebhookEvent = JSON.parse(e.body);
+  const restApiKey = convertToStr(process.env.AMAZON_REST_API_KEY);
+  const restApiDomainName = convertToStr(process.env.AMAZON_REST_API_DOMAIN_NAME);
+  switch (eventType) {
+    case "repository":
+      respondToRepositoryChanges({
+        data: data as RepositoryEvent,
+        apiKey: restApiKey,
+        restApiDomainName: restApiDomainName
+      });
+    default:
+      break;
+  }
   try {
     return {
       statusCode: 200,
