@@ -42,7 +42,13 @@ const webhooksApiMap = ({
             ["watch", "githubChannel", "put"],
             __dirname
           ),
-          env: {},
+          env: {
+            GIT_HUB_PERSONAL_ACCESS_TOKEN: convertToStr(
+              parsed.GIT_HUB_PERSONAL_ACCESS_TOKEN
+            ),
+            WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
+            WEBHOOKS_API_TOKEN: convertToStr(parsed.WEBHOOKS_API_TOKEN),
+          },
         },
       },
       googleDriveChannel: {

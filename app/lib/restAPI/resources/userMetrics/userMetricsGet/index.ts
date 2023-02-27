@@ -3,6 +3,10 @@ import axios from "axios";
 import { convert } from "html-to-text";
 import { sub } from "date-fns";
 import * as dotenv from "dotenv";
+import {
+  getRepoCount,
+  callGithubGraphQL,
+} from "../../../../../../utils/github/getUserRepos";
 dotenv.config();
 type ContributionsObj = {
   totalCommitContributions: number;
@@ -10,33 +14,15 @@ type ContributionsObj = {
   totalPullRequestContributions: number;
   totalPullRequestReviewContributions: number;
 };
-const callGithubGraphQL = async ({
-  query,
-  variables,
-}: {
-  query: string;
-  variables?: { [key: string]: string };
-}) => {
-  const token = process.env.GIT_HUB_PERSONAL_ACCESS_TOKEN;
-  const { data } = await axios({
-    url: "https://api.github.com/graphql",
-    method: "post",
-    headers: { Authorization: `Bearer ${token}` },
-    data: {
-      query: query,
-      variables: variables,
-    },
-  });
-  return data;
-};
-const isContributionsObj = (e: any): e is ContributionsObj => {
+
+export const isContributionsObj = (e: any): e is ContributionsObj => {
   try {
     return typeof e.totalCommitContributions === "number";
   } catch (err) {
     return false;
   }
 };
-const getContributions = async () => {
+export const getContributions = async (token?: string) => {
   const currDate = new Date();
   const startDate = sub(currDate, {
     years: 1,
@@ -60,6 +46,7 @@ const getContributions = async () => {
     to: currDate.toISOString(),
   };
   const data = await callGithubGraphQL({
+    token,
     query,
     variables,
   });
@@ -73,43 +60,18 @@ const getContributions = async () => {
   }, 0);
   return sum;
 };
-const getRepositories = async () => {
-  const username = "aasmal97";
-  const query = `query {
-    user(login: "${username}"){
-      repositories(first: 100, affiliations:[OWNER, ORGANIZATION_MEMBER, COLLABORATOR], ownerAffiliations:[OWNER, ORGANIZATION_MEMBER, COLLABORATOR]) {
-        totalCount
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-        nodes{
-          name
-            owner {
-              login
-            }
-          }
-        }
-     }
-   }
-   `;
-  const data = await callGithubGraphQL({
-    query,
-  });
-  const repoCount = data.data.user.repositories.totalCount;
-  return repoCount;
-};
-const getGithubUserData = async () => {
+export const getGithubUserData = async () => {
+  const token = process.env.GIT_HUB_PERSONAL_ACCESS_TOKEN;
   const [contributions, repositories] = await Promise.all([
-    getContributions(),
-    getRepositories(),
+    getContributions(token),
+    getRepoCount(token),
   ]);
   return {
     repositories: repositories,
     contributions: contributions,
   };
 };
-const getStackOverflowInfo = async () => {
+export const getStackOverflowInfo = async () => {
   const base = "https://api.stackexchange.com/";
   const userId = "16451347";
   const pathUrl = `2.3/users/${userId}?site=stackoverflow`;

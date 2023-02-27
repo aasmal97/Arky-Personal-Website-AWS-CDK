@@ -91,4 +91,4 @@ export class HostingStack extends cdk.Stack {
     this.getImgCloudfrontDist = () => imgDistrubition;
     this.getCertificate = () => certificate;
   }
-}
+} 

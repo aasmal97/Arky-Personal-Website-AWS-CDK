@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
-import * as jwt from "jsonwebtoken";
+import validateWehbookToken from "../../../../../../utils/general/validateWebookTokens";
 type RequestProps = {
   token: string;
   resourseId: string;
@@ -29,32 +29,8 @@ const validateRequest = (
     "X-Goog-Resource-State": state,
     "X-Goog-Changed": contentChanged,
   } = headers;
-  if (!token)
-    return {
-      statusCode: 403,
-      body: "Please provide a token. Access Denied",
-    };
-
-  const tokenSecret = process.env.WEBHOOKS_API_TOKEN_SECRET;
-  const apiKey = process.env.WEBHOOKS_API_KEY;
-  try {
-    const decoded = jwt.verify(token, convertToStr(tokenSecret));
-    if (
-      typeof decoded === "string" ||
-      (typeof decoded !== "string" && decoded.apiKey !== apiKey)
-    ) {
-      return {
-        statusCode: 403,
-        body: "Access is denied. Invalid api key or token",
-      };
-    }
-  } catch (err) {
-    return {
-      statusCode: 403,
-      body: "Access is denied",
-    };
-  }
-
+  const tokenIsValid = validateWehbookToken(token);
+  if (tokenIsValid !== true) return tokenIsValid;
   if (!e.body)
     return {
       statusCode: 400,

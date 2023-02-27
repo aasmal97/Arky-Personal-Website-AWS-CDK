@@ -1,8 +1,100 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
-import { v4 as uuid } from "uuid";
-import { getUnixTime, add } from "date-fns";
+import { getRepositories } from "../../../../../../../utils/github/getUserRepos";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
-
+import axios from "axios";
+type GithubChannelProps = {
+  repoName: string;
+  repoOwner: string;
+  githubToken: string;
+};
+const checkChannelExists = async ({
+  repoName,
+  repoOwner,
+  githubToken,
+}: GithubChannelProps) => {
+  const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
+  const reqUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/hooks`;
+  const { data } = await axios({
+    method: "get",
+    url: reqUrl,
+    headers: {
+      Authorization: `token ${githubToken}`,
+    },
+  });
+  const findHookCreatedByApp = data.filter(
+    (hook: any) =>
+      hook.config.url === `https//${domainName}/github` && hook.active
+  );
+  return findHookCreatedByApp.length > 0;
+};
+const createChannel = async ({
+  repoName,
+  repoOwner,
+  githubToken,
+}: GithubChannelProps) => {
+  const checkIfExists = await checkChannelExists({
+    repoName,
+    repoOwner,
+    githubToken,
+  });
+  if (checkIfExists) return "Channel already exists";
+  const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
+  const webhooksTokenSecret = convertToStr(
+    process.env.WEBHOOKS_API_TOKEN_SECRET
+  );
+  const reqUrl = `https://api.github.com/repos/${repoOwner}/${repoName}`;
+  const { data } = await axios({
+    method: "post",
+    url: reqUrl,
+    headers: {
+      Authorization: `token ${githubToken}`,
+    },
+    data: {
+      name: "web",
+      active: true,
+      events: ["repository"],
+      config: {
+        url: `https//${domainName}/github`,
+        secret: webhooksTokenSecret,
+        content_type: "json",
+      },
+    },
+  });
+  return data;
+};
+const createWatchChannels = async () => {
+  const githubToken = convertToStr(process.env.GIT_HUB_PERSONAL_ACCESS_TOKEN);
+  const {
+    data: {
+      user: {
+        repositories: { nodes: repositories },
+      },
+    },
+  } = await getRepositories(githubToken);
+  const repoNames: Omit<GithubChannelProps, "token">[] = repositories.map(
+    (repo: any) => {
+      return {
+        repoName: repo.name,
+        repoOwner: repo.owner.login,
+      };
+    }
+  );
+  const promiseArr = repoNames.map((repo) =>
+    createChannel({
+      repoName: repo.repoName,
+      repoOwner: repo.repoOwner,
+      githubToken: githubToken,
+    })
+  );
+  const results = await Promise.all(promiseArr);
+  return JSON.stringify(results, null, 4);
+};
+createWatchChannels().then((e) => console.log(e));
+// checkChannelExists({
+//   repoName: "Personal-Website-Old",
+//   repoOwner: "aasmal97",
+//   githubToken: convertToStr(process.env.GIT_HUB_PERSONAL_ACCESS_TOKEN),
+// }).then((e) => console.log(e));
 export async function handler(
   e: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
@@ -11,36 +103,12 @@ export async function handler(
       statusCode: 405,
       body: "Wrong http request",
     };
-  const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
-  const currDate = new Date();
-  const endWatchDate = add(currDate, {
-    hours: 13,
-  });
-  //create a channel watch
-  const folderName = convertToStr(process.env.GOOGLE_DRIVE_FOLDER_NAME);
 
   try {
-    // //get page token
-    // const {
-    //   data: { startPageToken },
-    // } = await drive.changes.getStartPageToken();
-    // //get watch changes
-    // const watchRes = await drive.changes.watch({
-    //   pageToken: convertToStr(startPageToken),
-    //   requestBody: {
-    //     // resourceId: folderId,
-    //     id: uuid(),
-    //     kind: "api#channel",
-    //     token: process.env.WEBHOOKS_API_TOKEN,
-    //     type: "web_hook",
-    //     expiration: (getUnixTime(endWatchDate) * 1000).toString(),
-    //     address: `https://${domainName}/github`,
-    //   },
-    // });
+    const watchRes = await createWatchChannels();
     return {
       statusCode: 200,
-      // body: JSON.stringify(watchRes),
-      body: ''
+      body: JSON.stringify(watchRes),
     };
   } catch (err) {
     return {
