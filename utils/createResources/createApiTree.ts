@@ -31,6 +31,7 @@ export type RestAPILambdaProps = {
   };
   role?: aws_iam.IRole;
   env?: FunctionOptions["environment"];
+  apiKeyRequired?: boolean;
 };
 export type RestAPIType = {
   [key: string]: RestAPILambdaProps | RestAPIType;
@@ -57,7 +58,12 @@ export type ResourceObj = {
 export type CreateAPITreeProps = {
   e: ResourceObj;
   apiMap: RestAPIType;
-  integrationMap: { [key: string]: cdk.aws_apigateway.LambdaIntegration };
+  integrationMap: {
+    [key: string]: {
+      integration: cdk.aws_apigateway.LambdaIntegration;
+      apiKeyRequired?: boolean;
+    };
+  };
   resourceName?: string;
   currPath: string;
 };
@@ -74,7 +80,12 @@ export const addMethod = ({
 }: {
   key: string;
   e: ResourceObj;
-  integrationMap: { [key: string]: cdk.aws_apigateway.LambdaIntegration };
+  integrationMap: {
+    [key: string]: {
+      integration: cdk.aws_apigateway.LambdaIntegration;
+      apiKeyRequired?: boolean;
+    };
+  };
   resourceName?: string;
   currPath: string;
 }) => {
@@ -87,11 +98,17 @@ export const addMethod = ({
       const resource = name.apiResource;
       if (resource && resource instanceof cdk.aws_apigateway.Resource) {
         const newCurrPath = camelCase(`${currPath} ${key}`);
-        const integration = integrationMap[newCurrPath];
+        const integration = integrationMap[newCurrPath].integration;
+        const apiKeyRequired = integrationMap[newCurrPath].apiKeyRequired;
         name[key] = {
           apiMethod: resource.addMethod(key, integration, {
-            //only add key to non-get methods
-            apiKeyRequired: key !== "get",
+            //only add key to non-get methods, when not specifically specified. 
+            //If specificed in props,
+            //we use that value
+            apiKeyRequired:
+              apiKeyRequired || apiKeyRequired === false
+                ? apiKeyRequired
+                : key !== "get",
           }),
         };
       }
@@ -112,7 +129,12 @@ export const addResource = ({
   e: ResourceObj;
   callback: (e: CreateAPITreeProps) => ResourceObj;
   apiMap: RestAPIType;
-  integrationMap: { [key: string]: cdk.aws_apigateway.LambdaIntegration };
+  integrationMap: {
+    [key: string]: {
+      integration: cdk.aws_apigateway.LambdaIntegration;
+      apiKeyRequired?: boolean;
+    };
+  };
   resourceName?: string;
 }) => {
   if (!resourceName) return;
@@ -201,7 +223,10 @@ export const createLambdaFuncs = (e: cdk.Stack, restAPIMap: RestAPIType) => {
   //we will use to reference our functions to api gateway
   const funcLocationArr = Object.entries(funcLocationMap);
   const integrationMap: {
-    [key: string]: cdk.aws_apigateway.LambdaIntegration;
+    [key: string]: {
+      integration: cdk.aws_apigateway.LambdaIntegration;
+      apiKeyRequired?: boolean;
+    };
   } = {};
   //create lambda functions and lambda integrations
   for (let [key, value] of funcLocationArr) {
@@ -214,7 +239,10 @@ export const createLambdaFuncs = (e: cdk.Stack, restAPIMap: RestAPIType) => {
       environment: value.env,
     });
     const integration = new apigateway.LambdaIntegration(newFunc);
-    integrationMap[key] = integration;
+    integrationMap[key] = {
+      integration,
+      apiKeyRequired: value.apiKeyRequired,
+    };
   }
   return integrationMap;
 };

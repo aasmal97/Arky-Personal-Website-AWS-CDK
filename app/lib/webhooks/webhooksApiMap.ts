@@ -15,9 +15,12 @@ const webhooksApiMap = ({
       post: {
         location: generateLocation(["github", "post"], __dirname),
         env: {
-          WEBHOOKS_API_TOKEN: convertToStr(parsed.WEBHOOKS_API_TOKEN),
+          WEBHOOKS_API_TOKEN_SECRET: convertToStr(
+            parsed.WEBHOOKS_API_TOKEN_SECRET
+          ),
           AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
         },
+        apiKeyRequired: false,
       },
     },
     googleDrive: {
@@ -33,6 +36,7 @@ const webhooksApiMap = ({
           GOOGLE_CLIENT_SECRET: convertToStr(parsed.GOOGLE_CLIENT_SECRET),
           GOOGLE_REFRESH_TOKEN: convertToStr(parsed.GOOGLE_REFRESH_TOKEN),
         },
+        apiKeyRequired: false,
       },
     },
     watch: {
@@ -47,7 +51,9 @@ const webhooksApiMap = ({
               parsed.GIT_HUB_PERSONAL_ACCESS_TOKEN
             ),
             WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
-            WEBHOOKS_API_TOKEN: convertToStr(parsed.WEBHOOKS_API_TOKEN),
+            WEBHOOKS_API_TOKEN_SECRET: convertToStr(
+              parsed.WEBHOOKS_API_TOKEN_SECRET
+            ),
           },
         },
       },

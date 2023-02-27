@@ -89,12 +89,12 @@ const createWatchChannels = async () => {
   const results = await Promise.all(promiseArr);
   return JSON.stringify(results, null, 4);
 };
-createWatchChannels().then((e) => console.log(e));
-// checkChannelExists({
-//   repoName: "Personal-Website-Old",
-//   repoOwner: "aasmal97",
-//   githubToken: convertToStr(process.env.GIT_HUB_PERSONAL_ACCESS_TOKEN),
-// }).then((e) => console.log(e));
+// createWatchChannels().then((e) => console.log(e));
+// // checkChannelExists({
+// //   repoName: "Personal-Website-Old",
+// //   repoOwner: "aasmal97",
+// //   githubToken: convertToStr(process.env.GIT_HUB_PERSONAL_ACCESS_TOKEN),
+// // }).then((e) => console.log(e));
 export async function handler(
   e: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
