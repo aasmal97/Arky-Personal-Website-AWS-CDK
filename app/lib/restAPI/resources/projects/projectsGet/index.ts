@@ -80,7 +80,7 @@ const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
   const { keyExp, expVal, expAttr, filterExp, scanDirection, index } =
     generateGetExpression(parsedQuery);
   const dynamoQuery: QueryCommandInput = {
-    TableName: "hobbies",
+    TableName: "projects",
     KeyConditionExpression: keyExp,
     FilterExpression: filterExp,
     ExpressionAttributeNames: expAttr,
@@ -94,7 +94,7 @@ const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
 export async function handler(event: APIGatewayEvent) {
   return await getTemplate({
     e: event,
-    tableName: "hobbies",
+    tableName: "projects",
     successMessage: "Retrieved project results",
     generateQuery,
   });

@@ -7,27 +7,7 @@ import {
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { v4 as uuid } from "uuid";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
-type Image = {
-  imgDescription: string;
-  imgURL: string;
-  placeholderURL: string;
-};
-type ProjectDocument = {
-  pk: {
-    recordType: "projects";
-    dateCreated: string;
-  };
-  recordType: "projects";
-  id: string;
-  appURL?: string;
-  images?: Image[];
-  projectName: string;
-  githubURL: string;
-  description?: string;
-  startDate?: string;
-  endDate?: string;
-  dateCreated: string;
-};
+import { ProjectDocument } from "../../types/projectTypes";
 const isString = (e: any): e is string => {
   return typeof e === "string";
 };
@@ -52,6 +32,7 @@ export async function handler(
     githubURL,
     startDate,
     endDate,
+    topics,
   } = JSON.parse(e.body);
   if (!projectName)
     return {
@@ -79,6 +60,8 @@ export async function handler(
     startDate: convertToStr(startDate),
     endDate: convertToStr(endDate),
     dateCreated: currDate,
+    topics: Array.isArray(topics) ? topics : [],
+    archived: false,
   };
   try {
     const params: PutItemCommandInput = {

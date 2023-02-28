@@ -2,7 +2,7 @@ import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { postTemplate } from "../../../../../../utils/apiTemplates/postTemplate";
 import { convertToAttr } from "@aws-sdk/util-dynamodb";
-
+import { ProjectDocument } from "../../types/projectTypes";
 const convertToAttributeStr = (s: any) => {
   if (typeof s !== "string") return null;
   return convertToAttr(s);
@@ -17,29 +17,28 @@ const createDocument = (e: APIGatewayEvent) => {
       statusCode: 400,
       body: "Please provide a valid response body",
     };
+  const body: Partial<ProjectDocument> = JSON.parse(e.body);
   const {
     projectName,
     description,
-    imgDescription,
-    src,
-    placeholderSrc,
+    images,
     appURL,
     githubURL,
     startDate,
     endDate,
     topics,
-  } = JSON.parse(e.body);
+    archived
+  } = body ;
   const document: Record<string, AttributeValue | null> = {
-    imgDescription: convertToAttributeStr(imgDescription),
+    images: convertToAttributeArr(images),
     appURL: convertToAttributeStr(appURL),
-    imgURL: convertToAttributeStr(src),
-    placeholderURL: convertToAttributeStr(placeholderSrc),
     projectName: convertToAttributeStr(projectName),
     githubURL: convertToAttributeStr(githubURL),
     description: convertToAttributeStr(description),
     startDate: convertToAttributeStr(startDate),
     endDate: convertToAttributeStr(endDate),
     topics: convertToAttributeArr(topics),
+    archived: convertToAttr(archived),
   };
   return document;
 };
