@@ -43,6 +43,9 @@ export class WebhooksStack extends cdk.Stack {
         value: convertToStr(process.env.WEBHOOKS_API_KEY),
       });
       plan.addApiKey(key);
+      plan.addApiStage({
+        stage: api.deploymentStage
+      });
       const cronProps = {
         stack: this,
         restApi: api,

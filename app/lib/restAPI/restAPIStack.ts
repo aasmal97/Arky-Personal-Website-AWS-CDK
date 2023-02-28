@@ -78,6 +78,9 @@ export class RestAPIStack extends cdk.Stack {
         value: parsed.AMAZON_REST_API_KEY,
       });
       plan.addApiKey(key);
+      plan.addApiStage({
+        stage: api.deploymentStage,
+      });
       return api;
     };
 
