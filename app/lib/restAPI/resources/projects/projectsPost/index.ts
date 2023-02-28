@@ -1,15 +1,16 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { postTemplate } from "../../../../../../utils/apiTemplates/postTemplate";
+import { convertToAttr } from "@aws-sdk/util-dynamodb";
 
 const convertToAttributeStr = (s: any) => {
-  if (!s) return null;
-  if (!(typeof s === "string")) return null;
-  return {
-    S: s,
-  };
+  if (typeof s !== "string") return null;
+  return convertToAttr(s);
 };
-
+const convertToAttributeArr = (arr: any) => {
+  if (!Array.isArray(arr)) return null;
+  return convertToAttr(arr);
+};
 const createDocument = (e: APIGatewayEvent) => {
   if (!e.body)
     return {
@@ -26,8 +27,8 @@ const createDocument = (e: APIGatewayEvent) => {
     githubURL,
     startDate,
     endDate,
+    topics,
   } = JSON.parse(e.body);
-
   const document: Record<string, AttributeValue | null> = {
     imgDescription: convertToAttributeStr(imgDescription),
     appURL: convertToAttributeStr(appURL),
@@ -38,6 +39,7 @@ const createDocument = (e: APIGatewayEvent) => {
     description: convertToAttributeStr(description),
     startDate: convertToAttributeStr(startDate),
     endDate: convertToAttributeStr(endDate),
+    topics: convertToAttributeArr(topics),
   };
   return document;
 };

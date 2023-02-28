@@ -44,7 +44,7 @@ export async function handler(
   const restApiDomainName = convertToStr(process.env.AMAZON_REST_API_DOMAIN_NAME);
   switch (eventType) {
     case "repository":
-      respondToRepositoryChanges({
+      await respondToRepositoryChanges({
         data: data as RepositoryEvent,
         apiKey: restApiKey,
         restApiDomainName: restApiDomainName

@@ -6,6 +6,28 @@ import {
 } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { v4 as uuid } from "uuid";
+import { convertToStr } from "../../../../../../utils/general/convertToStr";
+type Image = {
+  imgDescription: string;
+  imgURL: string;
+  placeholderURL: string;
+};
+type ProjectDocument = {
+  pk: {
+    recordType: "projects";
+    dateCreated: string;
+  };
+  recordType: "projects";
+  id: string;
+  appURL?: string;
+  images?: Image[];
+  projectName: string;
+  githubURL: string;
+  description?: string;
+  startDate?: string;
+  endDate?: string;
+  dateCreated: string;
+};
 const isString = (e: any): e is string => {
   return typeof e === "string";
 };
@@ -25,41 +47,37 @@ export async function handler(
   const {
     projectName,
     description,
-    imgDescription,
-    src,
-    placeholderSrc,
+    images,
     appURL,
     githubURL,
     startDate,
     endDate,
   } = JSON.parse(e.body);
-  if (!projectName || !description)
+  if (!projectName)
     return {
       statusCode: 400,
-      body: "You must provide a projectName, and description attribute",
+      body: "You must provide a projectName",
     };
-  if (!isString(projectName) || !isString(description))
+  if (!isString(projectName))
     return {
       statusCode: 400,
-      body: "Invalid types assigned to either name, description",
+      body: "Invalid types assigned to name",
     };
   const currDate = new Date().toISOString();
-  const document = {
+  const document: ProjectDocument = {
     pk: {
       recordType: "projects",
-      startDate: currDate,
+      dateCreated: currDate,
     },
     recordType: "projects",
     id: uuid(),
-    imgDescription: imgDescription,
-    appURL: appURL,
-    imgURL: src,
-    placeholderURL: placeholderSrc,
+    appURL: convertToStr(appURL),
+    images: images,
     projectName: projectName,
-    githubURL: githubURL,
-    description: description,
-    startDate: startDate,
-    endDate: endDate,
+    githubURL: convertToStr(githubURL),
+    description: convertToStr(description),
+    startDate: convertToStr(startDate),
+    endDate: convertToStr(endDate),
     dateCreated: currDate,
   };
   try {

@@ -1,46 +1,136 @@
-export type RepoRestApiCallsProps = {
-  apiKey: string;
-  restApiDomainName: string;
-};
 import {
   RepositoryEvent,
   RepositoryCreatedEvent,
   RepositoryDeletedEvent,
   RepositoryArchivedEvent,
+  RepositoryRenamedEvent,
 } from "@octokit/webhooks-types";
 import { RepositoryEditedEvent } from "@octokit/webhooks-types";
-export const createRepo = ({
-  data,
+import axios from "axios";
+export type RepoRestApiCallsProps = {
+  apiKey: string;
+  restApiDomainName: string;
+};
+export const findRepoDocument = async ({
   apiKey,
   restApiDomainName,
-}: RepoRestApiCallsProps & { data: RepositoryCreatedEvent }) => {
-  const name = data.repository.name;
+  params,
+}: { params: { [key: string]: any } } & RepoRestApiCallsProps) => {
+  const url = `https://${restApiDomainName}/projects`;
+  const getItem = await axios({
+    url: url,
+    method: "get",
+    headers: {
+      "x-api-key": apiKey,
+    },
+    params: {
+      ...params,
+      recordType: "projects",
+    },
+  });
+  const result = getItem.data[0];
+  return result;
 };
-export const editedRepo = ({
+export const editedRepo = async ({
   data,
   apiKey,
   restApiDomainName,
 }: RepoRestApiCallsProps & { data: RepositoryEditedEvent }) => {
   const {
-    repository: { name, topics },
-    changes: { description },
+    repository: { name, topics, description },
   } = data;
+  const document = await findRepoDocument({
+    apiKey,
+    restApiDomainName,
+    params: {
+      projectName: name,
+    },
+  });
+  const req = await axios({
+    url: `https://${restApiDomainName}/projects`,
+    method: "post",
+    headers: {
+      "x-api-key": apiKey,
+    },
+    data: {
+      key: document.pk,
+      description: description,
+      projectName: name,
+      topics: topics,
+    },
+  });
+  return req.data;
 };
-export const deleteRepo = ({
+export const renamedRepo = async ({
+  data,
+  apiKey,
+  restApiDomainName,
+}: RepoRestApiCallsProps & { data: RepositoryRenamedEvent }) => {
+  const {
+    changes: {
+      repository: {
+        name: { from: oldName },
+      },
+    },
+    repository: { name },
+  } = data;
+  const document = await findRepoDocument({
+    apiKey,
+    restApiDomainName,
+    params: {
+      projectName: oldName,
+    },
+  });
+  const req = await axios({
+    url: `https://${restApiDomainName}/projects`,
+    method: "post",
+    headers: {
+      "x-api-key": apiKey,
+    },
+    data: {
+      key: document.pk,
+      projectName: name,
+    },
+  });
+  return req.data;
+};
+export const createRepo = async ({
+  data,
+  apiKey,
+  restApiDomainName,
+}: RepoRestApiCallsProps & { data: RepositoryCreatedEvent }) => {
+  const { name, description, created_at } = data.repository;
+  const url = `https://${restApiDomainName}/projects`;
+  const req = await axios({
+    method: "put",
+    headers: {
+      "x-api-key": apiKey,
+    },
+    data: {
+      projectName: name,
+      githubURL: url,
+      description: description,
+      startDate: new Date(created_at).toISOString(),
+    },
+  });
+  return req;
+};
+
+export const deleteRepo = async ({
   data,
   apiKey,
   restApiDomainName,
 }: RepoRestApiCallsProps & { data: RepositoryDeletedEvent }) => {
-  const name = data.repository.name;
+  const name = {};
 };
-export const archivedRepo = ({
+export const archivedRepo = async ({
   data,
   apiKey,
   restApiDomainName,
 }: RepoRestApiCallsProps & { data: RepositoryArchivedEvent }) => {
   const name = data.repository.name;
 };
-export const respondToRepositoryChanges = ({
+export const respondToRepositoryChanges = async ({
   data,
   apiKey,
   restApiDomainName,
@@ -49,18 +139,25 @@ export const respondToRepositoryChanges = ({
   let result: any;
   switch (action) {
     case "created":
-      result = createRepo({ data, apiKey, restApiDomainName });
+      result = await createRepo({ data, apiKey, restApiDomainName });
       break;
     case "edited":
-      result = editedRepo({ data, apiKey, restApiDomainName });
+      result = await editedRepo({ data, apiKey, restApiDomainName });
 
       break;
     case "deleted":
-      result = deleteRepo({ data, apiKey, restApiDomainName });
+      result = await deleteRepo({ data, apiKey, restApiDomainName });
 
       break;
     case "archived":
-      result = archivedRepo({ data, apiKey, restApiDomainName });
+      result = await archivedRepo({ data, apiKey, restApiDomainName });
+      break;
+    case "renamed":
+      result = await renamedRepo({
+        data,
+        apiKey,
+        restApiDomainName,
+      });
       break;
     default:
       break;
