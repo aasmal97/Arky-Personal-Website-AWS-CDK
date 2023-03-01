@@ -1,5 +1,6 @@
 import { setUpOathClient } from "./setupOathClient";
 import { google } from "googleapis";
+import { CredentialBody, ExternalAccountClientOptions } from 'google-auth-library';
 export const parseCredentialsVariable = (credentials?: string) => {
   let parsed: any;
   try {
@@ -15,9 +16,10 @@ export const parseCredentialsVariable = (credentials?: string) => {
   }
   return parsed;
 };
-export const initalizeGoogleDrive = (credentials?: string) => {
-  const parsed = parseCredentialsVariable(credentials);
-  const authClient = setUpOathClient(parsed);
+export const initalizeGoogleDrive = (credentials: CredentialBody | undefined) => {
+  const authClient = setUpOathClient({
+    credentials: credentials,
+  });
   const drive = google.drive({
     version: "v3",
     auth: authClient,

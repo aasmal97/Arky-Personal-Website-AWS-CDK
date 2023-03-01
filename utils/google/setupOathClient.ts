@@ -1,14 +1,18 @@
 import { google } from "googleapis";
-import { CredentialBody, ExternalAccountClientOptions } from "google-auth-library";
+import {
+  CredentialBody,
+} from "google-auth-library";
 export const setUpOathClient = ({
   credentials,
 }: {
-  credentials: CredentialBody | ExternalAccountClientOptions | undefined;
+  credentials: CredentialBody | undefined;
 }) => {
-  const authClient = new google.auth.GoogleAuth({
-    credentials: credentials,
-    scopes: ["https://www.googleapis.com/auth/drive.readonly"],
-  });
-
+  const authClient = new google.auth.JWT(
+    credentials?.client_email,
+    undefined,
+    credentials?.private_key,
+    ["https://www.googleapis.com/auth/drive"],
+    undefined
+  );
   return authClient;
 };
