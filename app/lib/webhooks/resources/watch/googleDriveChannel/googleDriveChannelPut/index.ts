@@ -38,7 +38,7 @@ export async function handler(
   );
   return {
     statusCode: 200,
-    body: JSON.stringify(parsed)
+    body: parsed
   }
   // const drive = initalizeGoogleDrive(
   //   process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS
