@@ -1,5 +1,5 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
-import { initalizeGoogleDrive } from "../../../../../../../utils/google/initalizeGoogleDrive";
+import { initalizeGoogleDrive, parseCredentialsVariable } from "../../../../../../../utils/google/initalizeGoogleDrive";
 import { drive_v3 } from "googleapis";
 import { v4 as uuid } from "uuid";
 import { getUnixTime, add } from "date-fns";
@@ -33,10 +33,14 @@ export async function handler(
       statusCode: 405,
       body: "Wrong http request",
     };
+  const parsed = parseCredentialsVariable(
+    process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS
+  );
+  return parsed
   const drive = initalizeGoogleDrive(
     process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS
   );
-  console.log(process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS);
+  // console.log(process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS);
   const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
   const currDate = new Date();
   const endWatchDate = add(currDate, {
