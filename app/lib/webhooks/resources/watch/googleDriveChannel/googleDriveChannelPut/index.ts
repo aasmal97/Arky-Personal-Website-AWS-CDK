@@ -1,7 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import {
   initalizeGoogleDrive,
-  // parseCredentialsVariable,
   unescapeNewLines,
 } from "../../../../../../../utils/google/initalizeGoogleDrive";
 import { drive_v3 } from "googleapis";

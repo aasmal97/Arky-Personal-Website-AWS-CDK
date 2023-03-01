@@ -42,9 +42,6 @@ const webhooksApiMap = ({
           GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: convertToStr(
             process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
           ),
-          // GOOGLE_CLIENT_ID: convertToStr(parsed.GOOGLE_CLIENT_ID),
-          // GOOGLE_CLIENT_SECRET: convertToStr(parsed.GOOGLE_CLIENT_SECRET),
-          // GOOGLE_REFRESH_TOKEN: convertToStr(parsed.GOOGLE_REFRESH_TOKEN),
         },
         apiKeyRequired: false,
       },
@@ -74,9 +71,6 @@ const webhooksApiMap = ({
             __dirname
           ),
           env: {
-            // GOOGLE_CLIENT_ID: convertToStr(parsed.GOOGLE_CLIENT_ID),
-            // GOOGLE_CLIENT_SECRET: convertToStr(parsed.GOOGLE_CLIENT_SECRET),
-            // GOOGLE_REFRESH_TOKEN: convertToStr(parsed.GOOGLE_REFRESH_TOKEN),
             GOOGLE_SERVICE_ACCOUNT_EMAIL: convertToStr(
               process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
             ),
