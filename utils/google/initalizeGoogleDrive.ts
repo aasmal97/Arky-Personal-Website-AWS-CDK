@@ -9,7 +9,7 @@ export const extractCredentialsObj = (creds?: string) => {
   const matchRegex = new RegExp(`${startOfKey}(.*)${endOfKey}`, "gsm");
   const credsNoSpace = creds.replace(/\\"/g, `"`).replace(" ", "");
   const privateKey =
-    credsNoSpace.match(matchRegex)?.[0].replace(/\\\n/g, "\n") + "\n";
+    credsNoSpace.match(matchRegex)?.[0].replace(/\\\n/g, "\n").replace(/\\n/g, '\n') + "\n";
   const credsNoLines = credsNoSpace.replace(/\\\n/g, "").replace(/\n/g, "");
   const subCred = credsNoLines.substring(1, credsNoLines.length - 1);
   const result = JSON.parse(subCred);
