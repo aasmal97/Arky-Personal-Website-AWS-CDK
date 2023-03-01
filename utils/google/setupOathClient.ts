@@ -1,17 +1,14 @@
 import { google } from "googleapis";
+import { CredentialBody, ExternalAccountClientOptions } from "google-auth-library";
 export const setUpOathClient = ({
-  clientId,
-  clientSecret,
-  refreshToken,
+  credentials,
 }: {
-  refreshToken: string;
-  clientId: string;
-  clientSecret: string;
+  credentials: CredentialBody | ExternalAccountClientOptions | undefined;
 }) => {
-  const authClient = new google.auth.OAuth2(clientId, clientSecret);
-  //this automatically refreshes access tokens
-  authClient.setCredentials({
-    refresh_token: refreshToken,
+  const authClient = new google.auth.GoogleAuth({
+    credentials: credentials,
+    scopes: ["https://www.googleapis.com/auth/drive.readonly"],
   });
+
   return authClient;
 };

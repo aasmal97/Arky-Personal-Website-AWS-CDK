@@ -36,9 +36,12 @@ const webhooksApiMap = ({
           WEBHOOKS_API_TOKEN_SECRET: convertToStr(
             parsed.WEBHOOKS_API_TOKEN_SECRET
           ),
-          GOOGLE_CLIENT_ID: convertToStr(parsed.GOOGLE_CLIENT_ID),
-          GOOGLE_CLIENT_SECRET: convertToStr(parsed.GOOGLE_CLIENT_SECRET),
-          GOOGLE_REFRESH_TOKEN: convertToStr(parsed.GOOGLE_REFRESH_TOKEN),
+          GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: convertToStr(
+            process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS
+          ),
+          // GOOGLE_CLIENT_ID: convertToStr(parsed.GOOGLE_CLIENT_ID),
+          // GOOGLE_CLIENT_SECRET: convertToStr(parsed.GOOGLE_CLIENT_SECRET),
+          // GOOGLE_REFRESH_TOKEN: convertToStr(parsed.GOOGLE_REFRESH_TOKEN),
         },
         apiKeyRequired: false,
       },
@@ -68,9 +71,12 @@ const webhooksApiMap = ({
             __dirname
           ),
           env: {
-            GOOGLE_CLIENT_ID: convertToStr(parsed.GOOGLE_CLIENT_ID),
-            GOOGLE_CLIENT_SECRET: convertToStr(parsed.GOOGLE_CLIENT_SECRET),
-            GOOGLE_REFRESH_TOKEN: convertToStr(parsed.GOOGLE_REFRESH_TOKEN),
+            // GOOGLE_CLIENT_ID: convertToStr(parsed.GOOGLE_CLIENT_ID),
+            // GOOGLE_CLIENT_SECRET: convertToStr(parsed.GOOGLE_CLIENT_SECRET),
+            // GOOGLE_REFRESH_TOKEN: convertToStr(parsed.GOOGLE_REFRESH_TOKEN),
+            GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: convertToStr(
+              process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS
+            ),
             WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
             WEBHOOKS_API_TOKEN: convertToStr(parsed.WEBHOOKS_API_TOKEN),
             GOOGLE_DRIVE_FOLDER_NAME: convertToStr(
