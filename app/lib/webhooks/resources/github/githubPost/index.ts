@@ -1,8 +1,13 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import * as jwt from "jsonwebtoken";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
-import { WebhookEvent, RepositoryEvent } from "@octokit/webhooks-types";
+import {
+  WebhookEvent,
+  RepositoryEvent,
+  // PushEvent,
+} from "@octokit/webhooks-types";
 import { respondToRepositoryChanges } from "./repoActions";
+// import { respondToPushChanges } from './pushActions';
 const validateIncomingResponse = (e: APIGatewayEvent) => {
   if (e.httpMethod !== "POST")
     return {
@@ -41,21 +46,30 @@ export async function handler(
   const { "X-GitHub-Event": eventType } = e.headers;
   const data: WebhookEvent = JSON.parse(e.body);
   const restApiKey = convertToStr(process.env.AMAZON_REST_API_KEY);
-  const restApiDomainName = convertToStr(process.env.AMAZON_REST_API_DOMAIN_NAME);
+  const restApiDomainName = convertToStr(
+    process.env.AMAZON_REST_API_DOMAIN_NAME
+  );
+  let result: any
   switch (eventType) {
     case "repository":
-      await respondToRepositoryChanges({
+      result = await respondToRepositoryChanges({
         data: data as RepositoryEvent,
         apiKey: restApiKey,
-        restApiDomainName: restApiDomainName
+        restApiDomainName: restApiDomainName,
       });
+    case "push":
+      // await respondToPushChanges({
+      //   data: data as PushEvent,
+      //   apiKey: restApiKey,
+      //   restApiDomainName,
+      // });
     default:
       break;
   }
   try {
     return {
       statusCode: 200,
-      body: "Success",
+      body: JSON.stringify(result),
     };
   } catch (e) {
     return {

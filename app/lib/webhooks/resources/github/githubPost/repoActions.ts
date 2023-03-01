@@ -202,4 +202,5 @@ export const respondToRepositoryChanges = async ({
     default:
       break;
   }
+  return result
 };
