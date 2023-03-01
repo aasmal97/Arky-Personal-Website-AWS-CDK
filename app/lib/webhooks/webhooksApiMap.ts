@@ -36,8 +36,11 @@ const webhooksApiMap = ({
           WEBHOOKS_API_TOKEN_SECRET: convertToStr(
             parsed.WEBHOOKS_API_TOKEN_SECRET
           ),
-          GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: convertToStr(
-            process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS
+          GOOGLE_SERVICE_ACCOUNT_EMAIL: convertToStr(
+            process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
+          ),
+          GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: convertToStr(
+            process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
           ),
           // GOOGLE_CLIENT_ID: convertToStr(parsed.GOOGLE_CLIENT_ID),
           // GOOGLE_CLIENT_SECRET: convertToStr(parsed.GOOGLE_CLIENT_SECRET),
@@ -74,8 +77,11 @@ const webhooksApiMap = ({
             // GOOGLE_CLIENT_ID: convertToStr(parsed.GOOGLE_CLIENT_ID),
             // GOOGLE_CLIENT_SECRET: convertToStr(parsed.GOOGLE_CLIENT_SECRET),
             // GOOGLE_REFRESH_TOKEN: convertToStr(parsed.GOOGLE_REFRESH_TOKEN),
-            GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: convertToStr(
-              process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS
+            GOOGLE_SERVICE_ACCOUNT_EMAIL: convertToStr(
+              process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
+            ),
+            GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: convertToStr(
+              process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
             ),
             WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
             WEBHOOKS_API_TOKEN: convertToStr(parsed.WEBHOOKS_API_TOKEN),

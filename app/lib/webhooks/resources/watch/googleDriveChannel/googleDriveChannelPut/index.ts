@@ -1,7 +1,8 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import {
   initalizeGoogleDrive,
-  parseCredentialsVariable,
+  // parseCredentialsVariable,
+  unescapeNewLines,
 } from "../../../../../../../utils/google/initalizeGoogleDrive";
 import { drive_v3 } from "googleapis";
 import { v4 as uuid } from "uuid";
@@ -36,14 +37,12 @@ export async function handler(
       statusCode: 405,
       body: "Wrong http request",
     };
-  const parsed = parseCredentialsVariable(
-    process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS
-  );
-  const drive = initalizeGoogleDrive(parsed);
-  // return {
-  //   statusCode: 200,
-  //   body: parsed,
-  // };
+  const drive = initalizeGoogleDrive({
+    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    private_key: unescapeNewLines(
+      convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
+    ),
+  });
   const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
   const currDate = new Date();
   const endWatchDate = add(currDate, {
