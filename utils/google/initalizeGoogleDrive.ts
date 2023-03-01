@@ -1,7 +1,6 @@
 import { setUpOathClient } from "./setupOathClient";
 import { google } from "googleapis";
-export const parseCredentialsVariable = () => {
-  const credentials = process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS;
+export const parseCredentialsVariable = (credentials?: string) => {
   let parsed: any;
   try {
     parsed = JSON.parse(typeof credentials === "string" ? credentials : "");
@@ -16,8 +15,8 @@ export const parseCredentialsVariable = () => {
   }
   return parsed;
 };
-export const initalizeGoogleDrive = () => {
-  const parsed = parseCredentialsVariable()
+export const initalizeGoogleDrive = (credentials?: string) => {
+  const parsed = parseCredentialsVariable(credentials);
   const authClient = setUpOathClient(parsed);
   const drive = google.drive({
     version: "v3",

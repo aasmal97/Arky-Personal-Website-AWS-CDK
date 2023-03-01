@@ -33,7 +33,10 @@ export async function handler(
       statusCode: 405,
       body: "Wrong http request",
     };
-  const drive = initalizeGoogleDrive();
+  const drive = initalizeGoogleDrive(
+    process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS
+  );
+  console.log(process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS);
   const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
   const currDate = new Date();
   const endWatchDate = add(currDate, {
