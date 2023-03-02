@@ -22,7 +22,7 @@ const validateWehbookToken = (token?: string) => {
   } catch (err) {
     return {
       statusCode: 403,
-      body: "Access is denied",
+      body: "Access is denied. Invalid api key or token",
     };
   }
   return true;
