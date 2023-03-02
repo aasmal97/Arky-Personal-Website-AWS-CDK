@@ -1,7 +1,9 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { getRepositories } from "../../../../../../../utils/github/getUserRepos";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import * as dotenv from "dotenv";
+dotenv.config();
 type GithubChannelProps = {
   isInOrganization: boolean;
   repoName: string;
@@ -9,23 +11,21 @@ type GithubChannelProps = {
   githubToken: string;
   isPrivate: boolean;
 };
+
 const checkChannelExists = async ({
-  isInOrganization,
   repoName,
   repoOwner,
   githubToken,
-  isPrivate,
 }: GithubChannelProps) => {
   const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
   let result: boolean;
-  //if (isInOrganization ) return console.log(reqUrl);
   const reqUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/hooks`;
   try {
     const { data } = await axios({
       method: "get",
       url: reqUrl,
       headers: {
-        Authorization: `token ${githubToken}`,
+        Authorization: `Bearer ${githubToken}`,
       },
     });
     const findHookCreatedByApp = data.filter(
@@ -33,10 +33,11 @@ const checkChannelExists = async ({
         hook.config.url === `https//${domainName}/github` && hook.active
     );
     result = findHookCreatedByApp.length > 0;
-    console.log(reqUrl)
   } catch (err) {
-    console.log(reqUrl, "Error");
-    result = false;
+    //this means that we simply don't have access to this repo to attach
+    //webhooks. That means we cannot watch it, and we return that a hook exists
+    //to not subscribe to a new one
+    result = true;
   }
   return result;
 };
@@ -55,30 +56,36 @@ const createChannel = async ({
     isPrivate,
   });
   if (checkIfExists) return "Channel already exists";
-  return;
-  // const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
-  // const webhooksTokenSecret = convertToStr(
-  //   process.env.WEBHOOKS_API_TOKEN_SECRET
-  // );
-  // const reqUrl = `https://api.github.com/repos/${repoOwner}/${repoName}`;
-  // const { data } = await axios({
-  //   method: "post",
-  //   url: reqUrl,
-  //   headers: {
-  //     Authorization: `token ${githubToken}`,
-  //   },
-  //   data: {
-  //     name: "web",
-  //     active: true,
-  //     events: ["repository"],
-  //     config: {
-  //       url: `https//${domainName}/github`,
-  //       secret: webhooksTokenSecret,
-  //       content_type: "json",
-  //     },
-  //   },
-  // });
-  //return data;
+  const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
+  const webhooksTokenSecret = convertToStr(
+    process.env.WEBHOOKS_API_TOKEN_SECRET
+  );
+  const reqUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/hooks`;
+  try {
+    const { data } = await axios({
+      method: "post",
+      url: reqUrl,
+      headers: {
+        Authorization: `Bearer ${githubToken}`,
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      data: {
+        name: "web",
+        active: true,
+        events: ["repository"],
+        config: {
+          url: `https://${domainName}/github`,
+          secret: webhooksTokenSecret,
+          content_type: "json",
+        },
+      },
+    });
+    return data;
+  } catch (err) {
+    //console.error(err);
+    console.log(reqUrl)
+    return `Error setting up webhook for ${reqUrl}`;
+  }
 };
 const createWatchChannels = async () => {
   const githubToken = convertToStr(process.env.GIT_HUB_PERSONAL_ACCESS_TOKEN);
@@ -105,7 +112,9 @@ const createWatchChannels = async () => {
       githubToken: githubToken,
     })
   );
-  const results = await Promise.all(promiseArr);
+  const results = await Promise.all(
+    promiseArr.map((p) => p.catch((error) => null))
+  );
   return JSON.stringify(results, null, 4);
 };
 createWatchChannels()
@@ -113,11 +122,7 @@ createWatchChannels()
   .catch((err) => {
     console.error(err);
   });
-// checkChannelExists({
-//   repoName: "Personal-Website-Old",
-//   repoOwner: "aasmal97",
-//   githubToken: convertToStr(process.env.GIT_HUB_PERSONAL_ACCESS_TOKEN),
-// }).then((e) => console.log(e));
+
 export async function handler(
   e: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
