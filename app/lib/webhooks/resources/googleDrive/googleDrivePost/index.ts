@@ -31,18 +31,13 @@ const validateRequest = (
   } = headers;
   const tokenIsValid = validateWehbookToken(token);
   if (tokenIsValid !== true) return tokenIsValid;
-  if (!e.body)
-    return {
-      statusCode: 400,
-      body: "Please provide a valid body",
-    };
   return {
     token: convertToStr(token),
     resourseId: convertToStr(resourseId),
     resourseURI: convertToStr(resourseURI),
     state: convertToStr(state),
     contentChanged: convertToStr(contentChanged),
-    body: JSON.parse(e.body),
+    body: e.body ? JSON.parse(e.body) : {},
   };
 };
 export async function handler(
