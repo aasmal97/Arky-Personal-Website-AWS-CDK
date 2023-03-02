@@ -54,7 +54,7 @@ export async function handler(
     request;
   try {
     return {
-      statusCode: 200,
+      statusCode: 500,
       body: JSON.stringify(request),
     };
   } catch (e) {

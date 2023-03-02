@@ -27,5 +27,5 @@ const mapResult = restAPIStack.mapAPIToHostedZone(hostingZone, certificate);
 
 const webhooksStack = new WebhooksStack(app, "WebhooksStack", {});
 const webhooksCertificate = webhooksStack.createCertificate(hostingZone);
-webhooksStack.mapAPIToHostedZone(hostingZone, webhooksCertificate);
 webhooksStack.createAPI(mapResult ? mapResult[0].domainName : undefined);
+webhooksStack.mapAPIToHostedZone(hostingZone, webhooksCertificate);
