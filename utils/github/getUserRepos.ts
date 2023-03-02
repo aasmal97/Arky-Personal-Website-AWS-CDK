@@ -34,8 +34,11 @@ export const getRepositories = async (token?: string) => {
         }
         nodes{
           name
+            isInOrganization
+            isPrivate
             owner {
               login
+              url
             }
           }
         }
