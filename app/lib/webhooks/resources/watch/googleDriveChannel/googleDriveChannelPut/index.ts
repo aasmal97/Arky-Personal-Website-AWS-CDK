@@ -2,11 +2,12 @@ import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import {
   initalizeGoogleDrive,
   unescapeNewLines,
-} from "../../../../../../../utils/google/initalizeGoogleDrive";
+} from "../../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
 import { drive_v3 } from "googleapis";
 import { v4 as uuid } from "uuid";
 import { getUnixTime, add } from "date-fns";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
+import { searchForFolderByName } from "../../../../../../../utils/google/googleDrive/searchForFolder";
 const identifyCorrectFolder = async (
   drive: drive_v3.Drive,
   arr: (string | null | undefined)[],
@@ -49,11 +50,8 @@ export async function handler(
   });
   //create a channel watch
   const folderName = convertToStr(process.env.GOOGLE_DRIVE_FOLDER_NAME);
-  const result = await drive.files.list({
-    q: `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false`,
-    fields: "files(id,parents,name)",
-  });
-  const folders = result.data.files;
+
+  const folders = await searchForFolderByName(drive, folderName);
   if (!folders)
     return {
       statusCode: 500,

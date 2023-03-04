@@ -11,7 +11,12 @@ export const setUpOathClient = ({
     credentials?.client_email,
     undefined,
     credentials?.private_key,
-    ["https://www.googleapis.com/auth/drive"],
+    [
+      "https://www.googleapis.com/auth/drive",
+      "https://www.googleapis.com/auth/drive.activity",
+      "https://www.googleapis.com/auth/cloud-platform",
+      "https://www.googleapis.com/auth/cloud-vision",
+    ],
     undefined
   );
   return authClient;

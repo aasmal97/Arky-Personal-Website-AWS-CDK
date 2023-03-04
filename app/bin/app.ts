@@ -18,14 +18,16 @@ const restAPIStack = new RestAPIStack(app, "RestApiStack", {
   // env: { account: '123456789012', region: 'us-east-1' },
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
-//map rest api gateway stack
+//resources that need to accessed by other stacks
 const hostingZone = hostingStack.getHostedZone();
+const s3MediaBucket = hostingStack.getImgBucket()
 const certificate = hostingStack.getCertificate();
-//create apo
+//create rest api
 restAPIStack.createAPI(hostingStack);
 const mapResult = restAPIStack.mapAPIToHostedZone(hostingZone, certificate);
 
 const webhooksStack = new WebhooksStack(app, "WebhooksStack", {});
+//create webhooks api
 const webhooksCertificate = webhooksStack.createCertificate(hostingZone);
-webhooksStack.createAPI(mapResult ? mapResult[0].domainName : undefined);
+webhooksStack.createAPI(mapResult ? mapResult[0].domainName : undefined, s3MediaBucket.bucketName);
 webhooksStack.mapAPIToHostedZone(hostingZone, webhooksCertificate);

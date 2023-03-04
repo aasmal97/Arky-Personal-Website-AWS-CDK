@@ -7,9 +7,11 @@ import { convertToStr } from "../../../utils/general/convertToStr";
 const webhooksApiMap = ({
   webhooksAPIDomainName,
   restApiDomainName,
+  s3MediaBucketName,
 }: {
   restApiDomainName?: string;
   webhooksAPIDomainName?: string;
+  s3MediaBucketName?: string;
 }): RestAPIType => {
   const parsed = searchForSecretsWrapper(__dirname);
   return {
@@ -30,6 +32,7 @@ const webhooksApiMap = ({
       post: {
         location: generateLocation(["googleDrive", "post"], __dirname),
         env: {
+          S3_MEDIA_FILES_BUCKET_NAME: convertToStr(s3MediaBucketName),
           AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
           AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
           WEBHOOKS_API_KEY: convertToStr(parsed.WEBHOOKS_API_KEY),

@@ -1,7 +1,7 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import validateWehbookToken from "../../../../../../utils/general/validateWebookTokens";
-type RequestProps = {
+export type RequestProps = {
   token: string;
   resourseId: string;
   resourseURI: string;
@@ -45,11 +45,12 @@ export async function handler(
 ): Promise<APIGatewayProxyResult> {
   const request = validateRequest(e);
   if (isAPIGatewayResult(request)) return request;
-  const { token, resourseId, resourseURI, state, contentChanged, body } =
+  const { resourseId, resourseURI, state, contentChanged, body } =
     request;
+  
   try {
     return {
-      statusCode: 500,
+      statusCode: 200,
       body: JSON.stringify(request),
     };
   } catch (e) {
