@@ -47,6 +47,13 @@ export class RestAPIStack extends cdk.Stack {
         projectionType: ProjectionType.ALL,
       },
     });
+    const projectImagesDBTableName = "projectImages";
+    const projectImagesDb = createDatabase({
+      stack: this,
+      tableName: projectImagesDBTableName,
+      pkName: "imgURL",
+      sortKey: "documentId",
+    });
     const tablesMap = {
       hobbies: {
         id: hobbiesDbTableName,
@@ -55,6 +62,10 @@ export class RestAPIStack extends cdk.Stack {
       projects: {
         id: projectsDBTableName,
         arn: projectsDb.tableArn,
+      },
+      projectImages: {
+        id: projectImagesDBTableName,
+        arn: projectImagesDb.tableArn,
       },
     };
     let api: cdk.aws_apigateway.RestApi | undefined;

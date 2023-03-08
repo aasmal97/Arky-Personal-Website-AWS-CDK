@@ -1,6 +1,4 @@
-import {
-  searchForSecretsWrapper,
-} from "../../../utils/buildFuncs/searchForSecrets";
+import { searchForSecretsWrapper } from "../../../utils/buildFuncs/searchForSecrets";
 import { Stack } from "aws-cdk-lib";
 import { createLambdaRole } from "../../../utils/rolesFuncs/createLambdaRole";
 import { createDynamoPolicy } from "../../../utils/rolesFuncs/createDynamoPolicy";
@@ -87,6 +85,47 @@ const restAPIMap = ({
       },
     },
     projects: {
+      images: {
+        get: {
+          location: generateLocation(["projects", "images", "get"], __dirname),
+          role: createLambdaRole(
+            "ProjectImagesGetRole",
+            {
+              projectsDynamoDBPolicy: tablesInfoMap
+                ? createDynamoPolicy("GET", tablesInfoMap["projectImages"])
+                : null,
+            },
+            stack
+          ),
+        },
+        delete: {
+          location: generateLocation(
+            ["projects", "images", "delete"],
+            __dirname
+          ),
+          role: createLambdaRole(
+            "ProjectImagesDeleteRole",
+            {
+              projectsDynamoDBPolicy: tablesInfoMap
+                ? createDynamoPolicy("DELETE", tablesInfoMap["projectImages"])
+                : null,
+            },
+            stack
+          ),
+        },
+        put: {
+          location: generateLocation(["projects", "images", "put"], __dirname),
+          role: createLambdaRole(
+            "ProjectImagesPutRole",
+            {
+              projectsDynamoDBPolicy: tablesInfoMap
+                ? createDynamoPolicy("PUT", tablesInfoMap["projectImages"])
+                : null,
+            },
+            stack
+          ),
+        },
+      },
       get: {
         location: generateLocation(["projects", "get"], __dirname),
         role: createLambdaRole(
