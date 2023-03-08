@@ -7,12 +7,15 @@ import {
   generateLocation,
   RestAPIType,
 } from "../../../utils/createResources/createApiTree";
+import { convertToStr } from "../../../utils/general/convertToStr";
 
 const restAPIMap = ({
   hostingStack,
   stack,
   tablesInfoMap,
+  restApiDomainName,
 }: {
+  restApiDomainName?: string;
   hostingStack?: HostingStack;
   stack?: Stack;
   tablesInfoMap?: {
@@ -88,6 +91,10 @@ const restAPIMap = ({
       images: {
         get: {
           location: generateLocation(["projects", "images", "get"], __dirname),
+          env: {
+            AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
+            AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
+          },
           role: createLambdaRole(
             "ProjectImagesGetRole",
             {

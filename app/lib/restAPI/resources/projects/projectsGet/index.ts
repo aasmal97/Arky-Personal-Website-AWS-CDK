@@ -1,19 +1,25 @@
 import { APIGatewayEvent } from "aws-lambda";
 import { QueryCommandInput } from "@aws-sdk/client-dynamodb";
-import { getTemplate } from "../../../../../../utils/apiTemplates/getTemplate";
+import {
+  getTemplate,
+  SuccessResponseProps,
+} from "../../../../../../utils/apiTemplates/getTemplate";
 import { marshall } from "@aws-sdk/util-dynamodb";
+import { Image, ProjectDocument } from "../../types/projectTypes";
+import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMethod";
+import { convertToStr } from "../../../../../../utils/general/convertToStr";
 export type ProjectQueryProps = {
   id?: string;
   appURL?: string;
   projectName?: string;
   description?: string;
-  imageKey?: string;
   sortBy?: {
     startDate?: 1 | -1;
     endDate?: 1 | -1;
   };
   recordType: string;
 };
+
 function isProjectQueryProps(e: any): e is ProjectQueryProps {
   try {
     return e.recordType;
@@ -45,14 +51,13 @@ const generateGetExpression = (query: ProjectQueryProps) => {
     const equalExp = `${expKey} = ${expKeyVal}`;
     filterExpArr.push(expType === "contains" ? containsExp : equalExp);
   };
-  const { id, appURL, projectName, description, sortBy, imageKey } = query;
+  const { id, appURL, projectName, description, sortBy } = query;
   if (typeof id === "string") addParamater("id", id, "equals");
   if (typeof projectName === "string")
     addParamater("projectName", projectName, "contains");
   if (typeof description === "string")
     addParamater("description", description, "contains");
   if (typeof appURL === "string") addParamater("appURL", appURL, "contains");
-  //if(typeof imageKey === 'string') 
   if (sortBy) {
     const startDate = sortBy.startDate;
     const endDate = sortBy.endDate;
@@ -94,10 +99,46 @@ const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
   return dynamoQuery;
 };
 export async function handler(event: APIGatewayEvent) {
-  return await getTemplate({
+  const projectDocsRes = await getTemplate({
     e: event,
     tableName: "projects",
     successMessage: "Retrieved project results",
     generateQuery,
   });
+  if (projectDocsRes.statusCode !== 200) return projectDocsRes;
+  //fetch images associated with documents
+  const parsedProjectDocs: SuccessResponseProps = JSON.parse(
+    projectDocsRes.body
+  );
+  if (!parsedProjectDocs.result.Items) return projectDocsRes;
+  const docsPromiseArr: Promise<ProjectDocument & { images: Image[] }>[] =
+    parsedProjectDocs.result.Items.map((e: ProjectDocument) => {
+      const doc = e;
+      const id = doc.id;
+      const promise = async () => {
+        const images = await getDocuments({
+          restApiUrl: convertToStr(process.env.AMAZON_REST_API_DOMAIN_NAME),
+          apiKey: convertToStr(process.env.AMAZON_REST_API_KEY),
+          params: {
+            query: {
+              documentId: id,
+            },
+          },
+          addedRoute: "/projects/images",
+        });
+        return {
+          ...e,
+          images: images.data.result.Items,
+        };
+      };
+      return promise();
+    });
+  const newDocs = await Promise.all(docsPromiseArr);
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      ...parsedProjectDocs,
+      result: newDocs,
+    }),
+  };
 }

@@ -68,13 +68,19 @@ export class RestAPIStack extends cdk.Stack {
         arn: projectImagesDb.tableArn,
       },
     };
+    const restApiDomainName = "api.arkyasmal.com";
     let api: cdk.aws_apigateway.RestApi | undefined;
     const parsed = searchForSecretsWrapper(__dirname);
     this.getRestApi = () => api;
     this.createAPI = (hostingStack: HostingStack) => {
       api = createApi(
         this,
-        restAPIMap({ hostingStack, stack: this, tablesInfoMap: tablesMap }),
+        restAPIMap({
+          hostingStack,
+          stack: this,
+          tablesInfoMap: tablesMap,
+          restApiDomainName: restApiDomainName,
+        }),
         "rest-api"
       );
       const plan = api.addUsagePlan("restAPIUsagePlan", {
@@ -97,7 +103,7 @@ export class RestAPIStack extends cdk.Stack {
     this.mapAPIToHostedZone = (zone, certificate) => {
       if (!api) return null;
       api.addDomainName("apiDefaultDomainName", {
-        domainName: "api.arkyasmal.com",
+        domainName: restApiDomainName,
         certificate: certificate,
       });
       const record = createAliasRecord({
@@ -105,7 +111,7 @@ export class RestAPIStack extends cdk.Stack {
         zone: zone,
         id: "restAPIARecord",
         aliasTarget: new targets.ApiGateway(api),
-        recordName: "api.arkyasmal.com",
+        recordName: restApiDomainName,
       });
       return [record, api];
     };

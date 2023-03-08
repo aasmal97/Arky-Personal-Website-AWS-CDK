@@ -7,6 +7,12 @@ import {
   AttributeValue,
 } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
+export type SuccessResponseProps = {
+  message: string;
+  result: Omit<QueryCommandOutput, "$metadata" | "Items"> & {
+    Items: Record<string, any>;
+  };
+};
 function isAPIGatewayResult(e: any): e is APIGatewayProxyResult {
   return e.statusCode && e.body;
 }
@@ -64,6 +70,7 @@ function mergeArrUntilLength<T>(arr1: T[], arr2: T[], maxLength: number) {
 function unmarshallItems(items: Record<string, AttributeValue>[]) {
   return items.map((i) => unmarshall(i));
 }
+
 const successResponse = (
   result: Omit<QueryCommandOutput, "$metadata">,
   successMessage: string
@@ -78,7 +85,7 @@ const successResponse = (
           Items: [],
           Count: 0,
         },
-      }),
+      } as SuccessResponseProps),
     };
   const jsonItems = unmarshallItems(result.Items);
   return {
@@ -89,7 +96,7 @@ const successResponse = (
         ...result,
         Items: jsonItems,
       },
-    }),
+    } as SuccessResponseProps),
   };
 };
 const queryUntilRequestPageNum = async ({
