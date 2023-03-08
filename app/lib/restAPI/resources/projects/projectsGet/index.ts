@@ -1,4 +1,4 @@
-import { APIGatewayEvent } from "aws-lambda";
+import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { QueryCommandInput } from "@aws-sdk/client-dynamodb";
 import {
   getTemplate,
@@ -8,6 +8,7 @@ import { marshall } from "@aws-sdk/util-dynamodb";
 import { Image, ProjectDocument } from "../../types/projectTypes";
 import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMethod";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
+
 export type ProjectQueryProps = {
   id?: string;
   appURL?: string;
@@ -98,14 +99,7 @@ const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
   };
   return dynamoQuery;
 };
-export async function handler(event: APIGatewayEvent) {
-  const projectDocsRes = await getTemplate({
-    e: event,
-    tableName: "projects",
-    successMessage: "Retrieved project results",
-    generateQuery,
-  });
-  if (projectDocsRes.statusCode !== 200) return projectDocsRes;
+const fetchImagesWithDocs = async (projectDocsRes: APIGatewayProxyResult) => {
   //fetch images associated with documents
   const parsedProjectDocs: SuccessResponseProps = JSON.parse(
     projectDocsRes.body
@@ -141,4 +135,17 @@ export async function handler(event: APIGatewayEvent) {
       result: newDocs,
     }),
   };
+};
+export async function handler(event: APIGatewayEvent) {
+  const projectDocsRes = await getTemplate({
+    e: event,
+    tableName: "projects",
+    successMessage: "Retrieved project results",
+    generateQuery,
+  });
+  const params = event.queryStringParameters;
+  if (!params) return projectDocsRes;
+  const { getImages } = params;
+  if (projectDocsRes.statusCode !== 200 || !getImages) return projectDocsRes;
+  return await fetchImagesWithDocs(projectDocsRes);
 }
