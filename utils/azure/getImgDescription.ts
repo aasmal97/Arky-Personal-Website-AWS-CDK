@@ -5,8 +5,10 @@ export const getImgDescription = async ({
   buffer,
   vision,
   mimeType,
+  imgWidth
 }: {
   buffer: Buffer;
+  imgWidth: number;
   mimeType?: string | null;
   vision: {
     apiEndpoint: string;
@@ -16,7 +18,7 @@ export const getImgDescription = async ({
   const newImg = await resizeImg({
     mimeType,
     fileBuffer: buffer,
-    width: 600,
+    width: imgWidth,
   });
   const encodedImg = newImg?.buffer;
   if (!encodedImg) return "";

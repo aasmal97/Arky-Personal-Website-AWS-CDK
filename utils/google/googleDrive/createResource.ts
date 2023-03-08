@@ -3,10 +3,10 @@ import { drive_v3 } from "googleapis";
 import { searchForFolderByChildResourceId } from "./searchForFolder";
 import { getDocuments } from "../../crudRestApiMethods/getMethod";
 import { putDocument } from "../../crudRestApiMethods/putMethod";
-import { marshall } from "@aws-sdk/util-dynamodb";
 import { resizeImg } from "../../general/resizeImg";
 import { uploadImgToS3 } from "../../general/s3Actions";
 import { getImgDescription } from "../../azure/getImgDescription";
+import { ProjectDocument } from "../../../app/lib/restAPI/resources/types/projectTypes";
 // import * as dotenv from "dotenv";
 // import { initalizeGoogleDrive } from "../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
 // import { convertToStr } from "../../../../../../utils/general/convertToStr";
@@ -25,7 +25,7 @@ const uploadResourceItems = async ({
 }: {
   restApiUrl: string;
   apiKey: string;
-  doc: any;
+  doc: ProjectDocument;
   imgDescription: string;
   imgKey: string;
   imgPlaceholderKey: string;
@@ -38,10 +38,7 @@ const uploadResourceItems = async ({
     apiKey,
     addedRoute: "projects/images",
     data: {
-      key: marshall({
-        documentId: doc.id,
-        imgURL: imgKey,
-      }),
+      documentId: doc.id,
       imgDescription: imgDescription,
       imgURL: imgKey,
       placeholderUrl: imgPlaceholderKey,
@@ -88,14 +85,18 @@ export const createResource = async ({
     ? Buffer.from(await result.fileBlob.arrayBuffer())
     : null;
   if (!fileBuffer) return;
+  const imageWidth = result.file.imageMediaMetadata?.width;
   const newPlaceholderBufferPromise = resizeImg({
     mimeType: result.file.mimeType,
     fileBuffer,
-    width: 100,
+    width:
+      (!imageWidth && imageWidth !== 0) || imageWidth > 100 ? 100 : imageWidth,
   });
   const getImgDescriptionPromise = getImgDescription({
     mimeType: result.file.mimeType,
     buffer: fileBuffer,
+    imgWidth:
+      (!imageWidth && imageWidth !== 0) || imageWidth > 400 ? 400 : imageWidth,
     vision,
   });
   const getDocResultsPromise = getDocuments({
@@ -103,8 +104,10 @@ export const createResource = async ({
     apiKey,
     addedRoute: "projects",
     params: {
-      recordType: "projects",
-      projectName: parentName,
+      query: {
+        recordType: "projects",
+        projectName: parentName,
+      },
     },
   });
   const [docResults, imgDescription, newPlaceholderBuffer] = await Promise.all([
@@ -112,7 +115,7 @@ export const createResource = async ({
     getImgDescriptionPromise,
     newPlaceholderBufferPromise,
   ]);
-  const doc = docResults.data.result.Items[0];
+  const doc = docResults.data.result.Items[0] as ProjectDocument;
   return await uploadResourceItems({
     restApiUrl,
     apiKey,

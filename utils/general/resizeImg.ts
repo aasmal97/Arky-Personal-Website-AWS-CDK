@@ -2,7 +2,7 @@ import * as Jimp from "jimp";
 export const resizeImg = async ({
   mimeType,
   fileBuffer,
-  width
+  width,
 }: {
   mimeType?: string | null;
   fileBuffer?: Buffer | null;
