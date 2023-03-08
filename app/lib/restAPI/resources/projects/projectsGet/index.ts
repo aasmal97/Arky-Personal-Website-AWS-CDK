@@ -8,7 +8,6 @@ import { marshall } from "@aws-sdk/util-dynamodb";
 import { Image, ProjectDocument } from "../../types/projectTypes";
 import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMethod";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
-
 export type ProjectQueryProps = {
   id?: string;
   appURL?: string;
