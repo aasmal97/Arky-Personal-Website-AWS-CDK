@@ -2,8 +2,6 @@ import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { getRepositories } from "../../../../../../../utils/github/getUserRepos";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 import axios, { AxiosError } from "axios";
-import * as dotenv from "dotenv";
-dotenv.config();
 type GithubChannelProps = {
   isInOrganization: boolean;
   repoName: string;
@@ -30,7 +28,7 @@ const checkChannelExists = async ({
     });
     const findHookCreatedByApp = data.filter(
       (hook: any) =>
-        hook.config.url === `https//${domainName}/github` && hook.active
+        hook.config.url === `https://${domainName}/github` && hook.active
     );
     result = findHookCreatedByApp.length > 0;
   } catch (err) {
@@ -82,8 +80,7 @@ const createChannel = async ({
     });
     return data;
   } catch (err) {
-    //console.error(err);
-    console.log(reqUrl)
+    const e = err as AxiosError
     return `Error setting up webhook for ${reqUrl}`;
   }
 };
@@ -117,11 +114,6 @@ const createWatchChannels = async () => {
   );
   return JSON.stringify(results, null, 4);
 };
-createWatchChannels()
-  .then((e) => console.log(e))
-  .catch((err) => {
-    console.error(err);
-  });
 
 export async function handler(
   e: APIGatewayEvent

@@ -5,8 +5,8 @@ import { initalizeGoogleDrive, unescapeNewLines } from "../../../../../../utils/
 import { initalizeGoogleDriveActivity } from "../../../../../../utils/google/googleDrive/initalizeGoogleDriveActivity";
 export type RequestProps = {
   token: string;
-  resourseId: string;
-  resourseURI: string;
+  resourceId: string;
+  resourceURI: string;
   state: string;
   contentChanged: string;
   body: { [key: string]: any };
@@ -26,8 +26,8 @@ const validateRequest = (
   const headers = e.headers;
   const {
     "X-Goog-Channel-Token": token,
-    "X-Goog-Resource-ID": resourseId,
-    "X-Goog-Resource-URI": resourseURI,
+    "X-Goog-Resource-ID": resourceId,
+    "X-Goog-Resource-URI": resourceURI,
     "X-Goog-Resource-State": state,
     "X-Goog-Changed": contentChanged,
   } = headers;
@@ -35,8 +35,8 @@ const validateRequest = (
   if (tokenIsValid !== true) return tokenIsValid;
   return {
     token: convertToStr(token),
-    resourseId: convertToStr(resourseId),
-    resourseURI: convertToStr(resourseURI),
+    resourceId: convertToStr(resourceId),
+    resourceURI: convertToStr(resourceURI),
     state: convertToStr(state),
     contentChanged: convertToStr(contentChanged),
     body: e.body ? JSON.parse(e.body) : {},
@@ -47,7 +47,7 @@ export async function handler(
 ): Promise<APIGatewayProxyResult> {
   const request = validateRequest(e);
   if (isAPIGatewayResult(request)) return request;
-  const { resourseId, resourseURI, state, contentChanged, body } = request;
+  const { resourceId, resourceURI, state, contentChanged, body } = request;
   const bucketName = convertToStr(process.env.S3_MEDIA_FILES_BUCKET_NAME);
   const drive = initalizeGoogleDrive({
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -61,7 +61,20 @@ export async function handler(
       convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
     ),
   });
+  let result: any;
+  switch (state) {
+    case "add":
 
+      break;
+    case "remove":
+      break;
+    case "update":
+      // const regex = new RegExp("", 'g')
+      // if(contentChanged)
+      break;
+    default:
+      break;
+  }
   try {
     return {
       statusCode: 200,
