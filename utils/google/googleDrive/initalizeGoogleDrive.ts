@@ -1,4 +1,4 @@
-import { setUpOathClient } from "../setupOathClient";
+import { setUpOathClient } from "../authClient/setupOathClient";
 import { google } from "googleapis";
 import { CredentialBody } from "google-auth-library";
 export const unescapeNewLines = (str: string) => {

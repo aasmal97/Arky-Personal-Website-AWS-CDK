@@ -1,7 +1,13 @@
 export type Image = {
+  pk: {
+    imgURL: string;
+    documentId: string;
+  };
+  id: string;
+  documentId: string;
   imgDescription: string;
   imgURL: string;
-  placeholderURL: string;
+  placeholderURL?: string;
 };
 export type ProjectDocument = {
   pk: {

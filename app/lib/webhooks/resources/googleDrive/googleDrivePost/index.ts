@@ -1,6 +1,9 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import validateWehbookToken from "../../../../../../utils/general/validateWebookTokens";
+import { initalizeGoogleDrive, unescapeNewLines } from "../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
+import { initalizeGoogleDriveActivity } from "../../../../../../utils/google/googleDrive/initalizeGoogleDriveActivity";
+// import { getDriveFileActivity } from "../../../../../../utils/google/googleDrive/getDriveFileActivity";
 export type RequestProps = {
   token: string;
   resourseId: string;
@@ -45,9 +48,21 @@ export async function handler(
 ): Promise<APIGatewayProxyResult> {
   const request = validateRequest(e);
   if (isAPIGatewayResult(request)) return request;
-  const { resourseId, resourseURI, state, contentChanged, body } =
-    request;
-  
+  const { resourseId, resourseURI, state, contentChanged, body } = request;
+  const bucketName = convertToStr(process.env.S3_MEDIA_FILES_BUCKET_NAME);
+  const drive = initalizeGoogleDrive({
+    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    private_key: unescapeNewLines(
+      convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
+    ),
+  });
+  const driveActivity = initalizeGoogleDriveActivity({
+    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    private_key: unescapeNewLines(
+      convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
+    ),
+  });
+
   try {
     return {
       statusCode: 200,

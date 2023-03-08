@@ -7,6 +7,7 @@ export type ProjectQueryProps = {
   appURL?: string;
   projectName?: string;
   description?: string;
+  imageKey?: string;
   sortBy?: {
     startDate?: 1 | -1;
     endDate?: 1 | -1;
@@ -25,7 +26,7 @@ const generateGetExpression = (query: ProjectQueryProps) => {
   let filterExpArr: string[] = [];
   let scanDirection = true;
   let index: string | undefined;
-  const expAttr: Record<string, string> = {
+  const expAttr: Record<string, any> = {
     "#recordTypeAtt": "recordType",
   };
   const expValMap: Record<string, any> = {
@@ -44,13 +45,14 @@ const generateGetExpression = (query: ProjectQueryProps) => {
     const equalExp = `${expKey} = ${expKeyVal}`;
     filterExpArr.push(expType === "contains" ? containsExp : equalExp);
   };
-  const { id, appURL, projectName, description, sortBy } = query;
+  const { id, appURL, projectName, description, sortBy, imageKey } = query;
   if (typeof id === "string") addParamater("id", id, "equals");
   if (typeof projectName === "string")
     addParamater("projectName", projectName, "contains");
   if (typeof description === "string")
     addParamater("description", description, "contains");
   if (typeof appURL === "string") addParamater("appURL", appURL, "contains");
+  //if(typeof imageKey === 'string') 
   if (sortBy) {
     const startDate = sortBy.startDate;
     const endDate = sortBy.endDate;

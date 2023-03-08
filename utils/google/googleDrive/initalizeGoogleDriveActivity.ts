@@ -1,15 +1,16 @@
-import { setUpOathClient } from "../setupOathClient";
+import { setUpOathClient } from "../authClient/setupOathClient";
 import { google } from "googleapis";
 import { CredentialBody } from "google-auth-library";
-export const initalizeGoogleDrive = (
+export const initalizeGoogleDriveActivity = (
   credentials: CredentialBody | undefined
 ) => {
   const authClient = setUpOathClient({
     credentials: credentials,
   });
-  const vision = google.vision({
-    version: "v1",
+  const drive = google.driveactivity({
+    version: "v2",
     auth: authClient,
   });
-  return vision;
+
+  return drive;
 };
