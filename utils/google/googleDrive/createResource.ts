@@ -74,7 +74,7 @@ export const createResource = async ({
   apiKey: string;
   bucketName: string;
   drive: drive_v3.Drive;
-  resourceId: RequestProps["resourseId"];
+  resourceId: string;
   vision: {
     apiEndpoint: string;
     apiKey: string;
