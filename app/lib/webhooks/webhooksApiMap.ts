@@ -58,6 +58,7 @@ const webhooksApiMap = ({
             process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
           ),
         },
+        memorySize: 768,
         role: createLambdaRole("WebhooksGoogleDrivePostRole", {
           webhooksS3PutRole: createS3BucketPolicy("PUT", {
             id: camelCase(s3MediaBucket?.name),

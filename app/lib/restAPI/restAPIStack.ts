@@ -8,7 +8,6 @@ import { createAliasRecord } from "../../../utils/createResources/createRecords"
 import { HostingStack } from "../hosting/hostingStack";
 import { searchForSecretsWrapper } from "../../../utils/buildFuncs/searchForSecrets";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
-
 export class RestAPIStack extends cdk.Stack {
   createAPI: (e: HostingStack) => cdk.aws_apigateway.RestApi;
   getRestApi: () => cdk.aws_apigateway.RestApi | undefined;
