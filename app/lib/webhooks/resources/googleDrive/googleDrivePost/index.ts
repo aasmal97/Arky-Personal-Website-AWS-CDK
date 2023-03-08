@@ -3,7 +3,6 @@ import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import validateWehbookToken from "../../../../../../utils/general/validateWebookTokens";
 import { initalizeGoogleDrive, unescapeNewLines } from "../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
 import { initalizeGoogleDriveActivity } from "../../../../../../utils/google/googleDrive/initalizeGoogleDriveActivity";
-// import { getDriveFileActivity } from "../../../../../../utils/google/googleDrive/getDriveFileActivity";
 export type RequestProps = {
   token: string;
   resourseId: string;

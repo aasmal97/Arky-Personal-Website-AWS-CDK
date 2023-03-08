@@ -4,14 +4,20 @@ import {
 } from "../../../utils/createResources/createApiTree";
 import { searchForSecretsWrapper } from "../../../utils/buildFuncs/searchForSecrets";
 import { convertToStr } from "../../../utils/general/convertToStr";
+import { createLambdaRole } from "../../../utils/rolesFuncs/createLambdaRole";
+import { createS3BucketPolicy } from "../../../utils/rolesFuncs/createS3BucketPolicy";
+import { camelCase } from "lodash";
 const webhooksApiMap = ({
   webhooksAPIDomainName,
   restApiDomainName,
-  s3MediaBucketName,
+  s3MediaBucket,
 }: {
   restApiDomainName?: string;
   webhooksAPIDomainName?: string;
-  s3MediaBucketName?: string;
+  s3MediaBucket?: {
+    name: string;
+    arn: string;
+  };
 }): RestAPIType => {
   const parsed = searchForSecretsWrapper(__dirname);
   return {
@@ -32,12 +38,18 @@ const webhooksApiMap = ({
       post: {
         location: generateLocation(["googleDrive", "post"], __dirname),
         env: {
-          S3_MEDIA_FILES_BUCKET_NAME: convertToStr(s3MediaBucketName),
+          S3_MEDIA_FILES_BUCKET_NAME: convertToStr(s3MediaBucket?.name),
           AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
           AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
           WEBHOOKS_API_KEY: convertToStr(parsed.WEBHOOKS_API_KEY),
           WEBHOOKS_API_TOKEN_SECRET: convertToStr(
             parsed.WEBHOOKS_API_TOKEN_SECRET
+          ),
+          AZURE_COMPUTER_VISION_API_ENDPOINT: convertToStr(
+            parsed.AZURE_COMPUTER_VISION_API_ENDPOINT
+          ),
+          AZURE_COMPUTER_VISION_API_KEY: convertToStr(
+            parsed.AZURE_COMPUTER_VISION_API_KEY
           ),
           GOOGLE_SERVICE_ACCOUNT_EMAIL: convertToStr(
             process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
@@ -46,6 +58,16 @@ const webhooksApiMap = ({
             process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
           ),
         },
+        role: createLambdaRole("WebhooksGoogleDrivePostRole", {
+          webhooksS3PutRole: createS3BucketPolicy("PUT", {
+            id: camelCase(s3MediaBucket?.name),
+            arn: camelCase(s3MediaBucket?.arn),
+          }),
+          webhooksS3DeleteRole: createS3BucketPolicy("DELETE", {
+            id: camelCase(s3MediaBucket?.name),
+            arn: camelCase(s3MediaBucket?.arn),
+          }),
+        }),
         apiKeyRequired: false,
       },
     },
@@ -94,5 +116,4 @@ const webhooksApiMap = ({
     },
   };
 };
-
 export default webhooksApiMap;

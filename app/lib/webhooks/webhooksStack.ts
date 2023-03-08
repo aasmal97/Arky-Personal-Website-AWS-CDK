@@ -16,19 +16,22 @@ export class WebhooksStack extends cdk.Stack {
     hostingZone: cdk.aws_route53.IHostedZone,
     certificate: cdk.aws_certificatemanager.Certificate
   ) => [cdk.aws_route53.ARecord, cdk.aws_apigateway.RestApi] | null;
-  createAPI: (restApiDomainName?: string, s3MediaBucketName?: string) => cdk.aws_apigateway.RestApi;
+  createAPI: (restApiDomainName?: string, s3MediaBucket?: {
+    name: string;
+    arn: string
+  }) => cdk.aws_apigateway.RestApi;
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     let api: cdk.aws_apigateway.RestApi | undefined;
     const webhooksAPIDomainName = "webhooks.api.arkyasmal.com";
     const parsed = searchForSecretsWrapper(__dirname);
-    this.createAPI = (restApiDomainName, s3MediaBucketName) => {
+    this.createAPI = (restApiDomainName, s3MediaBucket) => {
       api = createApi(
         this,
         webhooksApiMap({
           webhooksAPIDomainName: webhooksAPIDomainName,
           restApiDomainName: restApiDomainName,
-          s3MediaBucketName: s3MediaBucketName
+          s3MediaBucket: s3MediaBucket,
         }),
         "webhooks-api"
       );

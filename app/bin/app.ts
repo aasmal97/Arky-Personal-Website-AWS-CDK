@@ -20,7 +20,7 @@ const restAPIStack = new RestAPIStack(app, "RestApiStack", {
 });
 //resources that need to accessed by other stacks
 const hostingZone = hostingStack.getHostedZone();
-const s3MediaBucket = hostingStack.getImgBucket()
+const s3MediaBucket = hostingStack.getImgBucket();
 const certificate = hostingStack.getCertificate();
 //create rest api
 restAPIStack.createAPI(hostingStack);
@@ -29,5 +29,8 @@ const mapResult = restAPIStack.mapAPIToHostedZone(hostingZone, certificate);
 const webhooksStack = new WebhooksStack(app, "WebhooksStack", {});
 //create webhooks api
 const webhooksCertificate = webhooksStack.createCertificate(hostingZone);
-webhooksStack.createAPI(mapResult ? mapResult[0].domainName : undefined, s3MediaBucket.bucketName);
+webhooksStack.createAPI(mapResult ? mapResult[0].domainName : undefined, {
+  name: s3MediaBucket.bucketName,
+  arn: s3MediaBucket.bucketArn,
+});
 webhooksStack.mapAPIToHostedZone(hostingZone, webhooksCertificate);
