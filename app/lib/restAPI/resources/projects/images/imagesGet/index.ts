@@ -8,16 +8,11 @@ import {
   initializeQueryResources,
   validateGeneralGetQuery,
 } from "../../../../../../../utils/apiTemplates/generateDynamoQueries";
+import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 export type ImageQueryProps = Partial<Image>;
 const generateGetExpression = (query: ImageQueryProps) => {
-  let {
-    keyExpArr,
-    filterExpArr,
-    scanDirection,
-    index,
-    expAttrMap,
-    expValMap,
-  } = initializeQueryResources();
+  let { keyExpArr, filterExpArr, scanDirection, index, expAttrMap, expValMap } =
+    initializeQueryResources();
   const { id, documentId, imgURL, imgDescription, pk, placeholderURL } = query;
   if (pk) {
     addParamater({
@@ -116,7 +111,9 @@ const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
   const { keyExp, expVal, expAttrMap, filterExp, scanDirection, index } =
     generateGetExpression(parsedQuery);
   const dynamoQuery: QueryCommandInput = {
-    TableName: "projectImages",
+    TableName: convertToStr(
+      process.env.AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_NAME
+    ),
     KeyConditionExpression: keyExp,
     FilterExpression: filterExp,
     ExpressionAttributeNames: expAttrMap,
@@ -130,7 +127,9 @@ const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
 export async function handler(event: APIGatewayEvent) {
   return await getTemplate({
     e: event,
-    tableName: "projectImages",
+    tableName: convertToStr(
+      process.env.AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_NAME
+    ),
     successMessage: "Retrieved project results",
     generateQuery,
   });

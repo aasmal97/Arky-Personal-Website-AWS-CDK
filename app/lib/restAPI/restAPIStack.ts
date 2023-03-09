@@ -56,14 +56,17 @@ export class RestAPIStack extends cdk.Stack {
     });
     const tablesMap = {
       hobbies: {
+        name: hobbiesDb.tableName,
         id: hobbiesDbTableName,
         arn: hobbiesDb.tableArn,
       },
       projects: {
+        name: projectsDb.tableName,
         id: projectsDBTableName,
         arn: projectsDb.tableArn,
       },
       projectImages: {
+        name: projectImagesDb.tableName,
         id: projectImagesDBTableName,
         arn: projectImagesDb.tableArn,
       },

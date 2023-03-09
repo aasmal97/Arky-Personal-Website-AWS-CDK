@@ -3,6 +3,7 @@ import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { postTemplate } from "../../../../../../utils/apiTemplates/postTemplate";
 import { convertToAttr } from "@aws-sdk/util-dynamodb";
 import { ProjectDocument } from "../../types/projectTypes";
+import { convertToStr } from "../../../../../../utils/general/convertToStr";
 const convertToAttributeStr = (s: any) => {
   if (typeof s !== "string") return null;
   return convertToAttr(s);
@@ -48,7 +49,9 @@ export async function handler(
   return await postTemplate({
     e,
     callback: createDocument,
-    tableName: "projects",
+    tableName: convertToStr(
+        process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME
+      ),
     successMessage: "Updated projects document",
   });
 }

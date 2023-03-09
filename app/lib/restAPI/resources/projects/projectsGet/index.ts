@@ -87,7 +87,9 @@ const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
   const { keyExp, expVal, expAttr, filterExp, scanDirection, index } =
     generateGetExpression(parsedQuery);
   const dynamoQuery: QueryCommandInput = {
-    TableName: "projects",
+    TableName: convertToStr(
+        process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME
+      ),
     KeyConditionExpression: keyExp,
     FilterExpression: filterExp,
     ExpressionAttributeNames: expAttr,
@@ -138,7 +140,9 @@ const fetchImagesWithDocs = async (projectDocsRes: APIGatewayProxyResult) => {
 export async function handler(event: APIGatewayEvent) {
   const projectDocsRes = await getTemplate({
     e: event,
-    tableName: "projects",
+    tableName: convertToStr(
+        process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME
+      ),
     successMessage: "Retrieved project results",
     generateQuery,
   });

@@ -2,6 +2,7 @@ import { QueryCommandInput } from "@aws-sdk/client-dynamodb";
 import { APIGatewayEvent } from "aws-lambda";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { getTemplate } from "../../../../../../utils/apiTemplates/getTemplate";
+import { convertToStr } from "../../../../../../utils/general/convertToStr";
 export type HobbiesQueryProps = {
   id?: string;
   name?: string;
@@ -74,7 +75,7 @@ const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
   const { keyExp, expVal, expAttr, filterExp, scanDirection, index } =
     generateGetExpression(parsedQuery);
   const dynamoQuery: QueryCommandInput = {
-    TableName: "hobbies",
+    TableName: convertToStr(process.env.AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME),
     KeyConditionExpression: keyExp,
     FilterExpression: filterExp,
     ExpressionAttributeNames: expAttr,
@@ -88,7 +89,7 @@ const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
 export async function handler(event: APIGatewayEvent) {
   return await getTemplate({
     e: event,
-    tableName: "hobbies",
+    tableName: convertToStr(process.env.AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME),
     successMessage: "Retrieved hobby results",
     generateQuery: generateQuery,
   });

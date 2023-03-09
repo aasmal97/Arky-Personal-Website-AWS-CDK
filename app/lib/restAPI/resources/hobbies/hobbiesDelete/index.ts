@@ -1,6 +1,7 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { deleteTemplate } from "../../../../../../utils/apiTemplates/deleteTemplate";
+import { convertToStr } from "../../../../../../utils/general/convertToStr";
 // const convertToAttributeStr = (s: any) => ({
 //   S: typeof s === "string" ? s : "",
 // });
@@ -30,7 +31,7 @@ export async function handler(
   try {
     const result = await deleteTemplate({
       document,
-      tableName: "hobbies",
+      tableName: convertToStr(process.env.AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME),
       successMessage: "deleted user image in hobbies",
     });
     return result;

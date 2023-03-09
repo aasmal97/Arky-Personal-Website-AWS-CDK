@@ -1,6 +1,7 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { postTemplate } from "../../../../../../utils/apiTemplates/postTemplate";
+import { convertToStr } from "../../../../../../utils/general/convertToStr";
 const convertToAttributeStr = (s: any) => {
   if (!s) return null;
   if (!(typeof s === "string")) return null;
@@ -41,6 +42,6 @@ export async function handler(
     e,
     callback: createDocument,
     successMessage: "Updated hobbies document in hobbies table",
-    tableName: "hobbies",
+    tableName: convertToStr(process.env.AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME),
   });
 }

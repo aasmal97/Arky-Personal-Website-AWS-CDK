@@ -4,6 +4,7 @@ import {
   putTemplate,
   isString,
 } from "../../../../../../utils/apiTemplates/putTemplate";
+import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import { marshall } from "@aws-sdk/util-dynamodb";
 const createDocument = (e: APIGatewayEvent) => {
   if (!e.body)
@@ -55,7 +56,7 @@ export async function handler(
   return await putTemplate({
     e,
     callback: createDocument,
-    tableName: "hobbies",
+    tableName: convertToStr(process.env.AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME),
     successMessage: "Added hobby document to hobbies table",
   });
 }

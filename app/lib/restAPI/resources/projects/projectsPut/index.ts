@@ -65,7 +65,7 @@ export async function handler(
   };
   try {
     const params: PutItemCommandInput = {
-      TableName: "projects",
+      TableName: convertToStr(process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME),
       Item: marshall(document),
     };
     const client = new DynamoDBClient({
