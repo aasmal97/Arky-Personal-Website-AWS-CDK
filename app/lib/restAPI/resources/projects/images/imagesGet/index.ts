@@ -90,7 +90,10 @@ const generateGetExpression = (query: ImageQueryProps) => {
       expValMap,
       expAttrMap,
     });
-  const expVal = marshall(expValMap);
+  const expVal = marshall(expValMap, {
+    convertClassInstanceToMap: true,
+    removeUndefinedValues: true,
+  });
   const keyExp = keyExpArr.reduce((a, b) => a + " AND " + b);
   const filterExp = filterExpArr.reduce((a, b) => a + " AND " + b);
   return {

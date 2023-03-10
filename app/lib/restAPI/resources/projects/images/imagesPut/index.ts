@@ -49,7 +49,10 @@ export async function handler(
       TableName: convertToStr(
         process.env.AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_NAME
       ),
-      Item: marshall(document),
+      Item: marshall(document, {
+        convertClassInstanceToMap: true,
+        removeUndefinedValues: true,
+      }),
     };
     const client = new DynamoDBClient({
       region: "us-east-1",
@@ -66,7 +69,10 @@ export async function handler(
   } catch (e) {
     return {
       statusCode: 500,
-      body: "Bad Request",
+      body: JSON.stringify({
+        message: "Bad Request",
+        error: e
+      }),
     };
   }
 }

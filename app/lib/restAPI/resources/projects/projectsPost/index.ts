@@ -1,17 +1,9 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
-import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { postTemplate } from "../../../../../../utils/apiTemplates/postTemplate";
-import { convertToAttr } from "@aws-sdk/util-dynamodb";
 import { ProjectDocument } from "../../types/projectTypes";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
-const convertToAttributeStr = (s: any) => {
-  if (typeof s !== "string") return null;
-  return convertToAttr(s);
-};
-const convertToAttributeArr = (arr: any) => {
-  if (!Array.isArray(arr)) return null;
-  return convertToAttr(arr);
-};
+import { marshall } from "@aws-sdk/util-dynamodb";
+
 const createDocument = (e: APIGatewayEvent) => {
   if (!e.body)
     return {
@@ -22,7 +14,6 @@ const createDocument = (e: APIGatewayEvent) => {
   const {
     projectName,
     description,
-    images,
     appURL,
     githubURL,
     startDate,
@@ -30,18 +21,20 @@ const createDocument = (e: APIGatewayEvent) => {
     topics,
     archived
   } = body ;
-  const document: Record<string, AttributeValue | null> = {
-    images: convertToAttributeArr(images),
-    appURL: convertToAttributeStr(appURL),
-    projectName: convertToAttributeStr(projectName),
-    githubURL: convertToAttributeStr(githubURL),
-    description: convertToAttributeStr(description),
-    startDate: convertToAttributeStr(startDate),
-    endDate: convertToAttributeStr(endDate),
-    topics: convertToAttributeArr(topics),
-    archived: convertToAttr(archived),
+  const document = {
+    appURL: appURL,
+    projectName: projectName,
+    githubURL: githubURL,
+    description: description,
+    startDate: startDate,
+    endDate: endDate,
+    topics: topics,
+    archived: archived,
   };
-  return document;
+  return marshall(document, {
+    convertClassInstanceToMap: true,
+    removeUndefinedValues: true,
+  });
 };
 export async function handler(
   e: APIGatewayEvent

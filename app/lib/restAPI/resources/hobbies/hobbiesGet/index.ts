@@ -55,7 +55,10 @@ const generateGetExpression = (e: HobbiesQueryProps) => {
       index = "SortByDateTaken";
     }
   }
-  const expVal = marshall(expValMap);
+  const expVal = marshall(expValMap, {
+    convertClassInstanceToMap: true,
+    removeUndefinedValues: true,
+  });
   const filterExp = filterExpArr.reduce((a, b) => a + " AND " + b);
   return {
     keyExp: expression,

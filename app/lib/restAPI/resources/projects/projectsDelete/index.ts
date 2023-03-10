@@ -36,12 +36,12 @@ export async function handler(
 
   //delete record in dyanmo db table
   const result = await deleteTemplate({
-    document: marshall(primaryKey as ProjectDocument["pk"]),
-    tableName: convertToStr(
-        process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME
-      ),
+    document: marshall(primaryKey as ProjectDocument["pk"], {
+      convertClassInstanceToMap: true,
+      removeUndefinedValues: true,
+    }),
+    tableName: convertToStr(process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME),
     successMessage: "deleted record from projects",
   });
   return result;
 }
-

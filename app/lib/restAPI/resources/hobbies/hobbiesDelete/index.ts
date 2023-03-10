@@ -38,7 +38,10 @@ export async function handler(
   } catch (e) {
     return {
       statusCode: 500,
-      body: "Bad Request",
+      body: JSON.stringify({
+        message: "Bad Request",
+        error: e
+      }),
     };
   }
 }

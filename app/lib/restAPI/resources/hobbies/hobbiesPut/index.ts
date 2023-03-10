@@ -48,7 +48,10 @@ const createDocument = (e: APIGatewayEvent) => {
     dateCreated: currDate,
     orientation: width / height >= 1 ? "horizontal" : "vertical",
   };
-  return marshall(document);
+  return marshall(document, {
+    convertClassInstanceToMap: true,
+    removeUndefinedValues: true,
+  });
 };
 export async function handler(
   e: APIGatewayEvent

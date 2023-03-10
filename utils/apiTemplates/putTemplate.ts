@@ -63,7 +63,10 @@ export async function putTemplate({
   } catch (e) {
     return {
       statusCode: 500,
-      body: "Bad Request",
+      body: JSON.stringify({
+        message: "Bad Request",
+        error: e
+      }),
     };
   }
 }

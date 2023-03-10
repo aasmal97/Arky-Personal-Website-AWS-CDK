@@ -2,19 +2,7 @@ import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { postTemplate } from "../../../../../../utils/apiTemplates/postTemplate";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
-const convertToAttributeStr = (s: any) => {
-  if (!s) return null;
-  if (!(typeof s === "string")) return null;
-  return {
-    S: s,
-  };
-};
-const convertToAttributeNum = (n: number) => {
-  if (!(typeof n === "number")) return null;
-  return {
-    N: n.toString(),
-  };
-};
+import { marshall } from "@aws-sdk/util-dynamodb";
 const createDocument = (e: APIGatewayEvent) => {
   if (!e.body)
     return {
@@ -26,14 +14,17 @@ const createDocument = (e: APIGatewayEvent) => {
     e.body
   );
   const document: Record<string, AttributeValue | null> = {
-    name: convertToAttributeStr(name),
-    description: convertToAttributeStr(description),
-    src: convertToAttributeStr(src),
-    placeholderSrc: convertToAttributeStr(placeholderSrc),
-    height: convertToAttributeNum(height),
-    width: convertToAttributeNum(width),
+    name: name,
+    description: description,
+    src: src,
+    placeholderSrc: placeholderSrc,
+    height: height,
+    width: width,
   };
-  return document;
+  return marshall(document, {
+        convertClassInstanceToMap: true,
+        removeUndefinedValues: true,
+      });
 };
 export async function handler(
   e: APIGatewayEvent

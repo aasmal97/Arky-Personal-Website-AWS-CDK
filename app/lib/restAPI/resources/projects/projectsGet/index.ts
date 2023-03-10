@@ -8,6 +8,7 @@ import { marshall } from "@aws-sdk/util-dynamodb";
 import { Image, ProjectDocument } from "../../types/projectTypes";
 import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMethod";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
+
 export type ProjectQueryProps = {
   id?: string;
   appURL?: string;
@@ -17,7 +18,6 @@ export type ProjectQueryProps = {
     startDate?: 1 | -1;
     endDate?: 1 | -1;
   };
-  recordType: string;
 };
 
 function isProjectQueryProps(e: any): e is ProjectQueryProps {
@@ -36,7 +36,7 @@ const generateGetExpression = (query: ProjectQueryProps) => {
     "#recordTypeAtt": "recordType",
   };
   const expValMap: Record<string, any> = {
-    ":recordTypeVal": query.recordType,
+    ":recordTypeVal": "projects",
   };
   const addParamater = (
     key: string,
@@ -67,7 +67,10 @@ const generateGetExpression = (query: ProjectQueryProps) => {
       index = "SortByDateEnded";
     }
   }
-  const expVal = marshall(expValMap);
+  const expVal = marshall(expValMap, {
+    convertClassInstanceToMap: true,
+    removeUndefinedValues: true,
+  });
   const filterExp = filterExpArr.reduce((a, b) => a + " AND " + b);
   return {
     keyExp: expression,
@@ -87,9 +90,7 @@ const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
   const { keyExp, expVal, expAttr, filterExp, scanDirection, index } =
     generateGetExpression(parsedQuery);
   const dynamoQuery: QueryCommandInput = {
-    TableName: convertToStr(
-        process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME
-      ),
+    TableName: convertToStr(process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME),
     KeyConditionExpression: keyExp,
     FilterExpression: filterExp,
     ExpressionAttributeNames: expAttr,
@@ -140,9 +141,7 @@ const fetchImagesWithDocs = async (projectDocsRes: APIGatewayProxyResult) => {
 export async function handler(event: APIGatewayEvent) {
   const projectDocsRes = await getTemplate({
     e: event,
-    tableName: convertToStr(
-        process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME
-      ),
+    tableName: convertToStr(process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME),
     successMessage: "Retrieved project results",
     generateQuery,
   });

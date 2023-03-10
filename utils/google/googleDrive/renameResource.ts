@@ -58,7 +58,10 @@ export const renameResource = async ({
     restApiUrl,
     apiKey,
     data: {
-      key: marshall(doc.data.pk),
+      key: marshall(doc.data.pk, {
+        convertClassInstanceToMap: true,
+        removeUndefinedValues: true,
+      }),
       projectName: changes.newTitle,
     },
     addedRoute: "projects",

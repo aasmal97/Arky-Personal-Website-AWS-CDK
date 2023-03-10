@@ -27,12 +27,12 @@ export async function handler(
   const {
     projectName,
     description,
-    images,
     appURL,
     githubURL,
     startDate,
     endDate,
     topics,
+    archived,
   } = JSON.parse(e.body);
   if (!projectName)
     return {
@@ -44,6 +44,17 @@ export async function handler(
       statusCode: 400,
       body: "Invalid types assigned to name",
     };
+  if (!startDate)
+    return {
+      statusCode: 400,
+      body: "You must provide a start date",
+    };
+  const newStartDate = new Date(startDate);
+  if (isNaN(newStartDate.valueOf()))
+    return {
+      statusCode: 400,
+      body: "Invalid Start Date",
+    };
   const currDate = new Date().toISOString();
   const document: ProjectDocument = {
     pk: {
@@ -52,38 +63,43 @@ export async function handler(
     },
     recordType: "projects",
     id: uuid(),
-    appURL: convertToStr(appURL),
-    images: images,
+    appURL: appURL,
     projectName: projectName,
-    githubURL: convertToStr(githubURL),
-    description: convertToStr(description),
-    startDate: convertToStr(startDate),
-    endDate: convertToStr(endDate),
+    githubURL: githubURL,
+    description: description,
+    startDate: newStartDate.toISOString(),
+    endDate: endDate,
     dateCreated: currDate,
     topics: Array.isArray(topics) ? topics : [],
-    archived: false,
+    archived: archived,
   };
   try {
-    const params: PutItemCommandInput = {
-      TableName: convertToStr(process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME),
-      Item: marshall(document),
-    };
     const client = new DynamoDBClient({
       region: "us-east-1",
     });
+    const params: PutItemCommandInput = {
+      TableName: convertToStr(process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME),
+      Item: marshall(document, {
+        convertClassInstanceToMap: true,
+        removeUndefinedValues: true,
+      }),
+    };
     const command = new PutItemCommand(params);
     await client.send(command);
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: "Added project document to project table",
-        document: document,
+        document: document
       }),
     };
   } catch (e) {
     return {
       statusCode: 500,
-      body: "Bad Request",
+      body: JSON.stringify({
+        message: "Bad Request",
+        error: e
+      }),
     };
   }
 }
