@@ -8,7 +8,7 @@ import { marshall } from "@aws-sdk/util-dynamodb";
 import { Image, ProjectDocument } from "../../types/projectTypes";
 import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMethod";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
-
+import { validateGeneralGetQuery } from "../../../../../../utils/apiTemplates/generateDynamoQueries";
 export type ProjectQueryProps = {
   id?: string;
   appURL?: string;
@@ -58,6 +58,7 @@ const generateGetExpression = (query: ProjectQueryProps) => {
   if (typeof description === "string")
     addParamater("description", description, "contains");
   if (typeof appURL === "string") addParamater("appURL", appURL, "contains");
+  
   if (sortBy) {
     const startDate = sortBy.startDate;
     const endDate = sortBy.endDate;
@@ -82,10 +83,9 @@ const generateGetExpression = (query: ProjectQueryProps) => {
   };
 };
 const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
-  if (!e.queryStringParameters) return null;
-  const { startKey, query } = e.queryStringParameters;
-  const parsedStartKey = startKey ? JSON.parse(startKey) : {};
-  const parsedQuery = query ? JSON.parse(query) : {};
+  const result = validateGeneralGetQuery(e);
+  if (!result) return result;
+  const { parsedStartKey, parsedQuery } = result;
   if (!isProjectQueryProps(parsedQuery)) return null;
   const { keyExp, expVal, expAttr, filterExp, scanDirection, index } =
     generateGetExpression(parsedQuery);

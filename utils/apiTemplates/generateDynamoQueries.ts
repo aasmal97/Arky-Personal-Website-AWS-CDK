@@ -47,7 +47,7 @@ export const initializeQueryResources = () => {
 export const validateGeneralGetQuery = (e: APIGatewayEvent) => {
   if (!e.queryStringParameters) return null;
   const { startKey, query } = e.queryStringParameters;
-  const parsedStartKey = startKey ? JSON.parse(startKey) : {};
+  const parsedStartKey = startKey ? JSON.parse(startKey) : undefined;
   const parsedQuery = query ? JSON.parse(query) : {};
   return { parsedStartKey, parsedQuery };
 };

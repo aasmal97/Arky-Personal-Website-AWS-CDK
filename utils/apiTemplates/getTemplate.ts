@@ -188,6 +188,10 @@ export const getTemplate = async ({
       statusCode: 400,
       body: "Please provide a valid query",
     };
+  // return {
+  //   statusCode: 200, 
+  //   body: JSON.stringify(query)
+  // }
   const result = await queryUntilRequestPageNum({
     tableName,
     successMessage,

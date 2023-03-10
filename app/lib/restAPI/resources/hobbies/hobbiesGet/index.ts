@@ -3,6 +3,7 @@ import { APIGatewayEvent } from "aws-lambda";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { getTemplate } from "../../../../../../utils/apiTemplates/getTemplate";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
+import { validateGeneralGetQuery } from "../../../../../../utils/apiTemplates/generateDynamoQueries";
 export type HobbiesQueryProps = {
   id?: string;
   name?: string;
@@ -70,10 +71,9 @@ const generateGetExpression = (e: HobbiesQueryProps) => {
   };
 };
 const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
-  if (!e.queryStringParameters) return null;
-  const { startKey, query } = e.queryStringParameters;
-  const parsedStartKey = startKey ? JSON.parse(startKey) : {};
-  const parsedQuery = query ? JSON.parse(query) : {};
+  const result = validateGeneralGetQuery(e);
+  if (!result) return result;
+  const { parsedStartKey, parsedQuery } = result;
   if (!isHobbyQueryProps(parsedQuery)) return null;
   const { keyExp, expVal, expAttr, filterExp, scanDirection, index } =
     generateGetExpression(parsedQuery);
