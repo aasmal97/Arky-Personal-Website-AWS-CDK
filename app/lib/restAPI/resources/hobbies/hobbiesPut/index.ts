@@ -13,23 +13,23 @@ const createDocument = (e: APIGatewayEvent) => {
       body: "Please provide a valid response body",
     };
 
-  const { name, description, src, placeholderSrc, height, width } = JSON.parse(
+  const { name, imgDescription, imgURL, placeholderURL, height, width } = JSON.parse(
     e.body
   );
-  if (!name || !description || !src || !height || !width)
+  if (!name || !imgDescription || !imgURL || !height || !width)
     return {
       statusCode: 400,
-      body: "You must provide a name, description, src, placeholderSrc, height, and width attribute",
+      body: "You must provide a name, imgDescription, imgURL, placeholderURL, height, and width attribute",
     };
   if (
     !isString(name) ||
-    !isString(description) ||
-    !isString(src) ||
-    (placeholderSrc && !isString(placeholderSrc))
+    !isString(imgDescription) ||
+    !isString(imgURL) ||
+    (placeholderURL && !isString(placeholderURL))
   )
     return {
       statusCode: 400,
-      body: "Invalid types assigned to either name, description, src or placeholderSrc",
+      body: "Invalid types assigned to either name, imgDescription, imgURL or placeholderURL",
     };
   const currDate = new Date().toISOString();
   const document = {
@@ -40,9 +40,9 @@ const createDocument = (e: APIGatewayEvent) => {
     recordType: "hobbies",
     id: uuid(),
     name: name,
-    description: description,
-    src: src,
-    placeholderSrc: placeholderSrc,
+    imgDescription: imgDescription,
+    imgURL: imgURL,
+    placeholderURL: placeholderURL,
     height: height,
     width: width,
     dateCreated: currDate,

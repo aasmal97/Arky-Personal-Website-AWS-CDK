@@ -9,7 +9,7 @@ axios({
   },
   params: {
     query: JSON.stringify({
-      orientation: "vertical",
+      orientation: "horizontal",
     }),
     max: 1,
   },

@@ -8,8 +8,11 @@ axios({
     "x-api-key": process.env.AMAZON_REST_API_KEY,
   },
   data: {
-    projectName: "adjust to 2",
-    startDate: new Date().toISOString()
+    name: "hello",
+    imgDescription: "hello", 
+    imgURL: 'hello',
+    height: 1600, 
+    width: 2400,
   }
 })
   .then((e) => console.log(e.data))

@@ -25,7 +25,10 @@ export async function handler(
     };
   try {
     const result = await deleteTemplate({
-      document: marshall(key),
+      document: marshall(key, {
+        convertClassInstanceToMap: true,
+        removeUndefinedValues: true,
+      }),
       tableName: convertToStr(process.env.AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME),
       successMessage: "deleted user image in hobbies",
     });

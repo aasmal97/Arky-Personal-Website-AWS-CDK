@@ -7,7 +7,7 @@ import { validateGeneralGetQuery } from "../../../../../../utils/apiTemplates/ge
 export type HobbiesQueryProps = {
   id?: string;
   name?: string;
-  description?: string;
+  imgDescription?: string;
   orientation: "vertical" | "horizontal";
   sortBy?: {
     dateCreated?: 1 | -1;
@@ -45,8 +45,8 @@ const generateGetExpression = (e: HobbiesQueryProps) => {
   };
   if (typeof e.id === "string") addParamater("id", e.id, "equals");
   if (typeof e.name === "string") addParamater("name", e.name, "contains");
-  if (typeof e.description === "string")
-    addParamater("description", e.description, "contains");
+  if (typeof e.imgDescription === "string")
+    addParamater("imgDescription", e.imgDescription, "contains");
   if (e.sortBy) {
     const dateCreated = e.sortBy.dateCreated;
     const dateTaken = e.sortBy.dateTaken;
