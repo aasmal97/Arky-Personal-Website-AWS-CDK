@@ -22,7 +22,8 @@ export async function handler(
       body: "Please provide a valid response body",
     };
   const body: Partial<Image> = JSON.parse(e.body);
-  const { imgDescription, imgURL, placeholderURL, documentId } = body;
+  const { imgDescription, imgURL, placeholderURL, documentId, width, height } =
+    body;
   if (!documentId || !imgURL)
     return {
       statusCode: 400,
@@ -32,6 +33,13 @@ export async function handler(
     return {
       statusCode: 400,
       body: "You must provide a valid image description",
+    };
+     const newWidth = typeof width === "string" ? parseFloat(width) : width
+  const newHeight = typeof height === "string" ? parseFloat(height) : height
+  if (newWidth && typeof newWidth !== "number" || newHeight && typeof newHeight !== "number")
+    return {
+      statusCode: 400,
+      body: "Invalid types assigned to width and height. Ensure they are integers or float types",
     };
   const document: Image = {
     pk: {
@@ -43,6 +51,8 @@ export async function handler(
     imgDescription,
     id: uuid(),
     placeholderURL,
+    width: newWidth,
+    height: newHeight,
   };
   try {
     const params: PutItemCommandInput = {
@@ -71,7 +81,7 @@ export async function handler(
       statusCode: 500,
       body: JSON.stringify({
         message: "Bad Request",
-        error: e
+        error: e,
       }),
     };
   }

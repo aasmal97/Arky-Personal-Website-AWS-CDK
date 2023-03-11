@@ -32,6 +32,12 @@ const createDocument = (e: APIGatewayEvent) => {
       body: "Invalid types assigned to either name, imgDescription, imgURL or placeholderURL",
     };
   const currDate = new Date().toISOString();
+  const newWidth = typeof width === "string" ? parseFloat(width) : width
+  const newHeight = typeof height === "string" ? parseFloat(height) : height
+  if (typeof newWidth !== 'number' || typeof newHeight !== 'number') return {
+    statusCode: 400,
+    body: "Invalid types assigned to width and height. Ensure they are integers or float types",
+  };
   const document = {
     pk: {
       orientation: width / height >= 1 ? "horizontal" : "vertical",
@@ -43,10 +49,10 @@ const createDocument = (e: APIGatewayEvent) => {
     imgDescription: imgDescription,
     imgURL: imgURL,
     placeholderURL: placeholderURL,
-    height: height,
-    width: width,
+    width: newWidth,
+    height: newHeight,
     dateCreated: currDate,
-    orientation: width / height >= 1 ? "horizontal" : "vertical",
+    orientation: newWidth / newHeight >= 1 ? "horizontal" : "vertical",
   };
   return marshall(document, {
     convertClassInstanceToMap: true,

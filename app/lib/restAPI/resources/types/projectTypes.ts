@@ -8,6 +8,8 @@ export type Image = {
   imgDescription: string;
   imgURL: string;
   placeholderURL?: string;
+  width?: number;
+  height?: number;
 };
 export type ProjectDocument = {
   pk: {
