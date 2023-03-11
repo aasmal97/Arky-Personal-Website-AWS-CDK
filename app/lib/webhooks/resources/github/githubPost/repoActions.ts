@@ -6,10 +6,10 @@ import {
   RepositoryRenamedEvent,
 } from "@octokit/webhooks-types";
 import { RepositoryEditedEvent } from "@octokit/webhooks-types";
-import axios from "axios";
 import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMethod";
 import { updateDocument } from "../../../../../../utils/crudRestApiMethods/postMethod";
 import { deleteDocument } from "../../../../../../utils/crudRestApiMethods/deleteMethod";
+import { putDocument } from "../../../../../../utils/crudRestApiMethods/putMethod";
 export type RepoRestApiCallsProps = {
   apiKey: string;
   restApiDomainName: string;
@@ -18,15 +18,12 @@ export const createRepo = async ({
   data,
   apiKey,
   restApiDomainName,
-}: RepoRestApiCallsProps & { data: RepositoryCreatedEvent }) => {
-  const { name, description, created_at, topics, homepage, html_url } =
-    data.repository;
-  const url = `https://${restApiDomainName}/projects`;
-  const req = await axios({
-    method: "put",
-    headers: {
-      "x-api-key": apiKey,
-    },
+}: RepoRestApiCallsProps & { data: RepositoryCreatedEvent["repository"] }) => {
+  const { name, description, created_at, topics, homepage, html_url } = data;
+  const req = await putDocument({
+    apiKey,
+    restApiUrl: restApiDomainName,
+    addedRoute: "projects",
     data: {
       projectName: name,
       githubURL: html_url,
@@ -57,6 +54,12 @@ export const editedRepo = async ({
       max: 1,
     },
   });
+    if (document.data.result.Items.length <= 0)
+      return await createRepo({
+        data: data.repository,
+        apiKey,
+        restApiDomainName,
+      });
   const req = await updateDocument({
     restApiUrl: restApiDomainName,
     addedRoute: "projects",
@@ -117,6 +120,12 @@ export const archivedRepo = async ({
       max: 1,
     },
   });
+    if (document.data.result.Items.length <= 0)
+      return await createRepo({
+        data: data.repository,
+        apiKey,
+        restApiDomainName,
+      });
   const req = await updateDocument({
     apiKey,
     restApiUrl: restApiDomainName,
@@ -150,6 +159,13 @@ export const renamedRepo = async ({
       max: 1,
     },
   });
+    if (document.data.result.Items.length <= 0)
+      return await createRepo({
+        data: data.repository,
+        apiKey,
+        restApiDomainName,
+      });
+
   const req = await updateDocument({
     addedRoute: "projects",
     apiKey,
@@ -170,7 +186,11 @@ export const respondToRepositoryChanges = async ({
   let result: any;
   switch (action) {
     case "created":
-      result = await createRepo({ data, apiKey, restApiDomainName });
+      result = await createRepo({
+        data: data.repository,
+        apiKey,
+        restApiDomainName,
+      });
       break;
     case "edited":
       result = await editedRepo({ data, apiKey, restApiDomainName });
