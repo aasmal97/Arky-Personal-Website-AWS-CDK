@@ -2,18 +2,16 @@ import axios, { AxiosError } from "axios";
 import * as dotenv from 'dotenv'
 dotenv.config()
 axios({
-  method: "get",
+  method: "delete",
   url: "https://api.arkyasmal.com/projects",
   headers: {
     "x-api-key": process.env.AMAZON_REST_API_KEY,
   },
   params: {
-    query: JSON.stringify({
+    key: {
       recordType: "projects",
-      //id: "f085fd4a-32ab-42bd-a6f4-d4a4bcfe211d",
-      projectName: "test",
-    }),
-    max: 1,
+      startDate: "2023-03-09T23:22:07.000Z",
+    },
   },
 })
   .then((e) => console.log(e.data))

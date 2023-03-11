@@ -16,7 +16,6 @@ const createDocument = (e: APIGatewayEvent) => {
     description,
     appURL,
     githubURL,
-    startDate,
     endDate,
     topics,
     archived
@@ -26,7 +25,6 @@ const createDocument = (e: APIGatewayEvent) => {
     projectName: projectName,
     githubURL: githubURL,
     description: description,
-    startDate: startDate,
     endDate: endDate,
     topics: topics,
     archived: archived,

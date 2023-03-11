@@ -1,7 +1,7 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { deleteTemplate } from "../../../../../../utils/apiTemplates/deleteTemplate";
 import { ProjectDocument } from "../../types/projectTypes";
-import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import { marshall } from "@aws-sdk/util-dynamodb";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
 export async function handler(
   e: APIGatewayEvent
@@ -28,7 +28,7 @@ export async function handler(
     ...parsedKey,
     recordType: "projects",
   };
-  if (!primaryKey["dateCreated"])
+  if (!primaryKey["startDate"])
     return {
       statusCode: 401,
       body: "Invalid primary key",

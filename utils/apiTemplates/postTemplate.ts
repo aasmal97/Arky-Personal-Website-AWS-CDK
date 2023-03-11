@@ -5,28 +5,11 @@ import {
   UpdateItemCommandInput,
   AttributeValue,
 } from "@aws-sdk/client-dynamodb";
+import { marshall } from "@aws-sdk/util-dynamodb";
 function isAPIGatewayResult(e: any): e is APIGatewayProxyResult {
   return e.statusCode && e.body;
 }
-export const convertToAttributeStr = (s: any) => {
-  if (!s) return null;
-  if (!(typeof s === "string")) return null;
-  return {
-    S: s,
-  };
-};
-function filterEntries(
-  argument: [string, AttributeValue | null]
-): argument is [string, AttributeValue] {
-  const [key, value] = argument;
-  return !!value;
-}
-const filterNullValues = (doc: Record<string, AttributeValue | null>) => {
-  const filteredDoc: Record<string, AttributeValue> = {};
-  const filteredDocArr = Object.entries(doc).filter(filterEntries);
-  filteredDocArr.forEach(([key, value]) => (filteredDoc[key] = value));
-  return filteredDoc;
-};
+
 const generateUpdateExpression = (
   e: Record<string, AttributeValue>
 ): [string, Record<string, AttributeValue>] => {
@@ -37,7 +20,9 @@ const generateUpdateExpression = (
     expression += `${key} = ${valueExp},`;
     attributeValues[valueExp] = value;
   });
-  return [expression, attributeValues];
+  //remove last comma
+  const newExpression = expression.substring(0, expression.length - 1);
+  return [newExpression, attributeValues];
 };
 
 export async function postTemplate({
@@ -49,7 +34,7 @@ export async function postTemplate({
   e: APIGatewayEvent;
   callback: (
     e: APIGatewayEvent
-  ) => Record<string, AttributeValue | null> | APIGatewayProxyResult;
+  ) => Record<string, AttributeValue> | APIGatewayProxyResult;
   tableName: string;
   successMessage: string;
 }): Promise<APIGatewayProxyResult> {
@@ -66,16 +51,19 @@ export async function postTemplate({
   const { key } = JSON.parse(e.body);
   const document = callback(e);
   if (isAPIGatewayResult(document)) return document;
-  const filteredDoc = filterNullValues(document);
-  const [updateExp, expAttr] = generateUpdateExpression(filteredDoc);
+  const [updateExp, expAttr] = generateUpdateExpression(document);
   try {
     const params: UpdateItemCommandInput = {
       TableName: tableName,
-      Key: key,
+      Key: marshall(key, {
+        convertClassInstanceToMap: true,
+        removeUndefinedValues: true,
+      }),
       UpdateExpression: updateExp,
       ExpressionAttributeValues: expAttr,
       ReturnValues: "UPDATED_NEW",
     };
+
     const client = new DynamoDBClient({
       region: "us-east-1",
     });
@@ -93,7 +81,7 @@ export async function postTemplate({
       statusCode: 500,
       body: JSON.stringify({
         message: "Bad Request",
-        error: e
+        error: e,
       }),
     };
   }
