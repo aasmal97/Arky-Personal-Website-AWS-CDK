@@ -9,8 +9,8 @@ axios({
   },
   params: {
     key: JSON.stringify({
-      documentId: "234234",
-      imgURL: "projects",
+      documentId: "213123",
+      imgURL: "213123",
     }),
   },
 })

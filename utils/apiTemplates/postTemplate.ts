@@ -68,12 +68,13 @@ export async function postTemplate({
       region: "us-east-1",
     });
     const command = new UpdateItemCommand(params);
-    await client.send(command);
+    const dynamoResult = await client.send(command);
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: successMessage,
         document: document,
+        dynamoResult: dynamoResult,
       }),
     };
   } catch (e) {
