@@ -58,7 +58,7 @@ const generateGetExpression = (query: ProjectQueryProps) => {
   if (typeof description === "string")
     addParamater("description", description, "contains");
   if (typeof appURL === "string") addParamater("appURL", appURL, "contains");
-  
+
   if (sortBy) {
     const startDate = sortBy.startDate;
     const endDate = sortBy.endDate;
@@ -72,7 +72,10 @@ const generateGetExpression = (query: ProjectQueryProps) => {
     convertClassInstanceToMap: true,
     removeUndefinedValues: true,
   });
-  const filterExp = filterExpArr.reduce((a, b) => a + " AND " + b);
+  const filterExp =
+    filterExpArr.length > 0
+      ? filterExpArr.reduce((a, b) => a + " AND " + b)
+      : undefined;
   return {
     keyExp: expression,
     expVal,

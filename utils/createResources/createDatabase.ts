@@ -6,14 +6,17 @@ export const createDatabase = ({
   pkName,
   sortKey,
   secondaryIndex,
+  addedId,
 }: {
+  addedId?: string;
   sortKey: string;
   stack: cdk.Stack;
   tableName: string;
   pkName: string;
   secondaryIndex?: cdk.aws_dynamodb.LocalSecondaryIndexProps;
 }) => {
-  const table = new dynamodb.Table(stack, tableName, {
+  const id = `${tableName}${addedId ? addedId : ""}`;
+  const table = new dynamodb.Table(stack, id, {
     partitionKey: {
       name: pkName,
       type: dynamodb.AttributeType.STRING,

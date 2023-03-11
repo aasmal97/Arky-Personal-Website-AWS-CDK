@@ -13,11 +13,11 @@ export type ImageQueryProps = Partial<Image>;
 const generateGetExpression = (query: ImageQueryProps) => {
   let { keyExpArr, filterExpArr, scanDirection, index, expAttrMap, expValMap } =
     initializeQueryResources();
-  const { id, documentId, imgURL, imgDescription, pk, placeholderURL } = query;
-  if (pk) {
+  const { id, documentId, imgURL, imgDescription, placeholderURL } = query;
+  if (typeof documentId === "string")
     addParamater({
       key: "documentId",
-      value: pk.documentId,
+      value: documentId,
       expType: "equals",
       filterExpArr,
       keyExpArr,
@@ -25,9 +25,10 @@ const generateGetExpression = (query: ImageQueryProps) => {
       expAttrMap,
       filter: false,
     });
+  if (typeof imgURL === "string")
     addParamater({
       key: "imgURL",
-      value: pk.imgURL,
+      value: imgURL,
       expType: "equals",
       filterExpArr,
       keyExpArr,
@@ -35,30 +36,6 @@ const generateGetExpression = (query: ImageQueryProps) => {
       expAttrMap,
       filter: false,
     });
-  } else {
-    if (typeof documentId === "string")
-      addParamater({
-        key: "documentId",
-        value: documentId,
-        expType: "equals",
-        filterExpArr,
-        keyExpArr,
-        expValMap,
-        expAttrMap,
-        filter: false,
-      });
-    if (typeof imgURL === "string")
-      addParamater({
-        key: "imgURL",
-        value: imgURL,
-        expType: "equals",
-        filterExpArr,
-        keyExpArr,
-        expValMap,
-        expAttrMap,
-        filter: false,
-      });
-  }
   //add to filter exp
   if (typeof id === "string")
     addParamater({
@@ -69,6 +46,7 @@ const generateGetExpression = (query: ImageQueryProps) => {
       keyExpArr,
       expValMap,
       expAttrMap,
+      filter: true,
     });
   if (typeof imgDescription === "string")
     addParamater({
@@ -79,6 +57,7 @@ const generateGetExpression = (query: ImageQueryProps) => {
       keyExpArr,
       expValMap,
       expAttrMap,
+      filter: true,
     });
   if (typeof placeholderURL === "string")
     addParamater({
@@ -89,13 +68,19 @@ const generateGetExpression = (query: ImageQueryProps) => {
       keyExpArr,
       expValMap,
       expAttrMap,
+      filter: true,
     });
   const expVal = marshall(expValMap, {
     convertClassInstanceToMap: true,
     removeUndefinedValues: true,
   });
-  const keyExp = keyExpArr.reduce((a, b) => a + " AND " + b);
-  const filterExp = filterExpArr.reduce((a, b) => a + " AND " + b);
+  const keyExp = keyExpArr.length
+    ? keyExpArr.reduce((a, b) => a + " AND " + b)
+    : undefined;
+  const filterExp =
+    filterExpArr.length > 0
+      ? filterExpArr.reduce((a, b) => a + " AND " + b)
+      : undefined;
   return {
     keyExp,
     expVal,
@@ -109,10 +94,11 @@ const generateQuery = (e: APIGatewayEvent): QueryCommandInput | null => {
   const result = validateGeneralGetQuery(e);
   if (!result) return result;
   const { parsedQuery, parsedStartKey } = result;
-  if (!parsedQuery.pk && !parsedQuery.imgURL && !parsedQuery.documentId)
-    return null;
+  if (!parsedQuery.documentId) return null;
+  const expParams = generateGetExpression(parsedQuery);
+  if (!expParams) return expParams;
   const { keyExp, expVal, expAttrMap, filterExp, scanDirection, index } =
-    generateGetExpression(parsedQuery);
+    expParams;
   const dynamoQuery: QueryCommandInput = {
     TableName: convertToStr(
       process.env.AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_NAME

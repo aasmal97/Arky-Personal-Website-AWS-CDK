@@ -44,7 +44,7 @@ const queryOnce = async ({
       statusCode: 500,
       body: JSON.stringify({
         message: "Bad Request",
-        error: e
+        error: e,
       }),
     };
   }
@@ -189,7 +189,7 @@ export const getTemplate = async ({
       body: "Please provide a valid query",
     };
   // return {
-  //   statusCode: 200, 
+  //   statusCode: 200,
   //   body: JSON.stringify(query)
   // }
   const result = await queryUntilRequestPageNum({

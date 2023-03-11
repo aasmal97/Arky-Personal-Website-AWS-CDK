@@ -2,16 +2,16 @@ import axios, { AxiosError } from "axios";
 import * as dotenv from 'dotenv'
 dotenv.config()
 axios({
-  method: "delete",
-  url: "https://api.arkyasmal.com/projects",
+  method: "put",
+  url: "https://api.arkyasmal.com/projects/images",
   headers: {
     "x-api-key": process.env.AMAZON_REST_API_KEY,
   },
-  params: {
-    key: JSON.stringify({
-      recordType: "projects",
-      startDate: "2023-03-09T23:22:07.000Z",
-    }),
+  data: {
+    imgDescription: "filled",
+    placeholderURL: "121312",
+    imgURL: "213123",
+    documentId: "213123",
   },
 })
   .then((e) => console.log(e.data))

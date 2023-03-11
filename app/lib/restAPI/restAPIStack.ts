@@ -51,8 +51,9 @@ export class RestAPIStack extends cdk.Stack {
     const projectImagesDb = createDatabase({
       stack: this,
       tableName: projectImagesDBTableName,
-      pkName: "imgURL",
-      sortKey: "documentId",
+      addedId: "Table",
+      pkName: "documentId",
+      sortKey: "imgURL"
     });
     const tablesMap = {
       hobbies: {
