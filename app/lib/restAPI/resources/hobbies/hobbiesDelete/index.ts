@@ -15,17 +15,18 @@ export async function handler(
   if (!params)
     return {
       statusCode: 400,
-      body: "You must provide the id of the resource you want to delete",
+      body: "You must provide the key of the resource you want to delete",
     };
   const { key } = params;
   if (!key)
     return {
       statusCode: 400,
-      body: "You must provide the id of the resource you want to delete",
+      body: "You must provide the key of the resource you want to delete",
     };
   try {
+    const parsedKey = JSON.parse(key);
     const result = await deleteTemplate({
-      document: marshall(key, {
+      document: marshall(parsedKey, {
         convertClassInstanceToMap: true,
         removeUndefinedValues: true,
       }),
@@ -38,7 +39,7 @@ export async function handler(
       statusCode: 500,
       body: JSON.stringify({
         message: "Bad Request",
-        error: e
+        error: e,
       }),
     };
   }
