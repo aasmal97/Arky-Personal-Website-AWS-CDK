@@ -60,7 +60,10 @@ const generateGetExpression = (e: HobbiesQueryProps) => {
     convertClassInstanceToMap: true,
     removeUndefinedValues: true,
   });
-  const filterExp = filterExpArr.reduce((a, b) => a + " AND " + b);
+  const filterExp =
+    filterExpArr.length > 0
+      ? filterExpArr.reduce((a, b) => a + " AND " + b)
+      : undefined;
   return {
     keyExp: expression,
     expVal,

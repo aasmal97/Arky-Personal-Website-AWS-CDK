@@ -55,23 +55,6 @@ const restAPIMap = ({
           ),
         },
       },
-      post: {
-        location: generateLocation(["hobbies", "post"], __dirname),
-        role: createLambdaRole(
-          "HobbiesPostRole",
-          {
-            hobbiesDynamoDBPolicy: tablesInfoMap
-              ? createDynamoPolicy("POST", tablesInfoMap["hobbies"])
-              : null,
-          },
-          stack
-        ),
-        env: {
-          AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME: convertToStr(
-            tablesInfoMap?.["hobbies"].name
-          ),
-        },
-      },
       put: {
         location: generateLocation(["hobbies", "put"], __dirname),
         role: createLambdaRole(

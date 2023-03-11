@@ -1,10 +1,8 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
-import { AttributeValue } from "@aws-sdk/client-dynamodb";
 import { deleteTemplate } from "../../../../../../utils/apiTemplates/deleteTemplate";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
-// const convertToAttributeStr = (s: any) => ({
-//   S: typeof s === "string" ? s : "",
-// });
+import { marshall } from "@aws-sdk/util-dynamodb";
+
 export async function handler(
   e: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
@@ -25,12 +23,9 @@ export async function handler(
       statusCode: 400,
       body: "You must provide the id of the resource you want to delete",
     };
-  const document: Record<string, AttributeValue> = {
-    key: JSON.parse(key),
-  };
   try {
     const result = await deleteTemplate({
-      document,
+      document: marshall(key),
       tableName: convertToStr(process.env.AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME),
       successMessage: "deleted user image in hobbies",
     });
