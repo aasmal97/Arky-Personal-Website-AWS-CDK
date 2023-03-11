@@ -7,36 +7,20 @@ import {
 } from "@octokit/webhooks-types";
 import { RepositoryEditedEvent } from "@octokit/webhooks-types";
 import axios from "axios";
+import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMethod";
+import { updateDocument } from "../../../../../../utils/crudRestApiMethods/postMethod";
+import { deleteDocument } from "../../../../../../utils/crudRestApiMethods/deleteMethod";
 export type RepoRestApiCallsProps = {
   apiKey: string;
   restApiDomainName: string;
-};
-export const findRepoDocument = async ({
-  apiKey,
-  restApiDomainName,
-  params,
-}: { params: { [key: string]: any } } & RepoRestApiCallsProps) => {
-  const url = `https://${restApiDomainName}/projects`;
-  const getItem = await axios({
-    url: url,
-    method: "get",
-    headers: {
-      "x-api-key": apiKey,
-    },
-    params: {
-      ...params,
-      recordType: "projects",
-    },
-  });
-  const result = getItem.data[0];
-  return result;
 };
 export const createRepo = async ({
   data,
   apiKey,
   restApiDomainName,
 }: RepoRestApiCallsProps & { data: RepositoryCreatedEvent }) => {
-  const { name, description, created_at } = data.repository;
+  const { name, description, created_at, topics, homepage, html_url } =
+    data.repository;
   const url = `https://${restApiDomainName}/projects`;
   const req = await axios({
     method: "put",
@@ -45,9 +29,11 @@ export const createRepo = async ({
     },
     data: {
       projectName: name,
-      githubURL: url,
+      githubURL: html_url,
       description: description,
       startDate: new Date(created_at).toISOString(),
+      topics: topics,
+      appURL: homepage,
     },
   });
   return req.data;
@@ -60,21 +46,23 @@ export const editedRepo = async ({
   const {
     repository: { name, topics, description, homepage, html_url },
   } = data;
-  const document = await findRepoDocument({
+  const document = await getDocuments({
     apiKey,
-    restApiDomainName,
+    restApiUrl: restApiDomainName,
+    addedRoute: "projects",
     params: {
-      projectName: name,
+      query: JSON.stringify({
+        projectName: name,
+      }),
+      max: 1,
     },
   });
-  const req = await axios({
-    url: `https://${restApiDomainName}/projects`,
-    method: "post",
-    headers: {
-      "x-api-key": apiKey,
-    },
+  const req = await updateDocument({
+    restApiUrl: restApiDomainName,
+    addedRoute: "projects",
+    apiKey,
     data: {
-      key: document.pk,
+      key: document.data.result.Items[0].pk,
       description: description,
       projectName: name,
       topics: topics,
@@ -91,22 +79,23 @@ export const deleteRepo = async ({
   restApiDomainName,
 }: RepoRestApiCallsProps & { data: RepositoryDeletedEvent }) => {
   const { name } = data.repository;
-  const document = await findRepoDocument({
+  const document = await getDocuments({
     apiKey,
-    restApiDomainName,
+    restApiUrl: restApiDomainName,
+    addedRoute: "projects",
     params: {
-      projectName: name,
+      query: JSON.stringify({
+        projectName: name,
+      }),
+      max: 1,
     },
   });
-  const url = `https://${restApiDomainName}/projects`;
-  const req = await axios({
-    url: url,
-    method: "delete",
-    headers: {
-      "x-api-key": apiKey,
-    },
+  const req = await deleteDocument({
+    addedRoute: "projects",
+    restApiUrl: restApiDomainName,
+    apiKey,
     params: {
-      key: document.pk,
+      key: JSON.stringify(document.data.result.Items[0].pk),
     },
   });
   return req.data;
@@ -117,21 +106,23 @@ export const archivedRepo = async ({
   restApiDomainName,
 }: RepoRestApiCallsProps & { data: RepositoryArchivedEvent }) => {
   const { name, archived } = data.repository;
-  const document = await findRepoDocument({
+  const document = await getDocuments({
     apiKey,
-    restApiDomainName,
+    restApiUrl: restApiDomainName,
+    addedRoute: "projects",
     params: {
-      projectName: name,
+      query: JSON.stringify({
+        projectName: name,
+      }),
+      max: 1,
     },
   });
-  const req = await axios({
-    url: `https://${restApiDomainName}/projects`,
-    method: "post",
-    headers: {
-      "x-api-key": apiKey,
-    },
+  const req = await updateDocument({
+    apiKey,
+    restApiUrl: restApiDomainName,
+    addedRoute: "projects",
     data: {
-      key: document.pk,
+      key: document.data.result.Items[0].pk,
       archived: archived,
     },
   });
@@ -150,21 +141,21 @@ export const renamedRepo = async ({
     },
     repository: { name },
   } = data;
-  const document = await findRepoDocument({
+  const document = await getDocuments({
     apiKey,
-    restApiDomainName,
+    restApiUrl: restApiDomainName,
+    addedRoute: "projects",
     params: {
-      projectName: oldName,
+      query: JSON.stringify({ projectName: oldName }),
+      max: 1,
     },
   });
-  const req = await axios({
-    url: `https://${restApiDomainName}/projects`,
-    method: "post",
-    headers: {
-      "x-api-key": apiKey,
-    },
+  const req = await updateDocument({
+    addedRoute: "projects",
+    apiKey,
+    restApiUrl: restApiDomainName,
     data: {
-      key: document.pk,
+      key: document.data.result.Items[0].pk,
       projectName: name,
     },
   });
@@ -183,11 +174,9 @@ export const respondToRepositoryChanges = async ({
       break;
     case "edited":
       result = await editedRepo({ data, apiKey, restApiDomainName });
-
       break;
     case "deleted":
       result = await deleteRepo({ data, apiKey, restApiDomainName });
-
       break;
     case "archived":
       result = await archivedRepo({ data, apiKey, restApiDomainName });
@@ -202,5 +191,5 @@ export const respondToRepositoryChanges = async ({
     default:
       break;
   }
-  return result
+  return result;
 };
