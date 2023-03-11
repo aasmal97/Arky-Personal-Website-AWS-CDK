@@ -4,7 +4,6 @@ import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import {
   WebhookEvent,
   RepositoryEvent,
-  // PushEvent,
 } from "@octokit/webhooks-types";
 import { respondToRepositoryChanges } from "./repoActions";
 // import { respondToPushChanges } from './pushActions';
@@ -57,19 +56,17 @@ export async function handler(
         apiKey: restApiKey,
         restApiDomainName: restApiDomainName,
       });
-    //case "push":
-      // await respondToPushChanges({
-      //   data: data as PushEvent,
-      //   apiKey: restApiKey,
-      //   restApiDomainName,
-      // });
     default:
+      result = {}
       break;
   }
   try {
     return {
       statusCode: 200,
-      body: JSON.stringify(result),
+      body: JSON.stringify({
+        message: "No errors encountered",
+        result: JSON.stringify(result)
+      }),
     };
   } catch (e) {
     return {
