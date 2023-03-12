@@ -54,12 +54,12 @@ export const editedRepo = async ({
       max: 1,
     },
   });
-    if (document.data.result.Items.length <= 0)
-      return await createRepo({
-        data: data.repository,
-        apiKey,
-        restApiDomainName,
-      });
+  if (document.data.result.Items.length <= 0)
+    return await createRepo({
+      data: data.repository,
+      apiKey,
+      restApiDomainName,
+    });
   const req = await updateDocument({
     restApiUrl: restApiDomainName,
     addedRoute: "projects",
@@ -120,12 +120,12 @@ export const archivedRepo = async ({
       max: 1,
     },
   });
-    if (document.data.result.Items.length <= 0)
-      return await createRepo({
-        data: data.repository,
-        apiKey,
-        restApiDomainName,
-      });
+  if (document.data.result.Items.length <= 0)
+    return await createRepo({
+      data: data.repository,
+      apiKey,
+      restApiDomainName,
+    });
   const req = await updateDocument({
     apiKey,
     restApiUrl: restApiDomainName,
@@ -159,12 +159,12 @@ export const renamedRepo = async ({
       max: 1,
     },
   });
-    if (document.data.result.Items.length <= 0)
-      return await createRepo({
-        data: data.repository,
-        apiKey,
-        restApiDomainName,
-      });
+  if (document.data.result.Items.length <= 0)
+    return await createRepo({
+      data: data.repository,
+      apiKey,
+      restApiDomainName,
+    });
 
   const req = await updateDocument({
     addedRoute: "projects",

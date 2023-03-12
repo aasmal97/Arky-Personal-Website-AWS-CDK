@@ -1,4 +1,3 @@
-import { RequestProps } from "../../../app/lib/webhooks/resources/googleDrive/googleDrivePost";
 import { drive_v3 } from "googleapis";
 import { searchForFolderByChildResourceId } from "./searchForFolder";
 import { getDocuments } from "../../crudRestApiMethods/getMethod";
@@ -7,11 +6,7 @@ import { resizeImg } from "../../general/resizeImg";
 import { uploadImgToS3 } from "../../general/s3Actions";
 import { getImgDescription } from "../../azure/getImgDescription";
 import { ProjectDocument } from "../../../app/lib/restAPI/resources/types/projectTypes";
-// import * as dotenv from "dotenv";
-// import { initalizeGoogleDrive } from "../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
-// import { convertToStr } from "../../../../../../utils/general/convertToStr";
-// import { unescapeNewLines } from "../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
-// dotenv.config();
+
 const uploadResourceItems = async ({
   restApiUrl,
   apiKey,
@@ -128,22 +123,4 @@ export const createResource = async ({
     placeholderBuffer: newPlaceholderBuffer?.buffer,
   });
 };
-// const drive = initalizeGoogleDrive({
-//   client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-//   private_key: unescapeNewLines(
-//     convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
-//   ),
-// });
-// createResource({
-//   restApiUrl: "hello",
-//   apiKey: "lol",
-//   bucketName: "nomatter",
-//   drive: drive,
-//   resourceId: "1M-VUFZ4tZvDtOU1WPaGe88YclNJR17Gu",
-//   vision: {
-//     apiEndpoint: convertToStr(process.env.AZURE_COMPUTER_VISION_API_ENDPOINT),
-//     apiKey: convertToStr(process.env.AZURE_COMPUTER_VISION_API_KEY),
-//   },
-// })
-//   .then((e) => console.log(e))
-//   .catch((err) => console.error(err));
+

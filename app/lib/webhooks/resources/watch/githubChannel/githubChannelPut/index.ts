@@ -2,6 +2,7 @@ import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { getRepositories } from "../../../../../../../utils/github/getUserRepos";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 import axios, { AxiosError } from "axios";
+import ignoreRepoMap from "../../../github/githubPost/ignoreRepoList";
 type GithubChannelProps = {
   isInOrganization: boolean;
   repoName: string;
@@ -80,7 +81,7 @@ const createChannel = async ({
     });
     return data;
   } catch (err) {
-    const e = err as AxiosError
+    const e = err as AxiosError;
     return `Error setting up webhook for ${reqUrl}`;
   }
 };
@@ -93,24 +94,28 @@ const createWatchChannels = async () => {
       },
     },
   } = await getRepositories(githubToken);
-  const repoNames: Omit<GithubChannelProps, "githubToken">[] = repositories.map(
-    (repo: any) => {
+  const repoNames: (Omit<GithubChannelProps, "githubToken"> | null)[] =
+    repositories.map((repo: any) => {
+      if (repo.name in ignoreRepoMap) return null;
       return {
         repoName: repo.name,
         repoOwner: repo.owner.login,
         isInOrganization: repo.isInOrganization,
         isPrivate: repo.isPrivate,
       };
-    }
-  );
-  const promiseArr = repoNames.map((repo) =>
-    createChannel({
+    });
+  const promiseArr = repoNames.map((repo) => {
+    if (!repo) return null;
+    return createChannel({
       ...repo,
       githubToken: githubToken,
-    })
-  );
+    });
+  });
   const results = await Promise.all(
-    promiseArr.map((p) => p.catch((error) => null))
+    promiseArr.map((p) => {
+      if (!p) return null;
+      return p.catch((error) => null);
+    })
   );
   return JSON.stringify(results, null, 4);
 };
