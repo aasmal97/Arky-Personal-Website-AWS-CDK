@@ -53,7 +53,7 @@ export class WebhooksStack extends cdk.Stack {
       const cronProps = {
         stack: this,
         restApi: api,
-        hours: 12,
+        hours: 23,
         headerParams: {
           "x-api-key": convertToStr(parsed.WEBHOOKS_API_KEY),
         },

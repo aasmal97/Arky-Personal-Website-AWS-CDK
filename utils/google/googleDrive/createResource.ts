@@ -72,7 +72,7 @@ export const createResource = async ({
     apiKey: string;
   };
 }) => {
-  const result = await searchForFolderByChildResourceId(drive, resourceId);
+  const result = await searchForFolderByChildResourceId(drive, resourceId, true);
   const parentName = result.parents?.name;
   const key = resourceId;
   const placeholderKey = `${key}-placeholder`;

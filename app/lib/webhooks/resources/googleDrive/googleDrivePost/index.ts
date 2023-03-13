@@ -1,8 +1,14 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import validateWehbookToken from "../../../../../../utils/general/validateWebookTokens";
-import { initalizeGoogleDrive, unescapeNewLines } from "../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
+import {
+  initalizeGoogleDrive,
+  unescapeNewLines,
+} from "../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
 import { initalizeGoogleDriveActivity } from "../../../../../../utils/google/googleDrive/initalizeGoogleDriveActivity";
+import { searchForFolderByChildResourceId } from "../../../../../../utils/google/googleDrive/searchForFolder";
+import { searchForWatchedResource } from "../../../../../../utils/google/googleDrive/searchForWatchedResource";
+import url = require("url");
 export type RequestProps = {
   token: string;
   resourceId: string;
@@ -55,6 +61,11 @@ export async function handler(
       convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
     ),
   });
+  const params = url.parse(resourceURI, true).query;
+  const listLatestChanges = await drive.changes.list({
+    pageToken: typeof params.pageToken === "string" ? params.pageToken : ""
+  });
+
   const driveActivity = initalizeGoogleDriveActivity({
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     private_key: unescapeNewLines(
@@ -64,7 +75,7 @@ export async function handler(
   let result: any;
   switch (state) {
     case "add":
-
+      //const parentFolder = searchForFolderByChildResourceId( ,false)
       break;
     case "remove":
       break;
@@ -78,15 +89,29 @@ export async function handler(
   try {
     return {
       statusCode: 200,
-      body: JSON.stringify(request),
+      body: JSON.stringify({
+        request: request,
+        changes: listLatestChanges
+      }),
     };
   } catch (e) {
     return {
       statusCode: 500,
       body: JSON.stringify({
         message: "Bad Request",
-        error: e
+        error: e,
       }),
     };
   }
 }
+const params = url.parse(
+  "https://www.googleapis.com/drive/v3/changes?alt=json&pageToken=64",
+  true
+).query;
+// console.log(params.pageToken);
+  // const folderId = await searchForWatchedResource({
+  //   drive,
+  //   folderName: convertToStr(process.env.GOOGLE_DRIVE_FOLDER_NAME),
+  //   parentFolder: convertToStr(process.env.GOOGLE_DRIVE_PARENT_FOLDER_NAME),
+  // });
+  //if (typeof folderId !== "string") return folderId;

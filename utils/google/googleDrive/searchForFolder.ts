@@ -1,10 +1,6 @@
 import { drive_v3 } from "googleapis";
 import { Blob } from "buffer";
-// import * as dotenv from "dotenv";
-// import { initalizeGoogleDrive } from "./initalizeGoogleDrive";
-// import { unescapeNewLines } from "./initalizeGoogleDrive";
-// import { convertToStr } from "../../general/convertToStr";
-// dotenv.config();
+
 export const searchForFolderByName = async (
   drive: drive_v3.Drive,
   folderName: string
@@ -18,25 +14,30 @@ export const searchForFolderByName = async (
 };
 export const searchForFolderByChildResourceId = async (
   drive: drive_v3.Drive,
-  resourceId: string
+  resourceId: string,
+  download: boolean = true
 ) => {
   const fileResult = drive.files.get({
     fileId: resourceId,
     fields: "*",
   });
-  const fileDownload = drive.files.get(
-    {
-      fileId: resourceId,
-      alt: "media",
-      acknowledgeAbuse: true,
-    },
-    { responseType: "arraybuffer" }
-  );
+  const fileDownload = download
+    ? drive.files.get(
+        {
+          fileId: resourceId,
+          alt: "media",
+          acknowledgeAbuse: true,
+        },
+        { responseType: "arraybuffer" }
+      )
+    : null;
   const [result, fileBlob] = await Promise.all([fileResult, fileDownload]);
   const file = result.data;
   const parents = file.parents;
-  const fileBlobData = fileBlob.data as unknown;
-  const blob = new Blob([Buffer.from(fileBlobData as ArrayBuffer)])
+  const fileBlobData = fileBlob ? (fileBlob.data as unknown) : null;
+  const blob = fileBlobData
+    ? new Blob([Buffer.from(fileBlobData as ArrayBuffer)])
+    : null;
   if (!parents)
     return {
       file: result.data,
@@ -53,13 +54,3 @@ export const searchForFolderByChildResourceId = async (
     parents: getParents.data,
   };
 };
-// const drive = initalizeGoogleDrive({
-//   client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-//   private_key: unescapeNewLines(
-//     convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
-//   ),
-// });
-// searchForFolderByChildResourceId(
-//   drive,
-//   "1b6JtNVM5AYeb3LjgVzyTxbQsvFlF4UbC"
-// ).then((e) => console.log(e));
