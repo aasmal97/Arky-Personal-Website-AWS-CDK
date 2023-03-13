@@ -11,8 +11,8 @@ const drive = initalizeGoogleDrive({
 });
 drive.changes
   .list({
-    pageToken: "64",
+    pageToken: "75",
   })
   .then((e) => {
-    console.log(e.data);
+    console.log(e.data.changes);
   });

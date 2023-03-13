@@ -15,4 +15,3 @@ createChannel({
   parentFolder: process.env.GOOGLE_DRIVE_PARENT_FOLDER_NAME,
   folderName: process.env.GOOGLE_DRIVE_FOLDER_NAME,
 }).then((e) => console.log(e));
-// console.log(new Date(1679023373000 ).toString())

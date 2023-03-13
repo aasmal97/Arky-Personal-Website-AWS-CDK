@@ -7,16 +7,25 @@ import { convertToStr } from "../../../utils/general/convertToStr";
 import { createLambdaRole } from "../../../utils/rolesFuncs/createLambdaRole";
 import { createS3BucketPolicy } from "../../../utils/rolesFuncs/createS3BucketPolicy";
 import { camelCase } from "lodash";
+import { createDynamoPolicy } from "../../../utils/rolesFuncs/createDynamoPolicy";
 const webhooksApiMap = ({
   webhooksAPIDomainName,
   restApiDomainName,
   s3MediaBucket,
+  tableData,
 }: {
   restApiDomainName?: string;
   webhooksAPIDomainName?: string;
   s3MediaBucket?: {
     name: string;
     arn: string;
+  };
+  tableData: {
+    [key: string]: {
+      id: string;
+      name: string;
+      arn: string;
+    };
   };
 }): RestAPIType => {
   const parsed = searchForSecretsWrapper(__dirname);
@@ -52,10 +61,13 @@ const webhooksApiMap = ({
             parsed.AZURE_COMPUTER_VISION_API_KEY
           ),
           GOOGLE_SERVICE_ACCOUNT_EMAIL: convertToStr(
-            process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
+            parsed.GOOGLE_SERVICE_ACCOUNT_EMAIL
           ),
           GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: convertToStr(
-            process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+            parsed.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+          ),
+          WEBHOOKS_DYNAMO_DB_TABLE_NAME: convertToStr(
+            tableData["activeWebhooks"].name
           ),
         },
         memorySize: 768,
@@ -67,6 +79,14 @@ const webhooksApiMap = ({
           webhooksS3DeleteRole: createS3BucketPolicy("DELETE", {
             id: camelCase(s3MediaBucket?.name),
             arn: camelCase(s3MediaBucket?.arn),
+          }),
+          webhooksDynamoPutRole: createDynamoPolicy("PUT", {
+            arn: tableData["activeWebhooks"].arn,
+            id: tableData["activeWebhooks"].id,
+          }),
+          webhooksDynamoDeleteRole: createDynamoPolicy("DELETE", {
+            arn: tableData["activeWebhooks"].arn,
+            id: tableData["activeWebhooks"].id,
           }),
         }),
         apiKeyRequired: false,
@@ -98,10 +118,10 @@ const webhooksApiMap = ({
           ),
           env: {
             GOOGLE_SERVICE_ACCOUNT_EMAIL: convertToStr(
-              process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
+              parsed.GOOGLE_SERVICE_ACCOUNT_EMAIL
             ),
             GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: convertToStr(
-              process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+              parsed.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
             ),
             WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
             WEBHOOKS_API_TOKEN: convertToStr(parsed.WEBHOOKS_API_TOKEN),
@@ -109,9 +129,26 @@ const webhooksApiMap = ({
               parsed.GOOGLE_DRIVE_FOLDER_NAME
             ),
             GOOGLE_DRIVE_PARENT_FOLDER_NAME: convertToStr(
-              process.env.GOOGLE_DRIVE_PARENT_FOLDER_NAME
+              parsed.GOOGLE_DRIVE_PARENT_FOLDER_NAME
+            ),
+            WEBHOOKS_DYNAMO_DB_TABLE_NAME: convertToStr(
+              tableData["activeWebhooks"].name
             ),
           },
+          role: createLambdaRole("WebhooksGoogleDriveWatchChannelRole", {
+            webhooksDynamoPostRole: createDynamoPolicy("POST", {
+              arn: tableData["activeWebhooks"].arn,
+              id: tableData["activeWebhooks"].id,
+            }),
+            webhooksDynamoPutRole: createDynamoPolicy("PUT", {
+              arn: tableData["activeWebhooks"].arn,
+              id: tableData["activeWebhooks"].id,
+            }),
+            webhooksDynamoGetRole: createDynamoPolicy("GET", {
+              arn: tableData["activeWebhooks"].arn,
+              id: tableData["activeWebhooks"].id,
+            }),
+          }),
         },
       },
     },

@@ -9,22 +9,38 @@ export const createDatabase = ({
   addedId,
 }: {
   addedId?: string;
-  sortKey: string;
+  sortKey:
+    | string
+    | {
+        name: string;
+        type: cdk.aws_dynamodb.AttributeType;
+      };
   stack: cdk.Stack;
   tableName: string;
-  pkName: string;
+  pkName:
+    | string
+    | {
+        name: string;
+        type: cdk.aws_dynamodb.AttributeType;
+      };
   secondaryIndex?: cdk.aws_dynamodb.LocalSecondaryIndexProps;
 }) => {
   const id = `${tableName}${addedId ? addedId : ""}`;
   const table = new dynamodb.Table(stack, id, {
-    partitionKey: {
-      name: pkName,
-      type: dynamodb.AttributeType.STRING,
-    },
-    sortKey: {
-      name: sortKey,
-      type: dynamodb.AttributeType.STRING,
-    },
+    partitionKey:
+      typeof pkName === "string"
+        ? {
+            name: pkName,
+            type: dynamodb.AttributeType.STRING,
+          }
+        : pkName,
+    sortKey:
+      typeof sortKey === "string"
+        ? {
+            name: sortKey,
+            type: dynamodb.AttributeType.STRING,
+          }
+        : sortKey,
     replicationRegions: ["us-east-1"],
     billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
     tableClass: dynamodb.TableClass.STANDARD,

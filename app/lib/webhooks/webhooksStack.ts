@@ -8,6 +8,9 @@ import { createCertificate } from "../../../utils/createResources/createCertific
 import { createApiGatewayCronJob } from "../../../utils/createResources/createCronEvent";
 import { convertToStr } from "../../../utils/general/convertToStr";
 import { searchForSecretsWrapper } from "../../../utils/buildFuncs/searchForSecrets";
+import { createDatabase } from "../../../utils/createResources/createDatabase";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+
 export class WebhooksStack extends cdk.Stack {
   createCertificate: (
     hostingZone: cdk.aws_route53.IHostedZone
@@ -16,15 +19,34 @@ export class WebhooksStack extends cdk.Stack {
     hostingZone: cdk.aws_route53.IHostedZone,
     certificate: cdk.aws_certificatemanager.Certificate
   ) => [cdk.aws_route53.ARecord, cdk.aws_apigateway.RestApi] | null;
-  createAPI: (restApiDomainName?: string, s3MediaBucket?: {
-    name: string;
-    arn: string
-  }) => cdk.aws_apigateway.RestApi;
+  createAPI: (
+    restApiDomainName?: string,
+    s3MediaBucket?: {
+      name: string;
+      arn: string;
+    }
+  ) => cdk.aws_apigateway.RestApi;
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     let api: cdk.aws_apigateway.RestApi | undefined;
     const webhooksAPIDomainName = "webhooks.api.arkyasmal.com";
     const parsed = searchForSecretsWrapper(__dirname);
+    const webhooksTable = createDatabase({
+      stack: this,
+      tableName: "activeWebhooks",
+      pkName: "topmostDirectory",
+      sortKey: {
+        name: "expiration",
+        type: dynamodb.AttributeType.NUMBER,
+      },
+    });
+    const tableData = {
+      activeWebhooks: {
+        id: "activeWebhooks",
+        name: webhooksTable.tableName,
+        arn: webhooksTable.tableArn,
+      },
+    };
     this.createAPI = (restApiDomainName, s3MediaBucket) => {
       api = createApi(
         this,
@@ -32,6 +54,7 @@ export class WebhooksStack extends cdk.Stack {
           webhooksAPIDomainName: webhooksAPIDomainName,
           restApiDomainName: restApiDomainName,
           s3MediaBucket: s3MediaBucket,
+          tableData
         }),
         "webhooks-api"
       );
@@ -48,7 +71,7 @@ export class WebhooksStack extends cdk.Stack {
       });
       plan.addApiKey(key);
       plan.addApiStage({
-        stage: api.deploymentStage
+        stage: api.deploymentStage,
       });
       const cronProps = {
         stack: this,
