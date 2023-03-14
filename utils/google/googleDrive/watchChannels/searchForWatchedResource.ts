@@ -1,5 +1,5 @@
-import { searchForFolderByName } from "./searchForFolder";
-import identifyCorrectFolder from "./identifyCorrectFolder";
+import { searchForFolderByName } from "../searchForFolder";
+import identifyCorrectFolder from "../identifyCorrectFolder";
 import { drive_v3 } from "googleapis";
 export const searchForWatchedResource = async ({
   drive,

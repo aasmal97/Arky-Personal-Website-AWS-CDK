@@ -7,7 +7,7 @@ import {
 } from "../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
 import { initalizeGoogleDriveActivity } from "../../../../../../utils/google/googleDrive/initalizeGoogleDriveActivity";
 import { searchForFolderByChildResourceId } from "../../../../../../utils/google/googleDrive/searchForFolder";
-import { searchForWatchedResource } from "../../../../../../utils/google/googleDrive/searchForWatchedResource";
+import { searchForWatchedResource } from "../../../../../../utils/google/googleDrive/watchChannels/searchForWatchedResource";
 import url = require("url");
 export type RequestProps = {
   token: string;

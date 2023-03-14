@@ -102,7 +102,7 @@ const successResponse = (
     } as SuccessResponseProps),
   };
 };
-const queryUntilRequestPageNum = async ({
+export const queryUntilRequestPageNum = async ({
   successMessage,
   tableName,
   maxResults = 50,
@@ -118,7 +118,7 @@ const queryUntilRequestPageNum = async ({
     Items: [],
   };
   //caps any document from returning a max of 100 items, to prevent abuse
-  const resultsToBeReturned = maxResults > 100 ? 100 : maxResults;
+  const resultsToBeReturned = maxResults > 1000 ? 1000 : maxResults;
   let queryOutput: QueryCommandOutput | APIGatewayProxyResult | undefined;
   let numLeft = resultsToBeReturned;
   let startKey: undefined | Record<string, AttributeValue> =

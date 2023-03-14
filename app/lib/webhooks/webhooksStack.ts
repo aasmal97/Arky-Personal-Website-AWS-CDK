@@ -31,18 +31,23 @@ export class WebhooksStack extends cdk.Stack {
     let api: cdk.aws_apigateway.RestApi | undefined;
     const webhooksAPIDomainName = "webhooks.api.arkyasmal.com";
     const parsed = searchForSecretsWrapper(__dirname);
+    const webhooksTableName = "activeWebhooksTable"
     const webhooksTable = createDatabase({
       stack: this,
-      tableName: "activeWebhooks",
-      pkName: "topmostDirectory",
-      sortKey: {
-        name: "expiration",
-        type: dynamodb.AttributeType.NUMBER,
+      tableName: webhooksTableName,
+      pkName: "topMostDirectory",
+      sortKey: "id",
+      secondaryIndex: {
+        indexName: "SearchByExpiration",
+        sortKey: {
+          name: "expiration",
+          type: dynamodb.AttributeType.NUMBER,
+        },
       },
     });
     const tableData = {
       activeWebhooks: {
-        id: "activeWebhooks",
+        id: webhooksTableName,
         name: webhooksTable.tableName,
         arn: webhooksTable.tableArn,
       },
@@ -54,7 +59,7 @@ export class WebhooksStack extends cdk.Stack {
           webhooksAPIDomainName: webhooksAPIDomainName,
           restApiDomainName: restApiDomainName,
           s3MediaBucket: s3MediaBucket,
-          tableData
+          tableData,
         }),
         "webhooks-api"
       );

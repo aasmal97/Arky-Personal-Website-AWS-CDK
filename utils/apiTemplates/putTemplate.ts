@@ -8,6 +8,7 @@ import {
 function isAPIGatewayResult(e: any): e is APIGatewayProxyResult {
   return e.statusCode && e.body;
 }
+
 export const isString = (e: any): e is string => {
   return typeof e === "string";
 };
@@ -17,32 +18,15 @@ export const convertToAttributeStr = (s: any) => ({
 export const convertToAttributeNum = (n: number) => ({
   N: n.toString(),
 });
-export async function putTemplate({
-  e,
-  callback,
+export const dynamoPutDocument = async ({
   tableName,
+  document,
   successMessage,
 }: {
-  e: APIGatewayEvent;
-  callback: (
-    e: APIGatewayEvent
-  ) => Record<string, AttributeValue> | APIGatewayProxyResult;
   tableName: string;
+  document: Record<string, AttributeValue>;
   successMessage: string;
-}): Promise<APIGatewayProxyResult> {
-  if (e.httpMethod !== "PUT")
-    return {
-      statusCode: 405,
-      body: "Wrong http request",
-    };
-  if (!e.body)
-    return {
-      statusCode: 400,
-      body: "Please provide a valid response body",
-    };
-
-  const document = callback(e);
-  if (isAPIGatewayResult(document)) return document;
+}) => {
   try {
     const params: PutItemCommandInput = {
       TableName: tableName,
@@ -70,4 +54,36 @@ export async function putTemplate({
       }),
     };
   }
+};
+export async function putTemplate({
+  e,
+  callback,
+  tableName,
+  successMessage,
+}: {
+  e: APIGatewayEvent;
+  callback: (
+    e: APIGatewayEvent
+  ) => Record<string, AttributeValue> | APIGatewayProxyResult;
+  tableName: string;
+  successMessage: string;
+}): Promise<APIGatewayProxyResult> {
+  if (e.httpMethod !== "PUT")
+    return {
+      statusCode: 405,
+      body: "Wrong http request",
+    };
+  if (!e.body)
+    return {
+      statusCode: 400,
+      body: "Please provide a valid response body",
+    };
+
+  const document = callback(e);
+  if (isAPIGatewayResult(document)) return document;
+  return await dynamoPutDocument({
+    tableName,
+    document,
+    successMessage,
+  });
 }

@@ -1,0 +1,86 @@
+import { QueryCommandInput } from "@aws-sdk/client-dynamodb";
+import { marshall } from "@aws-sdk/util-dynamodb";
+import {
+  initializeQueryResources,
+  addParamater,
+} from "../../../apiTemplates/generateDynamoQueries";
+import { queryUntilRequestPageNum } from "../../../apiTemplates/getTemplate";
+const generateQuery = ({
+  tableName,
+  primaryKey,
+}: {
+  tableName: string;
+  primaryKey: Record<string, any>;
+}): QueryCommandInput => {
+  const {
+    keyExpArr,
+    filterExpArr,
+    scanDirection,
+    index,
+    expAttrMap,
+    expValMap,
+  } = initializeQueryResources();
+  if (primaryKey["topMostDirectory"])
+    addParamater({
+      key: "topMostDirectory",
+      value: primaryKey["topMostDirectory"],
+      expType: "equals",
+      expAttrMap,
+      expValMap,
+      keyExpArr,
+      filterExpArr,
+      filter: false,
+    });
+  if (primaryKey["id"])
+    addParamater({
+      key: "id",
+      value: primaryKey["id"],
+      expType: "equals",
+      expAttrMap,
+      expValMap,
+      keyExpArr,
+      filterExpArr,
+      filter: false,
+    });
+  const keyExp = keyExpArr.length
+    ? keyExpArr.reduce((a, b) => a + " AND " + b)
+    : undefined;
+  const filterExp =
+    filterExpArr.length > 0
+      ? filterExpArr.reduce((a, b) => a + " AND " + b)
+      : undefined;
+  const expVal = marshall(expValMap, {
+    convertClassInstanceToMap: true,
+    removeUndefinedValues: true,
+  });
+  const dynamoQuery: QueryCommandInput = {
+    TableName: tableName,
+    KeyConditionExpression: keyExp,
+    FilterExpression: filterExp,
+    ExpressionAttributeNames: expAttrMap,
+    ExpressionAttributeValues: expVal,
+    ScanIndexForward: scanDirection,
+    IndexName: index,
+  };
+  return dynamoQuery;
+};
+export const getWatchChannels = async ({
+  tableName,
+  primaryKey,
+}: {
+  primaryKey: Record<string, any>;
+  tableName: string;
+}) => {
+  if (!primaryKey["topMostDirectory"])
+    return {
+      statusCode: 400,
+      body: "You must supply a the partition key, topMostDirectory",
+    };
+  const result = await queryUntilRequestPageNum({
+    query: generateQuery({ tableName, primaryKey }),
+    successMessage: "Successfully got watch channels",
+    tableName,
+    maxResults: 1000,
+  });
+  return result;
+};

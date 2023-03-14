@@ -4,6 +4,7 @@ import {
   DeleteItemCommandInput,
   AttributeValue,
 } from "@aws-sdk/client-dynamodb";
+
 export const deleteTemplate = async ({
   tableName,
   document,
