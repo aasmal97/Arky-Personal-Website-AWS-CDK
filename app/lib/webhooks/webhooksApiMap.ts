@@ -124,7 +124,7 @@ const webhooksApiMap = ({
               parsed.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
             ),
             WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
-            WEBHOOKS_API_TOKEN: convertToStr(parsed.WEBHOOKS_API_TOKEN),
+            WEBHOOKS_API_TOKEN_SECRET: convertToStr(parsed.WEBHOOKS_API_TOKEN_SECRET),
             GOOGLE_DRIVE_FOLDER_NAME: convertToStr(
               parsed.GOOGLE_DRIVE_FOLDER_NAME
             ),

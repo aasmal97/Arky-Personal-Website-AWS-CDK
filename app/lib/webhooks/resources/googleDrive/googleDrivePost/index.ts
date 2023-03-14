@@ -9,8 +9,9 @@ import { initalizeGoogleDriveActivity } from "../../../../../../utils/google/goo
 import { searchForFolderByChildResourceId } from "../../../../../../utils/google/googleDrive/searchForFolder";
 import { searchForWatchedResource } from "../../../../../../utils/google/googleDrive/watchChannels/searchForWatchedResource";
 import url = require("url");
+import { JwtPayload } from "jsonwebtoken";
 export type RequestProps = {
-  token: string;
+  tokenPayload: JwtPayload;
   resourceId: string;
   resourceURI: string;
   state: string;
@@ -38,9 +39,10 @@ const validateRequest = (
     "X-Goog-Changed": contentChanged,
   } = headers;
   const tokenIsValid = validateWehbookToken(token);
-  if (tokenIsValid !== true) return tokenIsValid;
+  if(isAPIGatewayResult(tokenIsValid)) return tokenIsValid
+
   return {
-    token: convertToStr(token),
+    tokenPayload: tokenIsValid,
     resourceId: convertToStr(resourceId),
     resourceURI: convertToStr(resourceURI),
     state: convertToStr(state),
@@ -53,7 +55,7 @@ export async function handler(
 ): Promise<APIGatewayProxyResult> {
   const request = validateRequest(e);
   if (isAPIGatewayResult(request)) return request;
-  const { resourceId, resourceURI, state, contentChanged, body } = request;
+  const { resourceId, resourceURI, state, contentChanged, body, tokenPayload } = request;
   const bucketName = convertToStr(process.env.S3_MEDIA_FILES_BUCKET_NAME);
   const drive = initalizeGoogleDrive({
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -61,37 +63,37 @@ export async function handler(
       convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
     ),
   });
-  const params = url.parse(resourceURI, true).query;
-  const listLatestChanges = await drive.changes.list({
-    pageToken: typeof params.pageToken === "string" ? params.pageToken : ""
-  });
+  // const params = url.parse(resourceURI, true).query;
+  // const listLatestChanges = await drive.changes.list({
+  //   pageToken: typeof params.pageToken === "string" ? params.pageToken : ""
+  // });
 
-  const driveActivity = initalizeGoogleDriveActivity({
-    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    private_key: unescapeNewLines(
-      convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
-    ),
-  });
+  // const driveActivity = initalizeGoogleDriveActivity({
+  //   client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+  //   private_key: unescapeNewLines(
+  //     convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
+  //   ),
+  // });
   let result: any;
-  switch (state) {
-    case "add":
-      //const parentFolder = searchForFolderByChildResourceId( ,false)
-      break;
-    case "remove":
-      break;
-    case "update":
-      // const regex = new RegExp("", 'g')
-      // if(contentChanged)
-      break;
-    default:
-      break;
-  }
+  // switch (state) {
+  //   case "add":
+  //     //const parentFolder = searchForFolderByChildResourceId( ,false)
+  //     break;
+  //   case "remove":
+  //     break;
+  //   case "update":
+  //     // const regex = new RegExp("", 'g')
+  //     // if(contentChanged)
+  //     break;
+  //   default:
+  //     break;
+  // }
   try {
     return {
       statusCode: 200,
       body: JSON.stringify({
         request: request,
-        changes: listLatestChanges
+        //changes: listLatestChanges
       }),
     };
   } catch (e) {
@@ -104,14 +106,3 @@ export async function handler(
     };
   }
 }
-const params = url.parse(
-  "https://www.googleapis.com/drive/v3/changes?alt=json&pageToken=64",
-  true
-).query;
-// console.log(params.pageToken);
-  // const folderId = await searchForWatchedResource({
-  //   drive,
-  //   folderName: convertToStr(process.env.GOOGLE_DRIVE_FOLDER_NAME),
-  //   parentFolder: convertToStr(process.env.GOOGLE_DRIVE_PARENT_FOLDER_NAME),
-  // });
-  //if (typeof folderId !== "string") return folderId;

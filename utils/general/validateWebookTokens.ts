@@ -7,24 +7,19 @@ const validateWehbookToken = (token?: string) => {
       body: "Please provide a token. Access Denied",
     };
   const tokenSecret = process.env.WEBHOOKS_API_TOKEN_SECRET;
-  const apiKey = process.env.WEBHOOKS_API_KEY;
   try {
     const decoded = jwt.verify(token, convertToStr(tokenSecret));
-    if (
-      typeof decoded === "string" ||
-      (typeof decoded !== "string" && decoded.apiKey !== apiKey)
-    ) {
+    if (typeof decoded === "string")
       return {
         statusCode: 403,
-        body: "Access is denied. Invalid api key or token",
+        body: "Access is denied. Invalid  token",
       };
-    }
+    return decoded;
   } catch (err) {
     return {
       statusCode: 403,
-      body: "Access is denied. Invalid api key or token",
+      body: "Access is denied. Invalid  token",
     };
   }
-  return true;
 };
 export default validateWehbookToken;
