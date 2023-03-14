@@ -47,20 +47,20 @@ export const createWatchChannel = async ({
 export const createJWT = async ({
   folderId,
   topMostDirectoryId,
-  channelExpiration,
   tokenSecret,
 }: {
   topMostDirectoryId: string;
   tokenSecret: string;
   folderId: string;
-  channelExpiration: number;
 }) => {
   const payload = {
     folder_id: folderId,
-    channel_expiration: channelExpiration,
     topmost_directory_id: topMostDirectoryId,
   };
-  const token = jwt.sign(payload, tokenSecret, { algorithm: "HS256" });
+  const token = jwt.sign(payload, tokenSecret, {
+    noTimestamp: true,
+    algorithm: "HS256",
+  });
   return token;
 };
 export const createChannel = async ({
@@ -88,7 +88,6 @@ export const createChannel = async ({
     folderId,
     topMostDirectoryId: topMostDirectoryId,
     tokenSecret: convertToStr(tokenSecret),
-    channelExpiration: parseInt(expiration),
   });
   const channel = await createWatchChannel({
     drive,
@@ -100,7 +99,11 @@ export const createChannel = async ({
   if (channel.statusCode !== 200) return channel;
   //upload to Dynamo DB
   const channelData = JSON.parse(channel.body);
-  const newDocument = { ...channelData, topMostDirectory: topMostDirectoryId };
+  const newDocument = {
+    ...channelData,
+    topMostDirectory: topMostDirectoryId,
+    expiration: parseInt(channelData.expiration),
+  };
   const result = await dynamoPutDocument({
     tableName,
     document: marshall(newDocument, {
@@ -109,38 +112,39 @@ export const createChannel = async ({
     }),
     successMessage: `Successfully added channel: ${newDocument.id} document`,
   });
+  if (result.statusCode !== 200) return result;
   return {
     statusCode: 200,
     body: JSON.stringify({
-      document: result.body,
+      document: newDocument,
       channel: channelData,
     }),
   };
 };
 export const createChannelInEnvFolder = async ({
+  drive,
+  folderId,
+  tableName,
+}: {
+  drive: drive_v3.Drive;
+  folderId: string;
+  tableName: string;
+}) => {
+  //Set the topmost level directory
+  const parentFolder = process.env.GOOGLE_DRIVE_PARENT_FOLDER_NAME;
+  const folderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
+  const topMostDirectoryId = await searchForWatchedResource({
     drive,
+    folderName: convertToStr(folderName),
+    parentFolder: convertToStr(parentFolder),
+  });
+  if (typeof topMostDirectoryId !== "string") return topMostDirectoryId;
+  return await createChannel({
+    tokenSecret: process.env.WEBHOOKS_API_TOKEN_SECRET,
+    domain: process.env.WEBHOOKS_API_DOMAIN_NAME,
     folderId,
-    tableName
-  }: {
-    drive: drive_v3.Drive;
-    folderId: string;
-    tableName: string;
-  }) => {
-    //Set the topmost level directory
-    const parentFolder = process.env.GOOGLE_DRIVE_PARENT_FOLDER_NAME;
-    const folderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
-    const topMostDirectoryId = await searchForWatchedResource({
-      drive,
-      folderName: convertToStr(folderName),
-      parentFolder: convertToStr(parentFolder),
-    });
-    if (typeof topMostDirectoryId !== "string") return topMostDirectoryId;
-    return await createChannel({
-      tokenSecret: process.env.WEBHOOKS_API_TOKEN_SECRET,
-      domain: process.env.WEBHOOKS_API_DOMAIN_NAME,
-      folderId,
-      topMostDirectoryId,
-      drive,
-      tableName,
-    });
-  };
+    topMostDirectoryId,
+    drive,
+    tableName,
+  });
+};

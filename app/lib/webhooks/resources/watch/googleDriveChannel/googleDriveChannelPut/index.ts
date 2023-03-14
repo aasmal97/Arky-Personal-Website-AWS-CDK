@@ -55,7 +55,7 @@ export async function handler(
     });
   });
   const deletedChannelsArr = channelData.result.Items.map((channel: any) => {
-    const watchChannel = channel as drive_v3.Schema$Channel;
+    const watchChannel = channel as drive_v3.Schema$Channel & {topMostDirectory?: string; token?: string};
     return deleteWatchChannel({
       drive,
       primaryKey: {
