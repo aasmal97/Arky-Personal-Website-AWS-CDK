@@ -68,7 +68,10 @@ export const getWatchChannels = async ({
   tableName,
   primaryKey,
 }: {
-  primaryKey: Record<string, any>;
+  primaryKey: {
+    topMostDirectory: string;
+    id?: string;
+  };
   tableName: string;
 }) => {
   if (!primaryKey["topMostDirectory"])

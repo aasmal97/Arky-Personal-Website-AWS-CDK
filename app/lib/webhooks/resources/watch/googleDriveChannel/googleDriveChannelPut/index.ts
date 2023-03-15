@@ -4,9 +4,7 @@ import {
   unescapeNewLines,
 } from "../../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
 import { drive_v3 } from "googleapis";
-import {
-  createChannel,
-} from "../../../../../../../utils/google/googleDrive/watchChannels/createWatchChannel";
+import { createChannel } from "../../../../../../../utils/google/googleDrive/watchChannels/createWatchChannel";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 import { deleteWatchChannel } from "../../../../../../../utils/google/googleDrive/watchChannels/deleteWatchChannel";
 import { getWatchChannels } from "../../../../../../../utils/google/googleDrive/watchChannels/getWatchChannels";
@@ -20,15 +18,16 @@ export async function handler(
       body: "Wrong http request",
     };
   const tableName = convertToStr(process.env.WEBHOOKS_DYNAMO_DB_TABLE_NAME);
-  //Set the topmost level directory
-  const parentFolder = process.env.GOOGLE_DRIVE_PARENT_FOLDER_NAME;
-  const folderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
+  
   const drive = initalizeGoogleDrive({
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     private_key: unescapeNewLines(
       convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
     ),
   });
+  //Set the topmost level directory
+  const parentFolder = process.env.GOOGLE_DRIVE_PARENT_FOLDER_NAME;
+  const folderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
   const topMostDirectoryId = await searchForWatchedResource({
     drive,
     folderName: convertToStr(folderName),
@@ -44,7 +43,10 @@ export async function handler(
   if (activeChannels.statusCode !== 200) return activeChannels;
   const channelData = JSON.parse(activeChannels.body);
   const newChannelsArr = channelData.result.Items.map((channel: any) => {
-    const watchChannel = channel as drive_v3.Schema$Channel;
+    const watchChannel = channel as drive_v3.Schema$Channel & {
+      topMostDirectory?: string;
+      token?: string;
+    };
     return createChannel({
       tokenSecret: process.env.WEBHOOKS_API_TOKEN_SECRET,
       domain: process.env.WEBHOOKS_API_DOMAIN_NAME,
@@ -55,14 +57,16 @@ export async function handler(
     });
   });
   const deletedChannelsArr = channelData.result.Items.map((channel: any) => {
-    const watchChannel = channel as drive_v3.Schema$Channel & {topMostDirectory?: string; token?: string};
+    const watchChannel = channel as drive_v3.Schema$Channel & {
+      topMostDirectory?: string;
+      token?: string;
+    };
     return deleteWatchChannel({
       drive,
       primaryKey: {
         topMostDirectory: topMostDirectoryId,
-        id: watchChannel.resourceId,
+        id: convertToStr(watchChannel.resourceId),
       },
-      document: watchChannel,
       tableName,
     });
   });
