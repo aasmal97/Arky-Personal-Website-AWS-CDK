@@ -20,7 +20,7 @@ const webhooksApiMap = ({
     name: string;
     arn: string;
   };
-  tableData: {
+  tableData?: {
     [key: string]: {
       id: string;
       name: string;
@@ -67,7 +67,7 @@ const webhooksApiMap = ({
             parsed.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
           ),
           WEBHOOKS_DYNAMO_DB_TABLE_NAME: convertToStr(
-            tableData["activeWebhooks"].name
+            tableData?.["activeWebhooks"].name
           ),
         },
         memorySize: 768,
@@ -81,12 +81,12 @@ const webhooksApiMap = ({
             arn: camelCase(s3MediaBucket?.arn),
           }),
           webhooksDynamoPutRole: createDynamoPolicy("PUT", {
-            arn: tableData["activeWebhooks"].arn,
-            id: tableData["activeWebhooks"].id,
+            arn: tableData?.["activeWebhooks"].arn,
+            id: tableData?.["activeWebhooks"].id,
           }),
           webhooksDynamoDeleteRole: createDynamoPolicy("DELETE", {
-            arn: tableData["activeWebhooks"].arn,
-            id: tableData["activeWebhooks"].id,
+            arn: tableData?.["activeWebhooks"].arn,
+            id: tableData?.["activeWebhooks"].id,
           }),
         }),
         apiKeyRequired: false,
@@ -132,21 +132,21 @@ const webhooksApiMap = ({
               parsed.GOOGLE_DRIVE_PARENT_FOLDER_NAME
             ),
             WEBHOOKS_DYNAMO_DB_TABLE_NAME: convertToStr(
-              tableData["activeWebhooks"].name
+              tableData?.["activeWebhooks"].name
             ),
           },
           role: createLambdaRole("WebhooksGoogleDriveWatchChannelRole", {
             webhooksDynamoPostRole: createDynamoPolicy("POST", {
-              arn: tableData["activeWebhooks"].arn,
-              id: tableData["activeWebhooks"].id,
+              arn: tableData?.["activeWebhooks"].arn,
+              id: tableData?.["activeWebhooks"].id,
             }),
             webhooksDynamoPutRole: createDynamoPolicy("PUT", {
-              arn: tableData["activeWebhooks"].arn,
-              id: tableData["activeWebhooks"].id,
+              arn: tableData?.["activeWebhooks"].arn,
+              id: tableData?.["activeWebhooks"].id,
             }),
             webhooksDynamoGetRole: createDynamoPolicy("GET", {
-              arn: tableData["activeWebhooks"].arn,
-              id: tableData["activeWebhooks"].id,
+              arn: tableData?.["activeWebhooks"].arn,
+              id: tableData?.["activeWebhooks"].id,
             }),
           }),
         },
