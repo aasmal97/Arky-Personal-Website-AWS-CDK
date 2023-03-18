@@ -5,15 +5,14 @@ import {
   initalizeGoogleDrive,
   unescapeNewLines,
 } from "../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
-import { initalizeGoogleDriveActivity } from "../../../../../../utils/google/googleDrive/initalizeGoogleDriveActivity";
 import { searchForFolderByChildResourceId } from "../../../../../../utils/google/googleDrive/searchForFolder";
 import { searchForWatchedResource } from "../../../../../../utils/google/googleDrive/watchChannels/searchForWatchedResource";
-import url = require("url");
 import { JwtPayload } from "jsonwebtoken";
 import { createChannel } from "../../../../../../utils/google/googleDrive/watchChannels/createWatchChannel";
 import { createResource } from "../../../../../../utils/google/googleDrive/createResource";
 import { removeResource } from "../../../../../../utils/google/googleDrive/removeResource";
 import { deleteWatchChannel } from "../../../../../../utils/google/googleDrive/watchChannels/deleteWatchChannel";
+
 export type RequestProps = {
   tokenPayload: JwtPayload;
   resourceId: string;
@@ -156,6 +155,8 @@ export async function handler(
     };
   }
 }
+// import url = require("url");
+// import { initalizeGoogleDriveActivity } from "../../../../../../utils/google/googleDrive/initalizeGoogleDriveActivity";
 // const params = url.parse(resourceURI, true).query;
 // const listLatestChanges = await drive.changes.list({
 //   pageToken: typeof params.pageToken === "string" ? params.pageToken : ""

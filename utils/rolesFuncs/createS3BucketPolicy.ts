@@ -1,5 +1,5 @@
 import { aws_iam } from "aws-cdk-lib";
-
+import { camelCase } from "lodash";
 export const createS3BucketPolicy = (
   actionType: "GET" | "PUT" | "DELETE",
   bucket: {
@@ -36,10 +36,11 @@ export const createS3BucketPolicy = (
       actions = putActions;
       break;
   }
+  const sid = `${camelCase(bucket.id)}${actionType}`;
   return new aws_iam.PolicyDocument({
     statements: [
       new aws_iam.PolicyStatement({
-        sid: `${bucket.id}${actionType}`,
+        sid: sid,
         effect: aws_iam.Effect.ALLOW,
         actions: [...actions],
         resources: bucket.arn ? [bucket.arn] : [],

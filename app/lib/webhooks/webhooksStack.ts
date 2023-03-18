@@ -22,6 +22,7 @@ export class WebhooksStack extends cdk.Stack {
   createAPI: (
     restApiDomainName?: string,
     s3MediaBucket?: {
+      id: string;
       name: string;
       arn: string;
     }
@@ -31,7 +32,7 @@ export class WebhooksStack extends cdk.Stack {
     let api: cdk.aws_apigateway.RestApi | undefined;
     const webhooksAPIDomainName = "webhooks.api.arkyasmal.com";
     const parsed = searchForSecretsWrapper(__dirname);
-    const webhooksTableName = "activeWebhooksTable"
+    const webhooksTableName = "activeWebhooksTable";
     const webhooksTable = createDatabase({
       stack: this,
       tableName: webhooksTableName,
@@ -59,7 +60,8 @@ export class WebhooksStack extends cdk.Stack {
           webhooksAPIDomainName: webhooksAPIDomainName,
           restApiDomainName: restApiDomainName,
           s3MediaBucket: s3MediaBucket,
-          tableData,
+          tableData: tableData,
+          stack: this,
         }),
         "webhooks-api"
       );

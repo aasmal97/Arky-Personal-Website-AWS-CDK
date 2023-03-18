@@ -29,8 +29,13 @@ const mapResult = restAPIStack.mapAPIToHostedZone(hostingZone, certificate);
 const webhooksStack = new WebhooksStack(app, "WebhooksStack", {});
 //create webhooks api
 const webhooksCertificate = webhooksStack.createCertificate(hostingZone);
-webhooksStack.createAPI(mapResult ? mapResult[0].domainName : undefined, {
+const s3MediaBucketData = {
+  id: s3MediaBucket.bucketName,
   name: s3MediaBucket.bucketName,
   arn: s3MediaBucket.bucketArn,
-});
+};
+webhooksStack.createAPI(
+  mapResult ? mapResult[0].domainName : undefined,
+  s3MediaBucketData
+);
 webhooksStack.mapAPIToHostedZone(hostingZone, webhooksCertificate);
