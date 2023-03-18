@@ -36,6 +36,8 @@ export const deleteWatchChannel = async ({
   const newDoc = { ...document };
   if (newDoc.topMostDirectory) delete newDoc.topMostDirectory;
   if (newDoc.token) delete newDoc.token;
+  //change this
+  newDoc.id = newDoc.channelResourceId
   const watchChannel = drive.channels.stop({
     requestBody: newDoc,
   });

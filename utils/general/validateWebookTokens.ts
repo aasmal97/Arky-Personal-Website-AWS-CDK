@@ -8,7 +8,9 @@ const validateWehbookToken = (token?: string) => {
     };
   const tokenSecret = process.env.WEBHOOKS_API_TOKEN_SECRET;
   try {
-    const decoded = jwt.verify(token, convertToStr(tokenSecret));
+    const decoded = jwt.verify(token, convertToStr(tokenSecret), {
+      algorithms: ["HS256"],
+    });
     if (typeof decoded === "string")
       return {
         statusCode: 403,

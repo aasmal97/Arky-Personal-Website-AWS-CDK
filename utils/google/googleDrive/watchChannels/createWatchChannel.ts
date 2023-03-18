@@ -101,6 +101,8 @@ export const createChannel = async ({
   const channelData = JSON.parse(channel.body);
   const newDocument = {
     ...channelData,
+    id: convertToStr(folderId),
+    channelResourceId: channelData.id,  
     topMostDirectory: topMostDirectoryId,
     expiration: parseInt(channelData.expiration),
   };

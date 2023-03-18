@@ -3,6 +3,7 @@ import {
   initalizeGoogleDrive,
   unescapeNewLines,
 } from "../../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
+import * as jwt from "jsonwebtoken";
 import { drive_v3 } from "googleapis";
 import { createChannel } from "../../../../../../../utils/google/googleDrive/watchChannels/createWatchChannel";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
@@ -18,7 +19,7 @@ export async function handler(
       body: "Wrong http request",
     };
   const tableName = convertToStr(process.env.WEBHOOKS_DYNAMO_DB_TABLE_NAME);
-  
+
   const drive = initalizeGoogleDrive({
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
     private_key: unescapeNewLines(
@@ -47,25 +48,42 @@ export async function handler(
       topMostDirectory?: string;
       token?: string;
     };
+    const tokenSecret = process.env.WEBHOOKS_API_TOKEN_SECRET;
+
+    if (!watchChannel.token || !tokenSecret)
+      return {
+        statusCode: 500,
+        message: "No token provided, or invalid secret",
+      };
+    const parsedToken = jwt.verify(watchChannel.token, tokenSecret, {
+      algorithms: ["HS256"],
+    });
+    if (typeof parsedToken === "string")
+      return {
+        statusCode: 500,
+        message: "Invalid token payload",
+      };
     return createChannel({
-      tokenSecret: process.env.WEBHOOKS_API_TOKEN_SECRET,
+      tokenSecret: tokenSecret,
       domain: process.env.WEBHOOKS_API_DOMAIN_NAME,
       topMostDirectoryId,
       drive,
       tableName,
-      folderId: convertToStr(watchChannel.resourceId),
+      folderId: parsedToken?.folder_id,
     });
   });
   const deletedChannelsArr = channelData.result.Items.map((channel: any) => {
     const watchChannel = channel as drive_v3.Schema$Channel & {
+      channelResourceId?: string;
       topMostDirectory?: string;
       token?: string;
     };
+    const channelId = convertToStr(watchChannel.id)
     return deleteWatchChannel({
       drive,
       primaryKey: {
         topMostDirectory: topMostDirectoryId,
-        id: convertToStr(watchChannel.resourceId),
+        id: channelId,
       },
       tableName,
     });
