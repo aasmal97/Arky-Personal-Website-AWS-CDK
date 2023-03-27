@@ -47,11 +47,10 @@ export class RestAPIStack extends cdk.Stack {
         projectionType: ProjectionType.ALL,
       },
     });
-    const projectImagesDBTableName = "projectImagesTable";
+    const projectImagesDBTableName = "projectImages";
     const projectImagesDb = createDatabase({
       stack: this,
       tableName: projectImagesDBTableName,
-      addedId: "Table",
       pkName: "documentId",
       sortKey: "googleResourceId",
     });
