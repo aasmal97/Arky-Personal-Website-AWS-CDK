@@ -77,7 +77,7 @@ export const createResource = async ({
 }) => {
   const result = await searchForFileByChildResourceId(drive, resourceId, true);
   const parentName = result.parents?.name;
-  const key = resourceId;
+  const key = `${parentName}/${resourceId}/image`;
   const placeholderKey = `${key}-placeholder`;
   const fileBuffer = result.fileBlob
     ? Buffer.from(await result.fileBlob.arrayBuffer())
