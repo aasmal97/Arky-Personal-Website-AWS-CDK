@@ -10,37 +10,29 @@ import { ProjectDocument } from "../../../app/lib/restAPI/resources/types/projec
 const uploadResourceItems = async ({
   restApiUrl,
   apiKey,
-  doc,
-  imgDescription,
+  data,
   imgKey,
   imgPlaceholderKey,
   bucketName,
   fileBuffer,
   placeholderBuffer,
-  googleResourceId,
+  addedRoute,
 }: {
   restApiUrl: string;
   apiKey: string;
-  doc: ProjectDocument;
-  imgDescription: string;
   imgKey: string;
   imgPlaceholderKey: string;
   bucketName: string;
   fileBuffer: Buffer;
   placeholderBuffer?: Buffer | null;
-  googleResourceId?: string | null;
+  data: { [key: string]: any };
+  addedRoute: string;
 }) => {
   const updateResults = putDocument({
     restApiUrl,
     apiKey,
-    addedRoute: "projects/images",
-    data: {
-      documentId: doc.id,
-      imgDescription: imgDescription,
-      imgURL: imgKey,
-      placeholderUrl: imgPlaceholderKey,
-      googleResourceId,
-    },
+    addedRoute,
+    data: data,
   });
   const uploadFile = uploadImgToS3(bucketName, imgKey, new Blob([fileBuffer]));
   const uploadPlaceholder = placeholderBuffer
@@ -77,6 +69,7 @@ export const createResource = async ({
 }) => {
   const result = await searchForFileByChildResourceId(drive, resourceId, true);
   const parentName = result.parents?.name;
+
   const key = `${parentName}/${resourceId}/image`;
   const placeholderKey = `${key}-placeholder`;
   const fileBuffer = result.fileBlob
@@ -97,23 +90,49 @@ export const createResource = async ({
       (!imageWidth && imageWidth !== 0) || imageWidth > 400 ? 400 : imageWidth,
     vision,
   });
-  const getDocResultsPromise = getDocuments({
-    restApiUrl,
-    apiKey,
-    addedRoute: "projects",
-    params: {
-      query: {
-        recordType: "projects",
-        projectName: parentName,
-      },
-    },
-  });
+  //determine if its a hobbies directory
+  //or a project directory
+  const getDocResultsPromise =
+    parentName !== "hobbies"
+      ? getDocuments({
+          restApiUrl,
+          apiKey,
+          addedRoute: "projects",
+          params: {
+            query: {
+              recordType: "projects",
+              projectName: parentName,
+            },
+          },
+        })
+      : "This is a hobbies image";
   const [docResults, imgDescription, newPlaceholderBuffer] = await Promise.all([
     getDocResultsPromise,
     getImgDescriptionPromise,
     newPlaceholderBufferPromise,
   ]);
-  const docItems = docResults.data?.result?.Items;
+  if (typeof docResults === "string")
+    return await uploadResourceItems({
+      restApiUrl,
+      apiKey,
+      bucketName,
+      fileBuffer: fileBuffer,
+      imgKey: key,
+      imgPlaceholderKey: placeholderKey,
+      placeholderBuffer: newPlaceholderBuffer?.buffer,
+      addedRoute: "hobbies",
+      data: {
+        name: result.file.name,
+        imgDescription: imgDescription,
+        imgURL: key,
+        googleResourceId: resourceId,
+        placeholderUrl: placeholderKey,
+        width: result.file.imageMediaMetadata?.height,
+        height: result.file.imageMediaMetadata?.width,
+      },
+    });
+  //continue if a project doc
+  const docItems = docResults?.data?.result?.Items;
   if (!docItems || docItems.length <= 0)
     return {
       statusCode: 200,
@@ -123,13 +142,18 @@ export const createResource = async ({
   return await uploadResourceItems({
     restApiUrl,
     apiKey,
-    doc,
     bucketName,
     fileBuffer: fileBuffer,
     imgKey: key,
     imgPlaceholderKey: placeholderKey,
-    imgDescription: imgDescription,
     placeholderBuffer: newPlaceholderBuffer?.buffer,
-    googleResourceId: resourceId,
+    addedRoute: "projects/images",
+    data: {
+      documentId: doc.id,
+      imgDescription: imgDescription,
+      imgURL: key,
+      placeholderUrl: placeholderKey,
+      googleResourceId: resourceId,
+    },
   });
 };

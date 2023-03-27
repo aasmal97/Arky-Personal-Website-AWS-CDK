@@ -6,6 +6,23 @@ import {
 } from "../../../../../../utils/apiTemplates/putTemplate";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import { marshall } from "@aws-sdk/util-dynamodb";
+export type HobbiesDocument = {
+  pk: {
+    orientation: string;
+    dateCreated: string;
+  };
+  recordType: string;
+  id: string;
+  name: string;
+  imgDescription: string;
+  imgURL: string;
+  googleResourceId: string;
+  placeholderURL: any;
+  width: number;
+  height: number;
+  dateCreated: string;
+  orientation: string;
+};
 const createDocument = (e: APIGatewayEvent) => {
   if (!e.body)
     return {
@@ -13,9 +30,15 @@ const createDocument = (e: APIGatewayEvent) => {
       body: "Please provide a valid response body",
     };
 
-  const { name, imgDescription, imgURL, placeholderURL, height, width, googleResourceId } = JSON.parse(
-    e.body
-  );
+  const {
+    name,
+    imgDescription,
+    imgURL,
+    placeholderURL,
+    height,
+    width,
+    googleResourceId,
+  } = JSON.parse(e.body);
   if (
     !name ||
     !imgDescription ||
@@ -29,7 +52,7 @@ const createDocument = (e: APIGatewayEvent) => {
       body: "You must provide a name, imgDescription, imgURL, placeholderURL, height, and width attribute",
     };
   if (
-    !isString(googleResourceId)||
+    !isString(googleResourceId) ||
     !isString(name) ||
     !isString(imgDescription) ||
     !isString(imgURL) ||
@@ -40,12 +63,13 @@ const createDocument = (e: APIGatewayEvent) => {
       body: "Invalid types assigned to either name, imgDescription, imgURL or placeholderURL",
     };
   const currDate = new Date().toISOString();
-  const newWidth = typeof width === "string" ? parseFloat(width) : width
-  const newHeight = typeof height === "string" ? parseFloat(height) : height
-  if (typeof newWidth !== 'number' || typeof newHeight !== 'number') return {
-    statusCode: 400,
-    body: "Invalid types assigned to width and height. Ensure they are integers or float types",
-  };
+  const newWidth = typeof width === "string" ? parseFloat(width) : width;
+  const newHeight = typeof height === "string" ? parseFloat(height) : height;
+  if (typeof newWidth !== "number" || typeof newHeight !== "number")
+    return {
+      statusCode: 400,
+      body: "Invalid types assigned to width and height. Ensure they are integers or float types",
+    };
   const document = {
     pk: {
       orientation: width / height >= 1 ? "horizontal" : "vertical",
