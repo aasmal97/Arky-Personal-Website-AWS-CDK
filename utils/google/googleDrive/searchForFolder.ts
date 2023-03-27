@@ -12,7 +12,7 @@ export const searchForFolderByName = async (
   const folders = result.data.files;
   return folders;
 };
-export const searchForFolderByChildResourceId = async (
+export const searchForFileByChildResourceId = async (
   drive: drive_v3.Drive,
   resourceId: string,
   download: boolean = true
@@ -53,4 +53,16 @@ export const searchForFolderByChildResourceId = async (
     fileBlob: blob,
     parents: getParents.data,
   };
+};
+export const searchForFilesByDirectParent = async (
+  drive: drive_v3.Drive,
+  parentFolderId: string
+) => {
+  const result = await drive.files.list({
+    q: `'${parentFolderId}' in parents and trashed=false`,
+    fields:
+      "files(id,parents,name,mimeType,size,originalFilename,imageMediaMetadata)",
+  });
+  const files = result.data.files;
+  return files;
 };

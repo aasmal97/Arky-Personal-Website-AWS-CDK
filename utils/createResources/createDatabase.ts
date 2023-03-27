@@ -6,8 +6,10 @@ export const createDatabase = ({
   pkName,
   sortKey,
   secondaryIndex,
+  globalSecondaryIndex,
   addedId,
 }: {
+  globalSecondaryIndex?: cdk.aws_dynamodb.GlobalSecondaryIndexProps;
   addedId?: string;
   sortKey:
     | string
@@ -48,6 +50,10 @@ export const createDatabase = ({
   if (secondaryIndex)
     table.addLocalSecondaryIndex({
       ...secondaryIndex,
+    });
+  if (globalSecondaryIndex)
+    table.addGlobalSecondaryIndex({
+      ...globalSecondaryIndex,
     });
   return table;
 };

@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import { initalizeGoogleDrive } from "../initalizeGoogleDrive";
 import { unescapeNewLines } from "../initalizeGoogleDrive";
 import { convertToStr } from "../../../general/convertToStr";
-import { searchForFolderByChildResourceId } from "../searchForFolder";
+import { searchForFileByChildResourceId } from "../searchForFolder";
 dotenv.config();
 const drive = initalizeGoogleDrive({
   client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -10,7 +10,6 @@ const drive = initalizeGoogleDrive({
     convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
   ),
 });
-searchForFolderByChildResourceId(
-  drive,
-  "1b6JtNVM5AYeb3LjgVzyTxbQsvFlF4UbC"
-).then((e) => console.log(e));
+searchForFileByChildResourceId(drive, "1b6JtNVM5AYeb3LjgVzyTxbQsvFlF4UbC").then(
+  (e) => console.log(e)
+);

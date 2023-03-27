@@ -6,6 +6,20 @@ import * as jwt from "jsonwebtoken";
 import { dynamoPutDocument } from "../../../apiTemplates/putTemplate";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { searchForWatchedResource } from "./searchForWatchedResource";
+export type ChannelDocument = {
+  id: string;
+  channelResourceId?: string | null;
+  topMostDirectory: string;
+  expiration?: number;
+  parentDirectoryId?: string | null;
+} & Omit<drive_v3.Schema$Channel, "expiration">;
+export function isChannelDoc(e: any): e is ChannelDocument {
+  try {
+    return e.channelResourceId 
+  } catch (err) {
+    return false
+  }
+}
 export const createWatchChannel = async ({
   drive,
   fileId,
@@ -70,7 +84,9 @@ export const createChannel = async ({
   folderId,
   drive,
   tableName,
+  parentDirectoryId,
 }: {
+  parentDirectoryId?: string | null;
   tableName: string;
   drive: drive_v3.Drive;
   topMostDirectoryId: string;
@@ -98,13 +114,16 @@ export const createChannel = async ({
   });
   if (channel.statusCode !== 200) return channel;
   //upload to Dynamo DB
-  const channelData = JSON.parse(channel.body);
-  const newDocument = {
+  const channelData = JSON.parse(channel.body) as drive_v3.Schema$Channel;
+  const newDocument: ChannelDocument = {
     ...channelData,
     id: convertToStr(folderId),
-    channelResourceId: channelData.id,  
+    channelResourceId: channelData.id,
     topMostDirectory: topMostDirectoryId,
-    expiration: parseInt(channelData.expiration),
+    expiration: channelData.expiration
+      ? parseInt(channelData.expiration)
+      : undefined,
+    parentDirectoryId,
   };
   const result = await dynamoPutDocument({
     tableName,
@@ -127,10 +146,12 @@ export const createChannelInEnvFolder = async ({
   drive,
   folderId,
   tableName,
+  parentDirectoryId,
 }: {
   drive: drive_v3.Drive;
   folderId: string;
   tableName: string;
+  parentDirectoryId?: string | null;
 }) => {
   //Set the topmost level directory
   const parentFolder = process.env.GOOGLE_DRIVE_PARENT_FOLDER_NAME;
@@ -148,5 +169,6 @@ export const createChannelInEnvFolder = async ({
     topMostDirectoryId,
     drive,
     tableName,
+    parentDirectoryId,
   });
 };

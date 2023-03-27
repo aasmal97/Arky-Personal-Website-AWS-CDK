@@ -8,9 +8,16 @@ import { queryUntilRequestPageNum } from "../../../apiTemplates/getTemplate";
 const generateQuery = ({
   tableName,
   primaryKey,
+  expiration,
+  parentDirectoryId,
 }: {
   tableName: string;
   primaryKey: Record<string, any>;
+  expiration?: {
+    type: "less than" | "greater than";
+    unixTime: number;
+  };
+  parentDirectoryId?: string | null;
 }): QueryCommandInput => {
   const {
     keyExpArr,
@@ -42,6 +49,28 @@ const generateQuery = ({
       filterExpArr,
       filter: false,
     });
+  if (expiration)
+    addParamater({
+      key: "expiration",
+      value: expiration.unixTime,
+      expType: expiration.type,
+      expAttrMap,
+      expValMap,
+      keyExpArr,
+      filterExpArr,
+      filter: false,
+    });
+  if (parentDirectoryId)
+    addParamater({
+      key: "parentDirectoryId",
+      value: parentDirectoryId,
+      expType: "equals",
+      expAttrMap,
+      expValMap,
+      keyExpArr,
+      filterExpArr,
+      filter: true,
+    });
   const keyExp = keyExpArr.length
     ? keyExpArr.reduce((a, b) => a + " AND " + b)
     : undefined;
@@ -60,19 +89,26 @@ const generateQuery = ({
     ExpressionAttributeNames: expAttrMap,
     ExpressionAttributeValues: expVal,
     ScanIndexForward: scanDirection,
-    IndexName: index,
+    IndexName: expiration ? "SearchByExpiration" : index,
   };
   return dynamoQuery;
 };
 export const getWatchChannels = async ({
   tableName,
   primaryKey,
+  expiration,
+  parentDirectoryId,
 }: {
   primaryKey: {
     topMostDirectory: string;
     id?: string;
   };
   tableName: string;
+  expiration?: {
+    type: "less than" | "greater than";
+    unixTime: number;
+  };
+  parentDirectoryId?: string | null;
 }) => {
   if (!primaryKey["topMostDirectory"])
     return {
@@ -80,7 +116,12 @@ export const getWatchChannels = async ({
       body: "You must supply a the partition key, topMostDirectory",
     };
   const result = await queryUntilRequestPageNum({
-    query: generateQuery({ tableName, primaryKey }),
+    query: generateQuery({
+      tableName,
+      primaryKey,
+      expiration,
+      parentDirectoryId,
+    }),
     successMessage: "Successfully got watch channels",
     tableName,
     maxResults: 1000,

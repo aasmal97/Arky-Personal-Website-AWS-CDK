@@ -5,10 +5,13 @@ import {
   initalizeGoogleDrive,
   unescapeNewLines,
 } from "../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
-import { searchForFolderByChildResourceId } from "../../../../../../utils/google/googleDrive/searchForFolder";
-import { searchForWatchedResource } from "../../../../../../utils/google/googleDrive/watchChannels/searchForWatchedResource";
+import { initializeDirectoryFileHistory } from "../../../../../../utils/google/googleDrive/initializeDirectoryFileHistory";
+import { isAPIGatewayResult } from "../../../../../../utils/general/isApiGatewayResult";
 import { JwtPayload } from "jsonwebtoken";
-import { createChannel } from "../../../../../../utils/google/googleDrive/watchChannels/createWatchChannel";
+import {
+  createChannel,
+  isChannelDoc,
+} from "../../../../../../utils/google/googleDrive/watchChannels/createWatchChannel";
 import { createResource } from "../../../../../../utils/google/googleDrive/createResource";
 import { removeResource } from "../../../../../../utils/google/googleDrive/removeResource";
 import { deleteWatchChannel } from "../../../../../../utils/google/googleDrive/watchChannels/deleteWatchChannel";
@@ -21,10 +24,6 @@ export type RequestProps = {
   contentChanged: string;
   body: { [key: string]: any };
 };
-function isAPIGatewayResult(e: any): e is APIGatewayProxyResult {
-  return e.statusCode && e.body;
-}
-
 const validateRequest = (
   e: APIGatewayEvent
 ): RequestProps | APIGatewayProxyResult => {
@@ -36,7 +35,6 @@ const validateRequest = (
   const headers = e.headers;
   const {
     "X-Goog-Channel-Token": token,
-    "X-Goog-Resource-ID": resourceId,
     "X-Goog-Resource-URI": resourceURI,
     "X-Goog-Resource-State": state,
     "X-Goog-Changed": contentChanged,
@@ -46,13 +44,14 @@ const validateRequest = (
 
   return {
     tokenPayload: tokenIsValid,
-    resourceId: convertToStr(resourceId),
+    resourceId: convertToStr(tokenIsValid.folder_id),
     resourceURI: convertToStr(resourceURI),
     state: convertToStr(state),
     contentChanged: convertToStr(contentChanged),
     body: e.body ? JSON.parse(e.body) : {},
   };
 };
+
 export async function handler(
   e: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
@@ -74,75 +73,108 @@ export async function handler(
       statusCode: 403,
       body: "Invalid token payload",
     };
-  const { file } = await searchForFolderByChildResourceId(
-    drive,
-    resourceId,
-    false
+  if (state === "sync")
+    return {
+      statusCode: 200,
+      body: "Webhook connection recieved",
+    };
+  if (state !== "update" && contentChanged !== "children")
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        state: state,
+        contentChanged: contentChanged,
+        message: "This webhook does not handle this type of notification yet",
+      }),
+    };
+  const webhooksTableName = convertToStr(
+    process.env.WEBHOOKS_DYNAMO_DB_TABLE_NAME
   );
-  const tableName = convertToStr(process.env.WEBHOOKS_DYNAMO_DB_TABLE_NAME);
   const restApiUrl = convertToStr(process.env.AMAZON_REST_API_DOMAIN_NAME);
   const restApiKey = convertToStr(process.env.AMAZON_REST_API_KEY);
   const vision = {
     apiKey: convertToStr(process.env.AZURE_COMPUTER_VISION_API_KEY),
     apiEndpoint: convertToStr(process.env.AZURE_COMPUTER_VISION_API_ENDPOINT),
   };
-  let result: any;
-  // switch (state) {
-  //   case "add":
-  //     if (file.mimeType === "application/vnd.google-apps.folder")
-  //       result = createChannel({
-  //         tokenSecret: process.env.WEBHOOKS_API_TOKEN_SECRET,
-  //         domain: process.env.WEBHOOKS_API_DOMAIN_NAME,
-  //         topMostDirectoryId,
-  //         drive,
-  //         tableName,
-  //         folderId: resourceId,
-  //       });
-  //     else
-  //       result = createResource({
-  //         restApiUrl,
-  //         bucketName,
-  //         apiKey: restApiKey,
-  //         drive,
-  //         resourceId,
-  //         vision,
-  //       });
-  //     break;
-  //   case "remove":
-  //     if (file.mimeType === "application/vnd.google-apps.folder")
-  //       result = deleteWatchChannel({
-  //         primaryKey: {
-  //           topMostDirectory: topMostDirectoryId,
-  //           id: resourceId,
-  //         },
-  //         drive,
-  //         tableName,
-  //       });
-  //     else
-  //       result = removeResource({
-  //         restApiUrl,
-  //         bucketName,
-  //         apiKey: restApiKey,
-  //         resourceId,
-  //       });
-  //     break;
-  //   case "update":
-  //     if (file.mimeType === "application/vnd.google-apps.folder") {
-
-  //     } else {
-  //     }
-  //     // const regex = new RegExp("", 'g')
-  //     // if(contentChanged)
-  //     break;
-  //   default:
-  //     break;
-  // }
+  const fileHistoryResults = await initializeDirectoryFileHistory({
+    drive,
+    resourceId,
+    restApiKey,
+    restApiUrl,
+    topMostDirectoryId,
+    webhooksTableName,
+  });
+  if (isAPIGatewayResult(fileHistoryResults)) return fileHistoryResults;
+  const { prevFilesInFolder, currFilesInFolder } = fileHistoryResults;
+  //generate object map for O(1) loop up
+  const currFilesMap: { [key: string]: any } = {};
+  const prevFilesMap: { [key: string]: any } = {};
+  prevFilesInFolder.forEach((file) => {
+    if (file.id) prevFilesMap[file.id] = file;
+  });
+  currFilesInFolder.forEach((file) => {
+    if (file.id) currFilesMap[file.id] = file;
+  });
+  //add resources
+  const addResourcePromise = currFilesInFolder.map((file) => {
+    if (!file.id) return null;
+    if (!(file.id in prevFilesMap)) {
+      if (file.mimeType === "application/vnd.google-apps.folder")
+        return createChannel({
+          parentDirectoryId: resourceId,
+          tokenSecret: process.env.WEBHOOKS_API_TOKEN_SECRET,
+          domain: process.env.WEBHOOKS_API_DOMAIN_NAME,
+          topMostDirectoryId,
+          drive,
+          tableName: webhooksTableName,
+          folderId: file.id,
+        });
+      else
+        return createResource({
+          restApiUrl,
+          bucketName,
+          apiKey: restApiKey,
+          drive,
+          resourceId: file.id,
+          vision,
+        });
+    }
+    return null;
+  });
+  //delete resources
+  const deleteResourcePromise = prevFilesInFolder.map((file) => {
+    if (!file.id) return null;
+    if (!(file.id in currFilesMap)) {
+      if (isChannelDoc(file.data))
+        return deleteWatchChannel({
+          primaryKey: {
+            topMostDirectory: topMostDirectoryId,
+            id: file.id,
+          },
+          drive,
+          tableName: webhooksTableName,
+        });
+      else
+        return removeResource({
+          restApiUrl,
+          bucketName,
+          apiKey: restApiKey,
+          resourceId: file.id,
+        });
+    }
+    return null;
+  });
+  const resultsArr = await Promise.all([
+    ...addResourcePromise,
+    ...deleteResourcePromise,
+  ]);
   try {
     return {
       statusCode: 200,
       body: JSON.stringify({
         request: request,
-        //changes: listLatestChanges
+        //filter out null or undefined values
+        result: resultsArr.filter((e) => e),
       }),
     };
   } catch (e) {
@@ -155,16 +187,3 @@ export async function handler(
     };
   }
 }
-// import url = require("url");
-// import { initalizeGoogleDriveActivity } from "../../../../../../utils/google/googleDrive/initalizeGoogleDriveActivity";
-// const params = url.parse(resourceURI, true).query;
-// const listLatestChanges = await drive.changes.list({
-//   pageToken: typeof params.pageToken === "string" ? params.pageToken : ""
-// });
-
-// const driveActivity = initalizeGoogleDriveActivity({
-//   client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-//   private_key: unescapeNewLines(
-//     convertToStr(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
-//   ),
-// });

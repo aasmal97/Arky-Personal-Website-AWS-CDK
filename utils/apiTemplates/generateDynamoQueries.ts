@@ -11,7 +11,7 @@ export const addParamater = ({
 }: {
   key: string;
   value: any;
-  expType: "contains" | "equals";
+  expType: "contains" | "equals" | "greater than" | "less than";
   filter?: boolean;
   filterExpArr: string[];
   keyExpArr: string[];
@@ -24,9 +24,28 @@ export const addParamater = ({
   expValMap[expKeyVal] = value;
   const containsExp = `contains(${expKey}, ${expKeyVal})`;
   const equalExp = `${expKey} = ${expKeyVal}`;
-  if (filter)
-    filterExpArr.push(expType === "contains" ? containsExp : equalExp);
-  else keyExpArr.push(expType === "contains" ? containsExp : equalExp);
+  const lessThanExp = `${expKey} <= ${expKeyVal}`;
+  const greaterThanExp = `${expKey} >= ${expKeyVal}`;
+  let exp: string;
+  switch (expType) {
+    case "contains":
+      exp = containsExp;
+      break;
+    case "equals":
+      exp = equalExp;
+      break;
+    case "greater than":
+      exp = greaterThanExp;
+      break;
+    case "less than":
+      exp = lessThanExp;
+      break;
+    default:
+      exp = equalExp;
+      break;
+  }
+  if (filter) filterExpArr.push(exp);
+  else keyExpArr.push(exp);
 };
 export const initializeQueryResources = () => {
   let keyExpArr: string[] = [];

@@ -1,5 +1,5 @@
 import { drive_v3 } from "googleapis";
-import { searchForFolderByChildResourceId } from "./searchForFolder";
+import { searchForFileByChildResourceId } from "./searchForFolder";
 import { getDocuments } from "../../crudRestApiMethods/getMethod";
 import { putDocument } from "../../crudRestApiMethods/putMethod";
 import { resizeImg } from "../../general/resizeImg";
@@ -17,6 +17,7 @@ const uploadResourceItems = async ({
   bucketName,
   fileBuffer,
   placeholderBuffer,
+  googleResourceId,
 }: {
   restApiUrl: string;
   apiKey: string;
@@ -27,6 +28,7 @@ const uploadResourceItems = async ({
   bucketName: string;
   fileBuffer: Buffer;
   placeholderBuffer?: Buffer | null;
+  googleResourceId?: string | null;
 }) => {
   const updateResults = putDocument({
     restApiUrl,
@@ -37,6 +39,7 @@ const uploadResourceItems = async ({
       imgDescription: imgDescription,
       imgURL: imgKey,
       placeholderUrl: imgPlaceholderKey,
+      googleResourceId,
     },
   });
   const uploadFile = uploadImgToS3(bucketName, imgKey, new Blob([fileBuffer]));
@@ -72,7 +75,7 @@ export const createResource = async ({
     apiKey: string;
   };
 }) => {
-  const result = await searchForFolderByChildResourceId(drive, resourceId, true);
+  const result = await searchForFileByChildResourceId(drive, resourceId, true);
   const parentName = result.parents?.name;
   const key = resourceId;
   const placeholderKey = `${key}-placeholder`;
@@ -121,6 +124,6 @@ export const createResource = async ({
     imgPlaceholderKey: placeholderKey,
     imgDescription: imgDescription,
     placeholderBuffer: newPlaceholderBuffer?.buffer,
+    googleResourceId: resourceId,
   });
 };
-

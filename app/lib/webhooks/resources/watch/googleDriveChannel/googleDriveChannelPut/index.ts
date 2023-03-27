@@ -5,6 +5,7 @@ import {
 } from "../../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
 import * as jwt from "jsonwebtoken";
 import { drive_v3 } from "googleapis";
+import { getUnixTime, add } from "date-fns";
 import { createChannel } from "../../../../../../../utils/google/googleDrive/watchChannels/createWatchChannel";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 import { deleteWatchChannel } from "../../../../../../../utils/google/googleDrive/watchChannels/deleteWatchChannel";
@@ -35,10 +36,19 @@ export async function handler(
     parentFolder: convertToStr(parentFolder),
   });
   if (typeof topMostDirectoryId !== "string") return topMostDirectoryId;
+  const currDate = new Date();
+  const endWatchDate = add(currDate, {
+    hours: 12,
+  });
+  const expiration = getUnixTime(endWatchDate) * 1000;
   const activeChannels = await getWatchChannels({
     tableName,
     primaryKey: {
       topMostDirectory: topMostDirectoryId,
+    },
+    expiration: {
+      type: "less than",
+      unixTime: expiration,
     },
   });
   if (activeChannels.statusCode !== 200) return activeChannels;
