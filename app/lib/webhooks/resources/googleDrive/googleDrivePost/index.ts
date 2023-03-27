@@ -57,7 +57,7 @@ export async function handler(
 ): Promise<APIGatewayProxyResult> {
   const request = validateRequest(e);
   if (isAPIGatewayResult(request)) return request;
-  const { resourceId, resourceURI, state, contentChanged, body, tokenPayload } =
+  const { resourceId, state, contentChanged, tokenPayload } =
     request;
   const bucketName = convertToStr(process.env.S3_MEDIA_FILES_BUCKET_NAME);
   const drive = initalizeGoogleDrive({
