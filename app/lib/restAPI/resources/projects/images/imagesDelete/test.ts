@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
-import * as dotenv from 'dotenv'
-dotenv.config()
+import * as dotenv from "dotenv";
+dotenv.config();
 axios({
   method: "delete",
   url: "https://api.arkyasmal.com/projects/images",
@@ -10,7 +10,7 @@ axios({
   params: {
     key: JSON.stringify({
       documentId: "213123",
-      imgURL: "213123",
+      googleResourceId: "213123",
     }),
   },
 })

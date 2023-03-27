@@ -1,6 +1,6 @@
 export type Image = {
   pk: {
-    imgURL: string;
+    googleResourceId: string;
     documentId: string;
   };
   id: string;
@@ -10,7 +10,7 @@ export type Image = {
   placeholderURL?: string;
   width?: number;
   height?: number;
-  googleResourceId?: string; 
+  googleResourceId?: string;
 };
 export type ProjectDocument = {
   pk: {

@@ -13,7 +13,8 @@ export type ImageQueryProps = Partial<Image>;
 const generateGetExpression = (query: ImageQueryProps) => {
   let { keyExpArr, filterExpArr, scanDirection, index, expAttrMap, expValMap } =
     initializeQueryResources();
-  const { id, documentId, imgURL, imgDescription, placeholderURL } = query;
+  const { id, documentId, googleResourceId, imgDescription, placeholderURL } =
+    query;
   if (typeof documentId === "string")
     addParamater({
       key: "documentId",
@@ -25,10 +26,10 @@ const generateGetExpression = (query: ImageQueryProps) => {
       expAttrMap,
       filter: false,
     });
-  if (typeof imgURL === "string")
+  if (typeof googleResourceId === "string")
     addParamater({
-      key: "imgURL",
-      value: imgURL,
+      key: "googleResourceId",
+      value: googleResourceId,
       expType: "equals",
       filterExpArr,
       keyExpArr,

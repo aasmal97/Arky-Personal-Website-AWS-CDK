@@ -31,7 +31,7 @@ export async function handler(
     height,
     googleResourceId,
   } = body;
-  if (!documentId || !imgURL)
+  if (!documentId || !googleResourceId || !imgURL)
     return {
       statusCode: 400,
       body: "You must provide an img url and a document id",
@@ -53,7 +53,7 @@ export async function handler(
     };
   const document: Image = {
     pk: {
-      imgURL,
+      googleResourceId,
       documentId,
     },
     imgURL,

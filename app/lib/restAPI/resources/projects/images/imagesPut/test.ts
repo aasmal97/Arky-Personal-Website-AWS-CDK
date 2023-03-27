@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
-import * as dotenv from 'dotenv'
-dotenv.config()
+import * as dotenv from "dotenv";
+dotenv.config();
 axios({
   method: "put",
   url: "https://api.arkyasmal.com/projects/images",
@@ -10,7 +10,7 @@ axios({
   data: {
     imgDescription: "filled",
     placeholderURL: "121312",
-    imgURL: "213123",
+    googleResourceId: "213123",
     documentId: "213123",
   },
 })

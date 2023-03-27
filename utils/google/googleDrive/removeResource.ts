@@ -17,10 +17,9 @@ export const removeResource = async ({
     apiKey,
     addedRoute: "projects/images",
     params: {
-      imgURL: resourceId,
+      googleResourceId: resourceId,
     },
   });
   const deleteObj = deleteImgFromS3(bucketName, resourceId);
   return await Promise.all([deleteObj, resourceDetails]);
 };
-

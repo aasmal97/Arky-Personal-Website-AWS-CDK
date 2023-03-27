@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
-import * as dotenv from 'dotenv'
-dotenv.config()
+import * as dotenv from "dotenv";
+dotenv.config();
 axios({
   method: "put",
   url: "https://api.arkyasmal.com/hobbies",
@@ -9,11 +9,11 @@ axios({
   },
   data: {
     name: "hello",
-    imgDescription: "hello", 
-    imgURL: 'hello',
-    height: 1600, 
+    imgDescription: "hello",
+    googleResourceId: "hello",
+    height: 1600,
     width: 2400,
-  }
+  },
 })
   .then((e) => console.log(e.data))
   .catch((err) => {

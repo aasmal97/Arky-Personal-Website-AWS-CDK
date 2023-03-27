@@ -15,7 +15,6 @@ import {
 import { createResource } from "../../../../../../utils/google/googleDrive/createResource";
 import { removeResource } from "../../../../../../utils/google/googleDrive/removeResource";
 import { deleteWatchChannel } from "../../../../../../utils/google/googleDrive/watchChannels/deleteWatchChannel";
-
 export type RequestProps = {
   tokenPayload: JwtPayload;
   resourceId: string;
@@ -57,8 +56,7 @@ export async function handler(
 ): Promise<APIGatewayProxyResult> {
   const request = validateRequest(e);
   if (isAPIGatewayResult(request)) return request;
-  const { resourceId, state, contentChanged, tokenPayload } =
-    request;
+  const { resourceId, state, contentChanged, tokenPayload } = request;
   const bucketName = convertToStr(process.env.S3_MEDIA_FILES_BUCKET_NAME);
   const drive = initalizeGoogleDrive({
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,

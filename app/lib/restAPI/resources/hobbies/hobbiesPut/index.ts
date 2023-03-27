@@ -13,15 +13,23 @@ const createDocument = (e: APIGatewayEvent) => {
       body: "Please provide a valid response body",
     };
 
-  const { name, imgDescription, imgURL, placeholderURL, height, width } = JSON.parse(
+  const { name, imgDescription, imgURL, placeholderURL, height, width, googleResourceId } = JSON.parse(
     e.body
   );
-  if (!name || !imgDescription || !imgURL || !height || !width)
+  if (
+    !name ||
+    !imgDescription ||
+    !googleResourceId ||
+    !imgURL ||
+    !height ||
+    !width
+  )
     return {
       statusCode: 400,
       body: "You must provide a name, imgDescription, imgURL, placeholderURL, height, and width attribute",
     };
   if (
+    !isString(googleResourceId)||
     !isString(name) ||
     !isString(imgDescription) ||
     !isString(imgURL) ||
@@ -48,6 +56,7 @@ const createDocument = (e: APIGatewayEvent) => {
     name: name,
     imgDescription: imgDescription,
     imgURL: imgURL,
+    googleResourceId: googleResourceId,
     placeholderURL: placeholderURL,
     width: newWidth,
     height: newHeight,

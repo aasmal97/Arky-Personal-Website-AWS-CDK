@@ -113,7 +113,13 @@ export const createResource = async ({
     getImgDescriptionPromise,
     newPlaceholderBufferPromise,
   ]);
-  const doc = docResults.data.result.Items[0] as ProjectDocument;
+  const docItems = docResults.data?.result?.Items;
+  if (!docItems || docItems.length <= 0)
+    return {
+      statusCode: 200,
+      message: `Not relevant project found with the following name: ${parentName}`,
+    };
+  const doc = docItems[0] as ProjectDocument;
   return await uploadResourceItems({
     restApiUrl,
     apiKey,
