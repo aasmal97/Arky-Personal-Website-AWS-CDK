@@ -24,7 +24,7 @@ export type RequestProps = {
   body: { [key: string]: any };
 };
 const validateRequest = (
-  e: APIGatewayEvent
+  e: Omit<APIGatewayEvent, "resource" | "requestContext" | "pathParameters">
 ): RequestProps | APIGatewayProxyResult => {
   if (e.httpMethod !== "POST")
     return {
@@ -52,7 +52,7 @@ const validateRequest = (
 };
 
 export async function handler(
-  e: APIGatewayEvent
+  e: Omit<APIGatewayEvent, "resource" | "requestContext" | "pathParameters">
 ): Promise<APIGatewayProxyResult> {
   const request = validateRequest(e);
   if (isAPIGatewayResult(request)) return request;
@@ -170,7 +170,6 @@ export async function handler(
     return {
       statusCode: 200,
       body: JSON.stringify({
-        request: request,
         //filter out null or undefined values
         result: resultsArr.filter((e) => e),
       }),

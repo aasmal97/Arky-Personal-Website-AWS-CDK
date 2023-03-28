@@ -6,7 +6,6 @@ import { resizeImg } from "../../general/resizeImg";
 import { uploadImgToS3 } from "../../general/s3Actions";
 import { getImgDescription } from "../../azure/getImgDescription";
 import { ProjectDocument } from "../../../app/lib/restAPI/resources/types/projectTypes";
-
 const uploadResourceItems = async ({
   restApiUrl,
   apiKey,
@@ -99,10 +98,10 @@ export const createResource = async ({
           apiKey,
           addedRoute: "projects",
           params: {
-            query: {
+            query: JSON.stringify({
               recordType: "projects",
               projectName: parentName,
-            },
+            }),
           },
         })
       : "This is a hobbies image";
@@ -136,7 +135,7 @@ export const createResource = async ({
   if (!docItems || docItems.length <= 0)
     return {
       statusCode: 200,
-      message: `Not relevant project found with the following name: ${parentName}`,
+      message: `No relevant project found with the following name: ${parentName}`,
     };
   const doc = docItems[0] as ProjectDocument;
   return await uploadResourceItems({

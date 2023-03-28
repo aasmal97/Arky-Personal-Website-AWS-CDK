@@ -53,6 +53,7 @@ const webhooksApiMap = ({
           S3_MEDIA_FILES_BUCKET_NAME: convertToStr(s3MediaBucket?.name),
           AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
           AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
+          WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
           WEBHOOKS_API_KEY: convertToStr(parsed.WEBHOOKS_API_KEY),
           WEBHOOKS_API_TOKEN_SECRET: convertToStr(
             parsed.WEBHOOKS_API_TOKEN_SECRET

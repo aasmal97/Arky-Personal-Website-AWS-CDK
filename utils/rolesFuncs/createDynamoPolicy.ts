@@ -10,8 +10,8 @@ export const createDynamoPolicy = (
   const getActions = [
     "dynamodb:BatchGet*",
     "dynamodb:Get*",
-    "dynamodb:Query",
-    "dynamodb:Scan",
+    "dynamodb:Query*",
+    "dynamodb:Scan*",
   ];
   const putActions = ["dynamodb:PutItem"];
   const deleteActions = ["dynamodb:Delete*"];

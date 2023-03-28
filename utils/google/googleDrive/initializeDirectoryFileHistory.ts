@@ -52,6 +52,7 @@ export const initializeDirectoryFileHistory = async ({
     addedRoute: "projects",
     params: {
       query: JSON.stringify({
+        recordType: "projects",
         projectName: directoryFile.name,
         getImages: true,
         max: 1,
@@ -75,16 +76,20 @@ export const initializeDirectoryFileHistory = async ({
       projectDocPromise,
     ]);
   const activeChannelsParsed = JSON.parse(activeChannelsInDirectory.body);
-  const activeChannels = activeChannelsParsed.data.result
+  const activeChannels = activeChannelsParsed.result
     .Items as ChannelDocument[];
-  const projectDocument = projectDoc.data.result.Items?.[0] as
-    | ProjectDocument
+  const projectDocs = projectDoc.data?.result?.Items as
+    | ProjectDocument[]
     | undefined;
-  if (!projectDocument)
-    return {
-      statusCode: 200,
-      body: "Project doc matching google drive directory name ${ directoryFile.name} does not exist",
-    };
+  let projectDocument: Partial<ProjectDocument> = {
+    images: [],
+  };
+  if (projectDocs && projectDocs.length > 0) projectDocument = projectDocs[0]
+  // if (!projectDocument)
+  //   return {
+  //     statusCode: 200,
+  //     body: `Project doc matching google drive directory name ${ directoryFile.name} does not exist`,
+  //   };
   const projectDocImages = projectDocument.images ? projectDocument.images : [];
   const projectDocImagesIds = projectDocImages.map((img) => ({
     id: img.googleResourceId,
