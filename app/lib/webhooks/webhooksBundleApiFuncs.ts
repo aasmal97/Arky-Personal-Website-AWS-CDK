@@ -9,9 +9,8 @@ const locationArr = Object.entries(locationFuncMap).map(([key, value]) => {
   return newPath;
 });
 const googleDrivePostStateMachineLocation = generateLocation(
-  ["stepFunctions", "googleDrivePost"],
-  __dirname,
-  true
+  ["googleDrive", "post", "stepFunction"],
+  __dirname
 );
 locationArr.push(googleDrivePostStateMachineLocation.relative + "/index.ts");
 const command = locationArr.reduce((a, b) => a + " " + b);

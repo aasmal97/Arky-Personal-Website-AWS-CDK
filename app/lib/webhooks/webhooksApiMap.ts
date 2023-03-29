@@ -8,7 +8,7 @@ import { convertToStr } from "../../../utils/general/convertToStr";
 import { createLambdaRole } from "../../../utils/rolesFuncs/createLambdaRole";
 import { createS3BucketPolicy } from "../../../utils/rolesFuncs/createS3BucketPolicy";
 import { createDynamoPolicy } from "../../../utils/rolesFuncs/createDynamoPolicy";
-import { createGoogleDrivePostStateMachine } from "./stepFunctions/googleDrivePost/stateMachine";
+import { createGoogleDrivePostStateMachine } from "./resources/googleDrive/googleDrivePost/stepFunction/stateMachine";
 import { createStateMachinePolicy } from "../../../utils/rolesFuncs/createStateMachinePolicy";
 const webhooksApiMap = ({
   webhooksAPIDomainName,
@@ -35,9 +35,8 @@ const webhooksApiMap = ({
 }): RestAPIType => {
   const parsed = searchForSecretsWrapper(__dirname);
   const googleDrivePostStepFunctionLambdaLocation = generateLocation(
-    ["stepFunctions", "googleDrivePost"],
+    ["googleDrive", "post", "stepFunction"],
     __dirname,
-    true
   );
   const googlePostDriveStateMachine = createGoogleDrivePostStateMachine({
     stack,

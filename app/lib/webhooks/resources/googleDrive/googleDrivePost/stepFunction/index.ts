@@ -1,6 +1,6 @@
 import { APIGatewayProxyResult } from "aws-lambda";
 import { JwtPayload } from "jsonwebtoken";
-import { modifyResources } from "../../../../../utils/google/googleDrive/resources/modifyResources";
+import { modifyResources } from "../../../../../../../utils/google/googleDrive/resources/modifyResources";
 export async function handler({
   resourceId,
   tokenPayload,

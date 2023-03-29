@@ -2,10 +2,10 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as sfn from "aws-cdk-lib/aws-stepfunctions";
 import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 import { Stack, Duration } from "aws-cdk-lib";
-import { convertToStr } from "../../../../../utils/general/convertToStr";
-import { createLambdaRole } from "../../../../../utils/rolesFuncs/createLambdaRole";
-import { createS3BucketPolicy } from "../../../../../utils/rolesFuncs/createS3BucketPolicy";
-import { createDynamoPolicy } from "../../../../../utils/rolesFuncs/createDynamoPolicy";
+import { convertToStr } from "../../../../../../../utils/general/convertToStr";
+import { createLambdaRole } from "../../../../../../../utils/rolesFuncs/createLambdaRole";
+import { createS3BucketPolicy } from "../../../../../../../utils/rolesFuncs/createS3BucketPolicy";
+import { createDynamoPolicy } from "../../../../../../../utils/rolesFuncs/createDynamoPolicy";
 export const createGoogleDrivePostStateMachine = ({
   stack,
   parsed,
