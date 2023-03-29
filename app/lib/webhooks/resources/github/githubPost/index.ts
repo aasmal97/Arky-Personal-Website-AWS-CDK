@@ -56,6 +56,7 @@ export async function handler(
         apiKey: restApiKey,
         restApiDomainName: restApiDomainName,
       });
+      break;
     default:
       result = {}
       break;
