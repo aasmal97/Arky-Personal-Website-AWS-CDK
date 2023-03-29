@@ -1,10 +1,7 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import * as jwt from "jsonwebtoken";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
-import {
-  WebhookEvent,
-  RepositoryEvent,
-} from "@octokit/webhooks-types";
+import { WebhookEvent, RepositoryEvent } from "@octokit/webhooks-types";
 import { respondToRepositoryChanges } from "./repoActions";
 // import { respondToPushChanges } from './pushActions';
 const validateIncomingResponse = (e: APIGatewayEvent) => {
@@ -48,25 +45,25 @@ export async function handler(
   const restApiDomainName = convertToStr(
     process.env.AMAZON_REST_API_DOMAIN_NAME
   );
-  let result: any;
-  switch (eventType) {
-    case "repository":
-      result = await respondToRepositoryChanges({
-        data: data as RepositoryEvent,
-        apiKey: restApiKey,
-        restApiDomainName: restApiDomainName,
-      });
-      break;
-    default:
-      result = {}
-      break;
-  }
   try {
+    let result: any;
+    switch (eventType) {
+      case "repository":
+        result = await respondToRepositoryChanges({
+          data: data as RepositoryEvent,
+          apiKey: restApiKey,
+          restApiDomainName: restApiDomainName,
+        });
+        break;
+      default:
+        result = {};
+        break;
+    }
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: "No errors encountered",
-        result: JSON.stringify(result)
+        result: JSON.stringify(result),
       }),
     };
   } catch (e) {
@@ -74,7 +71,7 @@ export async function handler(
       statusCode: 500,
       body: JSON.stringify({
         message: "Bad Request",
-        error: e
+        error: e,
       }),
     };
   }
