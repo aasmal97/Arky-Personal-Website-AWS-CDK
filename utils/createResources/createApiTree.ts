@@ -238,7 +238,7 @@ export const createLambdaFuncs = (e: cdk.Stack, restAPIMap: RestAPIType) => {
       code: lambda.Code.fromAsset(buildPath.absolute),
       role: value.role,
       environment: value.env,
-      timeout: cdk.Duration.seconds(25),
+      timeout: cdk.Duration.seconds(28),
       memorySize: value.memorySize ? value.memorySize : 512,
     });
     const integration = new apigateway.LambdaIntegration(newFunc);
