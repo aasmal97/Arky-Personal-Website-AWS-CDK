@@ -76,7 +76,13 @@ export async function handler(
       statusCode: 200,
       body: "Webhook connection recieved",
     };
-  if (state !== "update" && contentChanged !== "children")
+  const supportedStates: {
+    [key: string]: any;
+  } = {
+    update: "children",
+    trashed: "",
+  };
+  if (!(state in supportedStates) || supportedStates[state] !== contentChanged)
     return {
       statusCode: 200,
       body: JSON.stringify({
