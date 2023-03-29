@@ -1,11 +1,11 @@
 import { drive_v3 } from "googleapis";
-import { searchForFileByChildResourceId } from "./searchForFolder";
-import { getDocuments } from "../../crudRestApiMethods/getMethod";
-import { putDocument } from "../../crudRestApiMethods/putMethod";
-import { resizeImg } from "../../general/resizeImg";
-import { uploadImgToS3 } from "../../general/s3Actions";
-import { getImgDescription } from "../../azure/getImgDescription";
-import { ProjectDocument } from "../../../app/lib/restAPI/resources/types/projectTypes";
+import { searchForFileByChildResourceId } from "../searchForFolder";
+import { getDocuments } from "../../../crudRestApiMethods/getMethod";
+import { putDocument } from "../../../crudRestApiMethods/putMethod";
+import { resizeImg } from "../../../general/resizeImg";
+import { uploadImgToS3 } from "../../../general/s3Actions";
+import { getImgDescription } from "../../../azure/getImgDescription";
+import { ProjectDocument } from "../../../../app/lib/restAPI/resources/types/projectTypes";
 const topMostDirectoryFolderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
 const categoryTypes: {
   [key: string]: boolean;

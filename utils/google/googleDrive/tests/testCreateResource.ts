@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import { initalizeGoogleDrive } from "../initalizeGoogleDrive";
 import { convertToStr } from "../../../general/convertToStr";
 import { unescapeNewLines } from "../initalizeGoogleDrive";
-import { createResource } from "../createResource";
+import { createResource } from "../resources/createResource";
 dotenv.config();
 const drive = initalizeGoogleDrive({
   client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,

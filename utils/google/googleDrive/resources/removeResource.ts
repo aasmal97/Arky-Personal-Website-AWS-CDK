@@ -1,5 +1,5 @@
-import { deleteDocument } from "../../crudRestApiMethods/deleteMethod";
-import { deleteImgFromS3 } from "../../general/s3Actions";
+import { deleteDocument } from "../../../crudRestApiMethods/deleteMethod";
+import { deleteImgFromS3 } from "../../../general/s3Actions";
 
 export const removeResource = async ({
   restApiUrl,

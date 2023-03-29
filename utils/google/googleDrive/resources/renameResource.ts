@@ -1,8 +1,8 @@
 import { drive_v3, driveactivity_v2 } from "googleapis";
-import { getDriveFileActivity } from "./getDriveFileActivity";
+import { getDriveFileActivity } from "../getDriveFileActivity";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import { updateDocument } from "../../crudRestApiMethods/postMethod";
-import { getDocuments } from "../../crudRestApiMethods/getMethod";
+import { updateDocument } from "../../../crudRestApiMethods/postMethod";
+import { getDocuments } from "../../../crudRestApiMethods/getMethod";
 
 //this is only meant for folders, when they're renamed.
 //image files getting re-named don't matter since
