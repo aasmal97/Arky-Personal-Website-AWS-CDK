@@ -44,6 +44,8 @@ jobs:
           ENV_WEBHOOKS_API_KEY: ${{ secrets.WEBHOOKS_API_KEY }}
           ENV_WEBHOOKS_API_TOKEN: ${{ secrets.WEBHOOKS_API_TOKEN }}
           ENV_WEBHOOKS_API_TOKEN_SECRET: ${{ secrets.WEBHOOKS_API_TOKEN_SECRET }}
+          AZURE_COMPUTER_VISION_API_ENDPOINT: ${{secrets.AZURE_COMPUTER_VISION_API_ENDPOINT}}
+          AZURE_COMPUTER_VISION_API_KEY: ${{secrets.AZURE_COMPUTER_VISION_API_KEY}}
       - name: Generate Cloud Template and Bootstrap
         shell: bash
         run: npm run bootstrap

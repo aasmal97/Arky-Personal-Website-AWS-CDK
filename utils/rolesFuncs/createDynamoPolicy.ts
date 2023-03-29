@@ -31,14 +31,16 @@ export const createDynamoPolicy = (
       actions = putActions;
       break;
   }
-  const sid = `${table.id}${actionType}1`
+  const sid = `${table.id}${actionType}1`;
   return new aws_iam.PolicyDocument({
     statements: [
       new aws_iam.PolicyStatement({
         sid: sid,
         effect: aws_iam.Effect.ALLOW,
         actions: [...actions],
-        resources: table.arn ? [table.arn] : [],
+        resources: table.arn
+          ? [table.arn, `${table.arn}/index`, `${table.arn}/*`]
+          : [],
       }),
     ],
   });
