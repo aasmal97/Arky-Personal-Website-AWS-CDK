@@ -8,12 +8,14 @@ import { convertToStr } from "../../../utils/general/convertToStr";
 import { createLambdaRole } from "../../../utils/rolesFuncs/createLambdaRole";
 import { createS3BucketPolicy } from "../../../utils/rolesFuncs/createS3BucketPolicy";
 import { createDynamoPolicy } from "../../../utils/rolesFuncs/createDynamoPolicy";
+import { createGoogleDrivePostStateMachine } from "./stepFunctions/googleDrivePost/statemachine";
+import { createStateMachinePolicy } from "../../../utils/rolesFuncs/createStateMachinePolicy";
 const webhooksApiMap = ({
   webhooksAPIDomainName,
   restApiDomainName,
   s3MediaBucket,
   tableData,
-  stack
+  stack,
 }: {
   restApiDomainName?: string;
   stack?: Stack;
@@ -32,6 +34,20 @@ const webhooksApiMap = ({
   };
 }): RestAPIType => {
   const parsed = searchForSecretsWrapper(__dirname);
+  const googleDrivePostStepFunctionLambdaLocation = generateLocation(
+    ["stepFunctions", "googleDrivePost"],
+    __dirname,
+    true
+  );
+  const googlePostDriveStateMachine = createGoogleDrivePostStateMachine({
+    stack,
+    parsed,
+    webhooksAPIDomainName,
+    restApiDomainName,
+    s3MediaBucket,
+    tableData,
+    location: googleDrivePostStepFunctionLambdaLocation,
+  });
   return {
     github: {
       post: {
@@ -50,6 +66,9 @@ const webhooksApiMap = ({
       post: {
         location: generateLocation(["googleDrive", "post"], __dirname),
         env: {
+          GOOGLE_DRIVE_POST_STATE_MACHINE_ARN: convertToStr(
+            googlePostDriveStateMachine?.stateMachineArn
+          ),
           S3_MEDIA_FILES_BUCKET_NAME: convertToStr(s3MediaBucket?.name),
           AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
           AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
@@ -78,6 +97,11 @@ const webhooksApiMap = ({
         role: createLambdaRole(
           "WebhooksGoogleDrivePostRole",
           {
+            googlePostDriveStateMachineRole: googlePostDriveStateMachine
+              ? createStateMachinePolicy({
+                  stateMachineArn: googlePostDriveStateMachine.stateMachineArn,
+                })
+              : null,
             webhooksS3PutRole: s3MediaBucket
               ? createS3BucketPolicy("PUT", s3MediaBucket)
               : null,

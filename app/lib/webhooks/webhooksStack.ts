@@ -53,6 +53,7 @@ export class WebhooksStack extends cdk.Stack {
         arn: webhooksTable.tableArn,
       },
     };
+    
     this.createAPI = (restApiDomainName, s3MediaBucket) => {
       api = createApi(
         this,

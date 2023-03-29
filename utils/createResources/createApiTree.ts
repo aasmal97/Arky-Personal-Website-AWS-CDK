@@ -9,8 +9,12 @@ import createFuncLocationMap, {
 import { aws_iam, Stack } from "aws-cdk-lib";
 import { FunctionOptions } from "aws-cdk-lib/aws-lambda";
 import { MethodLoggingLevel } from "aws-cdk-lib/aws-apigateway";
-export const generateLocation = (providedPath: string[], dirname: string) => {
-  let location = "resources/" + providedPath[0];
+export const generateLocation = (
+  providedPath: string[],
+  dirname: string,
+  noInit?: boolean
+) => {
+  let location = `${noInit ? "" : "resources/"}` + providedPath[0];
   for (let i in providedPath) {
     if (parseInt(i) <= 0) continue;
     if (providedPath[i] in apiMethods)

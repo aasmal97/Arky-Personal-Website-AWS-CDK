@@ -3,7 +3,9 @@ import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import validateWehbookToken from "../../../../../../utils/general/validateWebookTokens";
 import { isAPIGatewayResult } from "../../../../../../utils/general/isApiGatewayResult";
 import { JwtPayload } from "jsonwebtoken";
-import { modifyResources } from "../../../../../../utils/google/googleDrive/resources/modifyResources";
+// Import the required AWS SDK clients and commands
+import { SFNClient, StartExecutionCommand } from "@aws-sdk/client-sfn";
+//import { modifyResources } from "../../../../../../utils/google/googleDrive/resources/modifyResources";
 export type RequestProps = {
   tokenPayload: JwtPayload;
   resourceId: string;
@@ -65,11 +67,43 @@ export async function handler(
         message: "This webhook does not handle this type of notification yet",
       }),
     };
-  //may need to create a step function
-  //since this is potentially a long running task ~10 mins
-  //further testing required
-  return await modifyResources({
+
+  // Set the AWS Region and create an instance of the Step Functions client
+  const REGION = "us-east-1";
+  const sfnClient = new SFNClient({ region: REGION });
+
+  // Define the input payload for the state machine
+  const input = {
     resourceId,
     tokenPayload,
+  };
+  // Define the ARN of the state machine to execute
+  const stateMachineArn = process.env.GOOGLE_DRIVE_POST_STATE_MACHINE_ARN;
+
+  // Create a new StartExecutionCommand with the input payload and state machine ARN
+  const startExecutionCommand = new StartExecutionCommand({
+    stateMachineArn: stateMachineArn,
+    input: JSON.stringify(input),
   });
+
+  // Call the Step Functions API to start the execution of the state machine
+  sfnClient
+    .send(startExecutionCommand)
+    .then((data) => {
+      console.log("Execution ARN:", data.executionArn);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  return {
+    statusCode: 200,
+    body: "State Machine for modifiying resources has started",
+  };
+  // //may need to create a step function
+  // //since this is potentially a long running task ~10 mins
+  // //further testing required
+  // return await modifyResources({
+  //   resourceId,
+  //   tokenPayload,
+  // });
 }
