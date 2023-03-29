@@ -8,7 +8,7 @@ import { convertToStr } from "../../../utils/general/convertToStr";
 import { createLambdaRole } from "../../../utils/rolesFuncs/createLambdaRole";
 import { createS3BucketPolicy } from "../../../utils/rolesFuncs/createS3BucketPolicy";
 import { createDynamoPolicy } from "../../../utils/rolesFuncs/createDynamoPolicy";
-import { createGoogleDrivePostStateMachine } from "./stepFunctions/googleDrivePost/statemachine";
+import { createGoogleDrivePostStateMachine } from "./stepFunctions/googleDrivePost/stateMachine";
 import { createStateMachinePolicy } from "../../../utils/rolesFuncs/createStateMachinePolicy";
 const webhooksApiMap = ({
   webhooksAPIDomainName,
