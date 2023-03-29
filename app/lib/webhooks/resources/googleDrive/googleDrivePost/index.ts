@@ -50,13 +50,13 @@ const validateRequest = (
     body: e.body ? JSON.parse(e.body) : {},
   };
 };
-
-export async function handler(
-  e: Omit<APIGatewayEvent, "resource" | "requestContext" | "pathParameters">
-): Promise<APIGatewayProxyResult> {
-  const request = validateRequest(e);
-  if (isAPIGatewayResult(request)) return request;
-  const { resourceId, state, contentChanged, tokenPayload } = request;
+const modifyResources = async ({
+  resourceId,
+  tokenPayload,
+}: {
+  resourceId: string;
+  tokenPayload: JwtPayload;
+}) => {
   const bucketName = convertToStr(process.env.S3_MEDIA_FILES_BUCKET_NAME);
   const drive = initalizeGoogleDrive({
     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -70,26 +70,6 @@ export async function handler(
     return {
       statusCode: 403,
       body: "Invalid token payload",
-    };
-  if (state === "sync")
-    return {
-      statusCode: 200,
-      body: "Webhook connection recieved",
-    };
-  const supportedStates: {
-    [key: string]: any;
-  } = {
-    update: "children",
-    trashed: "",
-  };
-  if (!(state in supportedStates) || supportedStates[state] !== contentChanged)
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        state: state,
-        contentChanged: contentChanged,
-        message: "This webhook does not handle this type of notification yet",
-      }),
     };
   const webhooksTableName = convertToStr(
     process.env.WEBHOOKS_DYNAMO_DB_TABLE_NAME
@@ -168,11 +148,11 @@ export async function handler(
     }
     return null;
   });
-  const resultsArr = await Promise.all([
-    ...addResourcePromise,
-    ...deleteResourcePromise,
-  ]);
   try {
+    const resultsArr = await Promise.all([
+      ...addResourcePromise,
+      ...deleteResourcePromise,
+    ]);
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -189,4 +169,38 @@ export async function handler(
       }),
     };
   }
+};
+export async function handler(
+  e: Omit<APIGatewayEvent, "resource" | "requestContext" | "pathParameters">
+): Promise<APIGatewayProxyResult> {
+  const request = validateRequest(e);
+  if (isAPIGatewayResult(request)) return request;
+  const { resourceId, state, contentChanged, tokenPayload } = request;
+  if (state === "sync")
+    return {
+      statusCode: 200,
+      body: "Webhook connection recieved",
+    };
+  const supportedStates: {
+    [key: string]: any;
+  } = {
+    update: "children",
+    trashed: "",
+  };
+  if (!(state in supportedStates) || supportedStates[state] !== contentChanged)
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        state: state,
+        contentChanged: contentChanged,
+        message: "This webhook does not handle this type of notification yet",
+      }),
+    };
+  //may need to create a step function
+  //since this is potentially a long running task ~10 mins
+  //further testing required
+  return await modifyResources({
+    resourceId,
+    tokenPayload,
+  });
 }
