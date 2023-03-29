@@ -75,23 +75,27 @@ const webhooksApiMap = ({
           ),
         },
         memorySize: 768,
-        role: createLambdaRole("WebhooksGoogleDrivePostRole", {
-          webhooksS3PutRole: s3MediaBucket
-            ? createS3BucketPolicy("PUT", s3MediaBucket)
-            : null,
-          webhooksS3DeleteRole: s3MediaBucket
-            ? createS3BucketPolicy("DELETE", s3MediaBucket)
-            : null,
-          webhooksDynamoPutRole: tableData
-            ? createDynamoPolicy("PUT", tableData?.["activeWebhooks"])
-            : null,
-          webhooksDynamoDeleteRole: tableData
-            ? createDynamoPolicy("DELETE", tableData?.["activeWebhooks"])
-            : null,
-          webhooksDynamoGetRole: tableData
-            ? createDynamoPolicy("GET", tableData?.["activeWebhooks"])
-            : null,
-        }, stack),
+        role: createLambdaRole(
+          "WebhooksGoogleDrivePostRole",
+          {
+            webhooksS3PutRole: s3MediaBucket
+              ? createS3BucketPolicy("PUT", s3MediaBucket)
+              : null,
+            webhooksS3DeleteRole: s3MediaBucket
+              ? createS3BucketPolicy("DELETE", s3MediaBucket)
+              : null,
+            webhooksDynamoPutRole: tableData
+              ? createDynamoPolicy("PUT", tableData?.["activeWebhooks"])
+              : null,
+            webhooksDynamoDeleteRole: tableData
+              ? createDynamoPolicy("DELETE", tableData?.["activeWebhooks"])
+              : null,
+            webhooksDynamoGetRole: tableData
+              ? createDynamoPolicy("GET", tableData?.["activeWebhooks"])
+              : null,
+          },
+          stack
+        ),
         apiKeyRequired: false,
       },
     },
@@ -110,6 +114,8 @@ const webhooksApiMap = ({
             WEBHOOKS_API_TOKEN_SECRET: convertToStr(
               parsed.WEBHOOKS_API_TOKEN_SECRET
             ),
+            AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
+            AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
           },
         },
       },
@@ -140,17 +146,21 @@ const webhooksApiMap = ({
               tableData?.["activeWebhooks"].name
             ),
           },
-          role: createLambdaRole("WebhooksGoogleDriveWatchChannelRole", {
-            webhooksDynamoPostRole: tableData
-              ? createDynamoPolicy("POST", tableData?.["activeWebhooks"])
-              : null,
-            webhooksDynamoPutRole: tableData
-              ? createDynamoPolicy("PUT", tableData?.["activeWebhooks"])
-              : null,
-            webhooksDynamoGetRole: tableData
-              ? createDynamoPolicy("GET", tableData?.["activeWebhooks"])
-              : null,
-          }, stack),
+          role: createLambdaRole(
+            "WebhooksGoogleDriveWatchChannelRole",
+            {
+              webhooksDynamoPostRole: tableData
+                ? createDynamoPolicy("POST", tableData?.["activeWebhooks"])
+                : null,
+              webhooksDynamoPutRole: tableData
+                ? createDynamoPolicy("PUT", tableData?.["activeWebhooks"])
+                : null,
+              webhooksDynamoGetRole: tableData
+                ? createDynamoPolicy("GET", tableData?.["activeWebhooks"])
+                : null,
+            },
+            stack
+          ),
         },
       },
     },

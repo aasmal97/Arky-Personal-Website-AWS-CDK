@@ -3,12 +3,16 @@ import { getRepositories } from "../../../../../../../utils/github/getUserRepos"
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 import axios, { AxiosError } from "axios";
 import ignoreRepoMap from "../../../github/githubPost/ignoreRepoList";
+import { getDocuments } from "../../../../../../../utils/crudRestApiMethods/getMethod";
+import { putDocument } from "../../../../../../../utils/crudRestApiMethods/putMethod";
+import { Repository } from "@octokit/webhooks-types";
 type GithubChannelProps = {
   isInOrganization: boolean;
   repoName: string;
   repoOwner: string;
   githubToken: string;
   isPrivate: boolean;
+  repoData?: Partial<Repository>;
 };
 
 const checkChannelExists = async ({
@@ -40,21 +44,75 @@ const checkChannelExists = async ({
   }
   return result;
 };
+const checkIfProjectDocExists = async ({
+  restApiUrl,
+  apiKey,
+  projectName,
+}: {
+  restApiUrl: string;
+  apiKey: string;
+  projectName: string;
+}) => {
+  const docs = await getDocuments({
+    restApiUrl,
+    apiKey,
+    params: {
+      query: JSON.stringify({
+        recordType: "projects",
+        projectName,
+      }),
+      max: 1,
+    },
+    addedRoute: "projects",
+  });
+  const result = docs.data?.result?.Items;
+  return result && result.length > 0;
+};
 const createChannel = async ({
   repoName,
   repoOwner,
   githubToken,
   isInOrganization,
   isPrivate,
+  repoData,
 }: GithubChannelProps) => {
-  const checkIfExists = await checkChannelExists({
+  const restApiUrl = convertToStr(process.env.AMAZON_REST_API_DOMAIN_NAME);
+  const apiKey = convertToStr(process.env.AMAZON_REST_API_KEY);
+  const repoWebhookExistsPromise = checkChannelExists({
     repoName,
     repoOwner,
     githubToken,
     isInOrganization,
     isPrivate,
   });
-  if (checkIfExists) return "Channel already exists";
+  const projectDocExistsPromise = checkIfProjectDocExists({
+    restApiUrl,
+    apiKey,
+    projectName: repoName,
+  });
+  const [repoWebhookExists, projectDocExists] = await Promise.all([
+    repoWebhookExistsPromise,
+    projectDocExistsPromise,
+  ]);
+  if (!repoData) return "No repo data provided";
+  const { name, html_url, description, topics, homepage, created_at } =
+    repoData;
+  if (!projectDocExists)
+    await putDocument({
+      restApiUrl,
+      apiKey,
+      data: {
+        recordType: "projects",
+        projectName: name,
+        githubURL: html_url,
+        description: description,
+        startDate: created_at ? new Date(created_at).toISOString() : undefined,
+        topics: topics,
+        appURL: homepage,
+      },
+      addedRoute: "projects",
+    });
+  if (repoWebhookExists) return "Channel already exists";
   const domainName = convertToStr(process.env.WEBHOOKS_API_DOMAIN_NAME);
   const webhooksTokenSecret = convertToStr(
     process.env.WEBHOOKS_API_TOKEN_SECRET
@@ -97,11 +155,21 @@ const createWatchChannels = async () => {
   const repoNames: (Omit<GithubChannelProps, "githubToken"> | null)[] =
     repositories.map((repo: any) => {
       if (repo.name in ignoreRepoMap) return null;
+      const nodes = repo.repositoryTopics.nodes;
+      const topicNames = nodes.map((n: any) => n.topic.name);
       return {
         repoName: repo.name,
         repoOwner: repo.owner.login,
         isInOrganization: repo.isInOrganization,
         isPrivate: repo.isPrivate,
+        repoData: {
+          name: repo.name,
+          html_url: repo.url,
+          description: repo.description,
+          created_at: repo.createdAt,
+          homepage: repo.homepageUrl,
+          topics: topicNames,
+        },
       };
     });
   const promiseArr = repoNames.map((repo) => {
@@ -114,12 +182,14 @@ const createWatchChannels = async () => {
   const results = await Promise.all(
     promiseArr.map((p) => {
       if (!p) return null;
-      return p.catch((error) => null);
+      return p.catch((err) => {
+        console.error(err);
+        return null;
+      });
     })
   );
   return JSON.stringify(results, null, 4);
 };
-
 export async function handler(
   e: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> {
@@ -128,7 +198,6 @@ export async function handler(
       statusCode: 405,
       body: "Wrong http request",
     };
-
   try {
     const watchRes = await createWatchChannels();
     return {

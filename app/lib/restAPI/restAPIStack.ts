@@ -89,8 +89,8 @@ export class RestAPIStack extends cdk.Stack {
       const plan = api.addUsagePlan("restAPIUsagePlan", {
         name: "restAPIKeyEasy",
         throttle: {
-          rateLimit: 10,
-          burstLimit: 2,
+          rateLimit: 200,
+          burstLimit: 30,
         },
       });
       const key = api.addApiKey("RestApiKey", {

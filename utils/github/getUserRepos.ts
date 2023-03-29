@@ -33,12 +33,23 @@ export const getRepositories = async (token?: string) => {
         }
         nodes{
           name
-            isInOrganization
-            isPrivate
-            owner {
-              login
-              url
+          isInOrganization
+          isPrivate
+          url
+          homepageUrl
+          description
+          createdAt
+          repositoryTopics(first: 100) {
+            nodes {
+              topic {
+                name
+              }
             }
+          }
+          owner {
+            login
+            url
+          }
           }
         }
      }

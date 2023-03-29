@@ -68,8 +68,8 @@ export class WebhooksStack extends cdk.Stack {
       const plan = api.addUsagePlan("webhooksUsagePlan", {
         name: "webhooksEasyPlan",
         throttle: {
-          rateLimit: 20,
-          burstLimit: 3,
+          rateLimit: 200,
+          burstLimit: 30,
         },
       });
       //add api key
