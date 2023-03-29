@@ -25,6 +25,7 @@ export const createRepo = async ({
     restApiUrl: restApiDomainName,
     addedRoute: "projects",
     data: {
+      recordType: "projects",
       projectName: name,
       githubURL: html_url,
       description: description,
@@ -49,6 +50,7 @@ export const editedRepo = async ({
     addedRoute: "projects",
     params: {
       query: JSON.stringify({
+        recordType: "projects",
         projectName: name,
       }),
       max: 1,
@@ -75,7 +77,6 @@ export const editedRepo = async ({
   });
   return req.data;
 };
-
 export const deleteRepo = async ({
   data,
   apiKey,
@@ -88,6 +89,7 @@ export const deleteRepo = async ({
     addedRoute: "projects",
     params: {
       query: JSON.stringify({
+        recordType: "projects",
         projectName: name,
       }),
       max: 1,
@@ -115,6 +117,7 @@ export const archivedRepo = async ({
     addedRoute: "projects",
     params: {
       query: JSON.stringify({
+        recordType: "projects",
         projectName: name,
       }),
       max: 1,
@@ -155,7 +158,10 @@ export const renamedRepo = async ({
     restApiUrl: restApiDomainName,
     addedRoute: "projects",
     params: {
-      query: JSON.stringify({ projectName: oldName }),
+      query: JSON.stringify({
+        recordType: "projects",
+        projectName: oldName,
+      }),
       max: 1,
     },
   });
