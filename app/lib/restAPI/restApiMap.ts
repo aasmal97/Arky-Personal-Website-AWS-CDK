@@ -28,6 +28,10 @@ const restAPIMap = ({
   const parsed = searchForSecretsWrapper(__dirname);
   return {
     userMetrics: {
+      options: {
+        location: generateLocation(["utils", "corsLambda"], __dirname),
+        apiKeyRequired: false,
+      },
       get: {
         location: generateLocation(["userMetrics", "get"], __dirname),
         env: {
@@ -38,6 +42,10 @@ const restAPIMap = ({
       },
     },
     hobbies: {
+      options: {
+        location: generateLocation(["utils", "corsLambda"], __dirname),
+        apiKeyRequired: false,
+      },
       get: {
         location: generateLocation(["hobbies", "get"], __dirname),
         role: createLambdaRole(
@@ -91,7 +99,15 @@ const restAPIMap = ({
       },
     },
     projects: {
+      options: {
+        location: generateLocation(["utils", "corsLambda"], __dirname),
+        apiKeyRequired: false,
+      },
       images: {
+        options: {
+          location: generateLocation(["utils", "corsLambda"], __dirname),
+          apiKeyRequired: false,
+        },
         get: {
           location: generateLocation(["projects", "images", "get"], __dirname),
           env: {

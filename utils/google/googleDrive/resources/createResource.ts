@@ -5,7 +5,7 @@ import { putDocument } from "../../../crudRestApiMethods/putMethod";
 import { resizeImg } from "../../../general/resizeImg";
 import { uploadImgToS3 } from "../../../general/s3Actions";
 import { getImgDescription } from "../../../azure/getImgDescription";
-import { ProjectDocument } from "../../../../app/lib/restAPI/resources/types/projectTypes";
+import { ProjectDocument } from "../../../../app/lib/restAPI/resources/utils/types/projectTypes";
 const topMostDirectoryFolderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
 const categoryTypes: {
   [key: string]: boolean;
@@ -92,7 +92,7 @@ const uploadToProjects = async ({
   key,
   placeholderKey,
   resourceId,
-  result
+  result,
 }: {
   restApiUrl: string;
   apiKey: string;
@@ -260,7 +260,7 @@ export const createResource = async ({
         key,
         placeholderKey,
         resourceId,
-        result
+        result,
       });
     case "hobbies":
       return await uploadToHobbies({

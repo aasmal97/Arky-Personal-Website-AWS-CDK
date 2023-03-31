@@ -5,7 +5,7 @@ import {
   SuccessResponseProps,
 } from "../../../../../../utils/apiTemplates/getTemplate";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import { Image, ProjectDocument } from "../../types/projectTypes";
+import { Image, ProjectDocument } from "../../utils/types/projectTypes";
 import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMethod";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import { validateGeneralGetQuery } from "../../../../../../utils/apiTemplates/generateDynamoQueries";

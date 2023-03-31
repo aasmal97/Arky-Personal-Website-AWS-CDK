@@ -6,7 +6,7 @@ import {
 } from "@aws-sdk/client-dynamodb";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { v4 as uuid } from "uuid";
-import { Image } from "../../../types/projectTypes";
+import { Image } from "../../../utils/types/projectTypes";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 export async function handler(
   e: APIGatewayEvent

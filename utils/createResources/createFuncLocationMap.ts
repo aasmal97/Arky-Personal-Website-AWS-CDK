@@ -1,6 +1,7 @@
 import { isRestAPILambdaProps, RestAPILambdaProps, RestAPIType } from "../../utils/createResources/createApiTree";
 
 export const apiMethods = {
+  options: true,
   get: true,
   post: true,
   put: true,

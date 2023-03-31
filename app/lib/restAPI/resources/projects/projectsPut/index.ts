@@ -7,7 +7,7 @@ import {
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { v4 as uuid } from "uuid";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
-import { ProjectDocument } from "../../types/projectTypes";
+import { ProjectDocument } from "../../utils/types/projectTypes";
 const isString = (e: any): e is string => {
   return typeof e === "string";
 };
@@ -33,7 +33,7 @@ export async function handler(
     endDate,
     topics,
     archived,
-    repoOwner
+    repoOwner,
   } = JSON.parse(e.body);
   if (!projectName)
     return {
@@ -73,7 +73,7 @@ export async function handler(
     dateCreated: currDate,
     topics: Array.isArray(topics) ? topics : [],
     archived: archived,
-    repoOwner: repoOwner
+    repoOwner: repoOwner,
   };
   try {
     const client = new DynamoDBClient({
@@ -92,7 +92,7 @@ export async function handler(
       statusCode: 200,
       body: JSON.stringify({
         message: "Added project document to project table",
-        document: document
+        document: document,
       }),
     };
   } catch (e) {
@@ -100,7 +100,7 @@ export async function handler(
       statusCode: 500,
       body: JSON.stringify({
         message: "Bad Request",
-        error: e
+        error: e,
       }),
     };
   }
