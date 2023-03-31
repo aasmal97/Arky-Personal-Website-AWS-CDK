@@ -10,6 +10,7 @@ import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMeth
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import { validateGeneralGetQuery } from "../../../../../../utils/apiTemplates/generateDynamoQueries";
 export type ProjectQueryProps = {
+  recordType: "projects";
   id?: string;
   appURL?: string;
   projectName?: string;

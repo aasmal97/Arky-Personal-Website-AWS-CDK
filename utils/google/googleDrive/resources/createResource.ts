@@ -92,6 +92,7 @@ const uploadToProjects = async ({
   key,
   placeholderKey,
   resourceId,
+  result
 }: {
   restApiUrl: string;
   apiKey: string;
@@ -103,6 +104,11 @@ const uploadToProjects = async ({
   key: string;
   placeholderKey: string;
   resourceId: string;
+  result: {
+    file: drive_v3.Schema$File;
+    fileBlob: Blob | null;
+    parents: null | drive_v3.Schema$File;
+  };
 }) => {
   const getDocResultsPromise = getDocuments({
     restApiUrl,
@@ -143,6 +149,7 @@ const uploadToProjects = async ({
       imgURL: key,
       placeholderUrl: placeholderKey,
       googleResourceId: resourceId,
+      name: result.file.name,
     },
   });
 };
@@ -253,6 +260,7 @@ export const createResource = async ({
         key,
         placeholderKey,
         resourceId,
+        result
       });
     case "hobbies":
       return await uploadToHobbies({

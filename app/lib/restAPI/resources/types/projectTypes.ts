@@ -11,6 +11,7 @@ export type Image = {
   width?: number;
   height?: number;
   googleResourceId?: string;
+  name?: string;
 };
 export type ProjectDocument = {
   pk: {
