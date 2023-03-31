@@ -181,6 +181,9 @@ const webhooksApiMap = ({
               webhooksDynamoGetRole: tableData
                 ? createDynamoPolicy("GET", tableData?.["activeWebhooks"])
                 : null,
+              webhooksDynamoDeleteRole: tableData
+                ? createDynamoPolicy("DELETE", tableData?.["activeWebhooks"])
+                : null,
             },
             stack
           ),
