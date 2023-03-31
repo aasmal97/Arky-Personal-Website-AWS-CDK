@@ -33,6 +33,7 @@ export async function handler(
     endDate,
     topics,
     archived,
+    repoOwner
   } = JSON.parse(e.body);
   if (!projectName)
     return {
@@ -72,6 +73,7 @@ export async function handler(
     dateCreated: currDate,
     topics: Array.isArray(topics) ? topics : [],
     archived: archived,
+    repoOwner: repoOwner
   };
   try {
     const client = new DynamoDBClient({

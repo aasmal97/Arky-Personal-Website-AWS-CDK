@@ -109,6 +109,7 @@ const createChannel = async ({
         startDate: created_at ? new Date(created_at).toISOString() : undefined,
         topics: topics,
         appURL: homepage,
+        repoOwner: repoOwner, 
       },
       addedRoute: "projects",
     });

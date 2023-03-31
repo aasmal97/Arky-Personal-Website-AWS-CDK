@@ -29,4 +29,5 @@ export type ProjectDocument = {
   dateCreated: string;
   topics?: string[];
   archived?: boolean;
+  repoOwner?: string;
 };

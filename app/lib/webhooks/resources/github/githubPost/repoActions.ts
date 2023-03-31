@@ -19,7 +19,7 @@ export const createRepo = async ({
   apiKey,
   restApiDomainName,
 }: RepoRestApiCallsProps & { data: RepositoryCreatedEvent["repository"] }) => {
-  const { name, description, created_at, topics, homepage, html_url } = data;
+  const { name, description, created_at, topics, homepage, html_url, owner } = data;
   const req = await putDocument({
     apiKey,
     restApiUrl: restApiDomainName,
@@ -32,6 +32,7 @@ export const createRepo = async ({
       startDate: new Date(created_at).toISOString(),
       topics: topics,
       appURL: homepage,
+      repoOwner: owner.login, 
     },
   });
   return req.data;
