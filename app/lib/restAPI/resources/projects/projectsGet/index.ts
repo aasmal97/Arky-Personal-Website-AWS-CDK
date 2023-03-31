@@ -111,8 +111,9 @@ const fetchImagesWithDocs = async (projectDocsRes: APIGatewayProxyResult) => {
   );
   if (!parsedProjectDocs.result.Items) return projectDocsRes;
   const docsPromiseArr: Promise<ProjectDocument & { images: Image[] }>[] =
-    parsedProjectDocs.result.Items.map((e: ProjectDocument) => {
-      const doc = e;
+    parsedProjectDocs.result.Items.map((e) => {
+      const newType = e as unknown;
+      const doc = newType as ProjectDocument;
       const id = doc.id;
       const promise = async () => {
         const images = await getDocuments({
@@ -126,7 +127,7 @@ const fetchImagesWithDocs = async (projectDocsRes: APIGatewayProxyResult) => {
           addedRoute: "/projects/images",
         });
         return {
-          ...e,
+          ...doc,
           images: images.data.result.Items,
         };
       };

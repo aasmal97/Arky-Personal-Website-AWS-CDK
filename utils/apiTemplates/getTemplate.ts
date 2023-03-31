@@ -10,7 +10,7 @@ import { unmarshall } from "@aws-sdk/util-dynamodb";
 export type SuccessResponseProps = {
   message: string;
   result: Omit<QueryCommandOutput, "$metadata" | "Items"> & {
-    Items: Record<string, any>;
+    Items: Record<string, any>[];
   };
 };
 function isAPIGatewayResult(e: any): e is APIGatewayProxyResult {
