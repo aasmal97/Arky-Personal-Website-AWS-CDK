@@ -51,18 +51,18 @@ const queryOnce = async ({
     };
   }
 };
-const generateLastEvalKey = (
-  item: Record<string, AttributeValue>,
-  keyStructure?: Record<string, AttributeValue>
-) => {
-  const newKeyStructure: Record<string, AttributeValue> = {};
-  if (!keyStructure) return keyStructure;
-  const entries = Object.entries(item);
-  entries.forEach(([key, value]) => {
-    newKeyStructure[key] = item[key];
-  });
-  return newKeyStructure;
-};
+// const generateLastEvalKey = (
+//   item: Record<string, AttributeValue>,
+//   keyStructure?: Record<string, AttributeValue>
+// ) => {
+//   const newKeyStructure: Record<string, AttributeValue> = {};
+//   if (!keyStructure) return keyStructure;
+//   const entries = Object.entries(item);
+//   entries.forEach(([key, value]) => {
+//     newKeyStructure[key] = item[key];
+//   });
+//   return newKeyStructure;
+// };
 function mergeArrUntilLength<T>(arr1: T[], arr2: T[], maxLength: number) {
   if (arr1.length > maxLength) return arr1.splice(0, maxLength);
   let results = arr1;
@@ -150,10 +150,10 @@ export const queryUntilRequestPageNum = async ({
       return successResponse(newOutput, successMessage);
     }
     //generate new last eval key
-    results.LastEvaluatedKey = generateLastEvalKey(
-      results.Items[results.Items.length - 1],
-      results.LastEvaluatedKey
-    );
+    // results.LastEvaluatedKey = generateLastEvalKey(
+    //   results.Items[results.Items.length - 1],
+    //   results.LastEvaluatedKey
+    // );
     results.Count = results.Items.length;
     if (!results.LastEvaluatedKey || numLeft <= 0) {
       lastEval = false;
