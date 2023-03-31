@@ -7,6 +7,7 @@ import {
   getRepoCount,
   callGithubGraphQL,
 } from "../../../../../../utils/github/getUserRepos";
+import { corsHeaders } from "../../utils/corsLambda";
 dotenv.config();
 type ContributionsObj = {
   totalCommitContributions: number;
@@ -120,12 +121,14 @@ export async function handler(
   if (event.httpMethod !== "GET")
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: "Wrong HTTP Method",
     };
   const promiseArr = [getStackOverflowInfo(), getGithubUserData()];
   const [stackOverflowData, githubData] = await Promise.all(promiseArr);
   return {
     statusCode: 200,
+    headers: corsHeaders,
     body: JSON.stringify({ stackOverflowData, githubData }),
   };
 }

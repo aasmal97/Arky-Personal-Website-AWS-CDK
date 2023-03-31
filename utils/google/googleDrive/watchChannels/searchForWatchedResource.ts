@@ -1,6 +1,7 @@
 import { searchForFolderByName } from "../searchForFolder";
 import identifyCorrectFolder from "../identifyCorrectFolder";
 import { drive_v3 } from "googleapis";
+import { corsHeaders } from "../../../../app/lib/restAPI/resources/utils/corsLambda";
 export const searchForWatchedResource = async ({
   drive,
   folderName,
@@ -14,6 +15,7 @@ export const searchForWatchedResource = async ({
   if (!folders)
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: `Folder called ${folderName} cannot be found`,
     };
   const parentIds = folders.map((e) => (e.parents ? e.parents[0] : null));
@@ -25,11 +27,16 @@ export const searchForWatchedResource = async ({
   if (correctIdx === undefined)
     return {
       statusCode: 500,
+      headers: corsHeaders,
+
       body: `Folder called ${folderName} cannot be identified correctly`,
     };
   const folderId = folders[parseInt(correctIdx)].id;
-  return folderId ? folderId : {
-    statusCode: 500, 
-    body: `Folder called ${folderName} cannot be identified correctly`,
-  }
+  return folderId
+    ? folderId
+    : {
+        statusCode: 500,
+        headers: corsHeaders,
+        body: `Folder called ${folderName} cannot be identified correctly`,
+      };
 };

@@ -9,6 +9,7 @@ import { Image, ProjectDocument } from "../../utils/types/projectTypes";
 import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMethod";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import { validateGeneralGetQuery } from "../../../../../../utils/apiTemplates/generateDynamoQueries";
+import { corsHeaders } from "../../utils/corsLambda";
 export type ProjectQueryProps = {
   recordType: "projects";
   id?: string;
@@ -137,6 +138,7 @@ const fetchImagesWithDocs = async (projectDocsRes: APIGatewayProxyResult) => {
   const newDocs = await Promise.all(docsPromiseArr);
   return {
     statusCode: 200,
+    headers: corsHeaders,
     body: JSON.stringify({
       ...parsedProjectDocs,
       result: newDocs,

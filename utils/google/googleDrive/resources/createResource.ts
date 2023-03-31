@@ -6,6 +6,7 @@ import { resizeImg } from "../../../general/resizeImg";
 import { uploadImgToS3 } from "../../../general/s3Actions";
 import { getImgDescription } from "../../../azure/getImgDescription";
 import { ProjectDocument } from "../../../../app/lib/restAPI/resources/utils/types/projectTypes";
+import { corsHeaders } from "../../../../app/lib/restAPI/resources/utils/corsLambda";
 const topMostDirectoryFolderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
 const categoryTypes: {
   [key: string]: boolean;
@@ -131,6 +132,7 @@ const uploadToProjects = async ({
   if (!docItems || docItems.length <= 0)
     return {
       statusCode: 200,
+      headers: corsHeaders,
       message: `No relevant project found with the following name: ${parentName}`,
     };
   const doc = docItems[0] as ProjectDocument;

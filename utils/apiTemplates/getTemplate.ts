@@ -7,6 +7,7 @@ import {
   AttributeValue,
 } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
+import { corsHeaders } from "../../app/lib/restAPI/resources/utils/corsLambda";
 export type SuccessResponseProps = {
   message: string;
   result: Omit<QueryCommandOutput, "$metadata" | "Items"> & {
@@ -42,6 +43,7 @@ const queryOnce = async ({
   } catch (e) {
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: JSON.stringify({
         message: "Bad Request",
         error: e,
@@ -81,6 +83,7 @@ const successResponse = (
   if (!result.Items)
     return {
       statusCode: 200,
+      headers: corsHeaders,
       body: JSON.stringify({
         message: successMessage,
         result: {
@@ -93,6 +96,7 @@ const successResponse = (
   const jsonItems = unmarshallItems(result.Items);
   return {
     statusCode: 200,
+    headers: corsHeaders,
     body: JSON.stringify({
       message: successMessage,
       result: {
@@ -172,11 +176,13 @@ export const getTemplate = async ({
   if (e.httpMethod !== "GET")
     return {
       statusCode: 405,
+      headers: corsHeaders,
       body: "Wrong http request",
     };
   if (!e.queryStringParameters)
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: "Please provide valid parameters",
     };
   const query = generateQuery(e);
@@ -186,6 +192,7 @@ export const getTemplate = async ({
   if (!query)
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: "Please provide a valid query",
     };
   // return {

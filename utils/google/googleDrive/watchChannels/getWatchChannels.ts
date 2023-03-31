@@ -5,6 +5,7 @@ import {
   addParamater,
 } from "../../../apiTemplates/generateDynamoQueries";
 import { queryUntilRequestPageNum } from "../../../apiTemplates/getTemplate";
+import { corsHeaders } from "../../../../app/lib/restAPI/resources/utils/corsLambda";
 const generateQuery = ({
   tableName,
   primaryKey,
@@ -113,6 +114,7 @@ export const getWatchChannels = async ({
   if (!primaryKey["topMostDirectory"])
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: "You must supply a the partition key, topMostDirectory",
     };
   const result = await queryUntilRequestPageNum({
