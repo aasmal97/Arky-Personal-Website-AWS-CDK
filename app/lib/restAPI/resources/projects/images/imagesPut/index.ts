@@ -30,6 +30,7 @@ export async function handler(
     width,
     height,
     googleResourceId,
+    name,
   } = body;
   if (!documentId || !googleResourceId || !imgURL)
     return {
@@ -56,6 +57,7 @@ export async function handler(
       googleResourceId,
       documentId,
     },
+    name,
     imgURL,
     documentId,
     imgDescription,
