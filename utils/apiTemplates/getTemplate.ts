@@ -6,7 +6,7 @@ import {
   QueryCommandOutput,
   AttributeValue,
 } from "@aws-sdk/client-dynamodb";
-import { unmarshall } from "@aws-sdk/util-dynamodb";
+import { unmarshall, marshall } from "@aws-sdk/util-dynamodb";
 import { corsHeaders } from "../../app/lib/restAPI/resources/utils/corsLambda";
 export type SuccessResponseProps = {
   message: string;
@@ -121,7 +121,7 @@ export const queryUntilRequestPageNum = async ({
   let results: Omit<QueryCommandOutput, "$metadata"> = {
     Items: [],
   };
-  //caps any document from returning a max of 100 items, to prevent abuse
+  //caps any document from returning a max of 1000 items, to prevent abuse
   const resultsToBeReturned = maxResults > 1000 ? 1000 : maxResults;
   let queryOutput: QueryCommandOutput | APIGatewayProxyResult | undefined;
   let numLeft = resultsToBeReturned;
@@ -141,7 +141,7 @@ export const queryUntilRequestPageNum = async ({
     if (!results.Items)
       results.Items = mergeArrUntilLength([], newItems, numLeft);
     else results.Items = mergeArrUntilLength(results.Items, newItems, numLeft);
-    numLeft = resultsToBeReturned - results.Items.length;
+    numLeft -= results.Items.length;
     if (results.Items.length <= 0) {
       const newOutput: Partial<QueryCommandOutput> = {
         ...queryOutput,
@@ -149,7 +149,22 @@ export const queryUntilRequestPageNum = async ({
       delete newOutput["$metadata"];
       return successResponse(newOutput, successMessage);
     }
-    //generate new last eval key
+
+    //generate new last eval key if we have achieved
+    //over the desired number of documents
+    if (numLeft < 0) {
+      const docWithNewKeyIdx = results.Items.length + numLeft;
+      const docWithNewKey = unmarshall({ ...results.Items[docWithNewKeyIdx] })
+      const newKey = marshall(
+        { ...docWithNewKey["pk"] },
+        {
+          convertClassInstanceToMap: true,
+          removeUndefinedValues: true,
+        }
+      );
+      marshall(docWithNewKey)
+      results.LastEvaluatedKey = newKey
+    }
     // results.LastEvaluatedKey = generateLastEvalKey(
     //   results.Items[results.Items.length - 1],
     //   results.LastEvaluatedKey
@@ -195,10 +210,7 @@ export const getTemplate = async ({
       headers: corsHeaders,
       body: "Please provide a valid query",
     };
-  // return {
-  //   statusCode: 200,
-  //   body: JSON.stringify(query)
-  // }
+
   const result = await queryUntilRequestPageNum({
     tableName,
     successMessage,
