@@ -156,7 +156,6 @@ export const queryUntilRequestPageNum = async ({
         [partitionKey]: docKey[partitionKey],
         [sortKey]: docKey[sortKey],
       };
-      //return docKey
       // const docPartitionKey = docKey[partitionKey];
       // const docSortKey = docKey[sortKey];
       // const expression = `#partition = :partitionVal and #sort = :sortVal`;
