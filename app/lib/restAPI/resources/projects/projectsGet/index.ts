@@ -16,6 +16,7 @@ export type ProjectQueryProps = {
   appURL?: string;
   projectName?: string;
   description?: string;
+  startDate?: string;
   sortBy?: {
     startDate?: 1 | -1;
     endDate?: 1 | -1;
@@ -40,6 +41,13 @@ const generateGetExpression = (query: ProjectQueryProps) => {
   const expValMap: Record<string, any> = {
     ":recordTypeVal": "projects",
   };
+    const { id, appURL, projectName, description, sortBy, startDate } = query;
+  //this is the sort key
+  if (typeof startDate === "string") {
+    expression += `AND #startDateAtt = :startDateVal`; 
+    expAttr['#startDateAtt'] = "startDate"
+    expValMap[':startDateVal'] = startDate
+  };
   const addParamater = (
     key: string,
     value: any,
@@ -53,8 +61,9 @@ const generateGetExpression = (query: ProjectQueryProps) => {
     const equalExp = `${expKey} = ${expKeyVal}`;
     filterExpArr.push(expType === "contains" ? containsExp : equalExp);
   };
-  const { id, appURL, projectName, description, sortBy } = query;
+
   if (typeof id === "string") addParamater("id", id, "equals");
+
   if (typeof projectName === "string")
     addParamater("projectName", projectName, "contains");
   if (typeof description === "string")
