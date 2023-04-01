@@ -7,6 +7,10 @@ import { dynamoPutDocument } from "../../../apiTemplates/putTemplate";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { searchForWatchedResource } from "./searchForWatchedResource";
 export type ChannelDocument = {
+  pk: {
+    topMostDirectory: string;
+    id: string;
+  };
   id: string;
   channelResourceId?: string | null;
   topMostDirectory: string;
@@ -15,9 +19,9 @@ export type ChannelDocument = {
 } & Omit<drive_v3.Schema$Channel, "expiration">;
 export function isChannelDoc(e: any): e is ChannelDocument {
   try {
-    return e.channelResourceId 
+    return e.channelResourceId;
   } catch (err) {
-    return false
+    return false;
   }
 }
 export const createWatchChannel = async ({
@@ -117,6 +121,10 @@ export const createChannel = async ({
   const channelData = JSON.parse(channel.body) as drive_v3.Schema$Channel;
   const newDocument: ChannelDocument = {
     ...channelData,
+    pk: {
+      id: convertToStr(folderId),
+      topMostDirectory: topMostDirectoryId,
+    },
     id: convertToStr(folderId),
     channelResourceId: channelData.id,
     topMostDirectory: topMostDirectoryId,
