@@ -152,35 +152,40 @@ export const queryUntilRequestPageNum = async ({
         convertClassInstanceToMap: true,
         removeUndefinedValues: true,
       });
-      const docPartitionKey = docKey[partitionKey];
-      const docSortKey = docKey[sortKey];
-      const expression = `#partition = :partitionVal and #sort = :sortVal`;
-      const docWithKeyResult = await queryOnce({
-        tableName,
-        query: {
-          TableName: tableName,
-          KeyConditionExpression: expression,
-          ExpressionAttributeNames: {
-            "#partition": partitionKey,
-            "#sort": sortKey,
-          },
-          ExpressionAttributeValues: {
-            ":partitionVal": docPartitionKey,
-            ":sortVal": docSortKey,
-          },
-          Limit: 1,
-        },
-      });
+      results.LastEvaluatedKey = {
+        [partitionKey]: docKey[partitionKey],
+        [sortKey]: docKey[sortKey],
+      };
+      //return docKey
+      // const docPartitionKey = docKey[partitionKey];
+      // const docSortKey = docKey[sortKey];
+      // const expression = `#partition = :partitionVal and #sort = :sortVal`;
+      // const docWithKeyResult = await queryOnce({
+      //   tableName,
+      //   query: {
+      //     TableName: tableName,
+      //     KeyConditionExpression: expression,
+      //     ExpressionAttributeNames: {
+      //       "#partition": partitionKey,
+      //       "#sort": sortKey,
+      //     },
+      //     ExpressionAttributeValues: {
+      //       ":partitionVal": docPartitionKey,
+      //       ":sortVal": docSortKey,
+      //     },
+      //     Limit: 1,
+      //   },
+      // });
       //error encountered retrieving document
-      if (isAPIGatewayResult(docWithKeyResult)) return docWithKeyResult;
+      //if (isAPIGatewayResult(docWithKeyResult)) return docWithKeyResult;
       //return successResponse(results, successMessage);
-      results.LastEvaluatedKey = docWithKeyResult.LastEvaluatedKey;
+      //results.LastEvaluatedKey = docWithKeyResult.LastEvaluatedKey;
       // const newKey = marshall(
       //   { ...docWithNewKey["pk"] },
-        // {
-        //   convertClassInstanceToMap: true,
-        //   removeUndefinedValues: true,
-        // }
+      // {
+      //   convertClassInstanceToMap: true,
+      //   removeUndefinedValues: true,
+      // }
       // );
       // marshall(docWithNewKey)
       //results.LastEvaluatedKey = newKey

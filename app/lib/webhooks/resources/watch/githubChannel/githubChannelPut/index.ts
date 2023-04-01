@@ -144,7 +144,7 @@ const createChannel = async ({
     return `Error setting up webhook for ${reqUrl}`;
   }
 };
-const createWatchChannels = async () => {
+export const createWatchChannels = async () => {
   const githubToken = convertToStr(process.env.GIT_HUB_PERSONAL_ACCESS_TOKEN);
   const {
     data: {
