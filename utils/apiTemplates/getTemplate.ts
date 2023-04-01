@@ -173,7 +173,12 @@ export const queryUntilRequestPageNum = async ({
       });
       //error encountered retrieving document
       if (isAPIGatewayResult(docWithKeyResult))
-        return successResponse(results, successMessage);
+        return {
+          headers: corsHeaders,
+          statusCode: 500,
+          body: JSON.stringify(docWithKeyResult),
+        };
+      //return successResponse(results, successMessage);
       results.LastEvaluatedKey = docWithKeyResult.LastEvaluatedKey;
       // const newKey = marshall(
       //   { ...docWithNewKey["pk"] },
