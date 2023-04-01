@@ -41,10 +41,10 @@ const generateGetExpression = (query: ProjectQueryProps) => {
   const expValMap: Record<string, any> = {
     ":recordTypeVal": "projects",
   };
-    const { id, appURL, projectName, description, sortBy, startDate } = query;
+  const { id, appURL, projectName, description, sortBy, startDate } = query;
   //this is the sort key
   if (typeof startDate === "string") {
-    expression += `AND #startDateAtt = :startDateVal`; 
+    expression += ` AND #startDateAtt = :startDateVal`; 
     expAttr['#startDateAtt'] = "startDate"
     expValMap[':startDateVal'] = startDate
   };
