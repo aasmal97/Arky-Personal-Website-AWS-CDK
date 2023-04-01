@@ -61,6 +61,7 @@ export async function handler(
     pk: {
       recordType: "projects",
       dateCreated: currDate,
+      startDate: newStartDate.toISOString(),
     },
     recordType: "projects",
     id: uuid(),

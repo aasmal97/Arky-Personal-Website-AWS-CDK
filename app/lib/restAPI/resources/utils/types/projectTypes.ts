@@ -16,6 +16,7 @@ export type Image = {
 export type ProjectDocument = {
   pk: {
     recordType: "projects";
+    startDate: string;
     dateCreated: string;
   };
   recordType: "projects";

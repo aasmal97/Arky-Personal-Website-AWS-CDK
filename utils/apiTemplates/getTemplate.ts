@@ -17,7 +17,7 @@ export type SuccessResponseProps = {
 function isAPIGatewayResult(e: any): e is APIGatewayProxyResult {
   return e.statusCode && e.body;
 }
-const queryOnce = async ({
+export const queryOnce = async ({
   tableName,
   startKey,
   query,
@@ -172,20 +172,15 @@ export const queryUntilRequestPageNum = async ({
         },
       });
       //error encountered retrieving document
-      if (isAPIGatewayResult(docWithKeyResult))
-        return {
-          headers: corsHeaders,
-          statusCode: 500,
-          body: JSON.stringify(docWithKeyResult),
-        };
+      if (isAPIGatewayResult(docWithKeyResult)) return docWithKeyResult;
       //return successResponse(results, successMessage);
       results.LastEvaluatedKey = docWithKeyResult.LastEvaluatedKey;
       // const newKey = marshall(
       //   { ...docWithNewKey["pk"] },
-      //   {
-      //     convertClassInstanceToMap: true,
-      //     removeUndefinedValues: true,
-      //   }
+        // {
+        //   convertClassInstanceToMap: true,
+        //   removeUndefinedValues: true,
+        // }
       // );
       // marshall(docWithNewKey)
       //results.LastEvaluatedKey = newKey
