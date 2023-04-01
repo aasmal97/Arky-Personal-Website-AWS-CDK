@@ -98,5 +98,7 @@ export async function handler(event: APIGatewayEvent) {
     tableName: convertToStr(process.env.AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME),
     successMessage: "Retrieved hobby results",
     generateQuery: generateQuery,
+    partitionKey: "orientation",
+    sortKey: "dateCreated",
   });
 }

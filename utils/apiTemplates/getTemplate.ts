@@ -51,18 +51,7 @@ const queryOnce = async ({
     };
   }
 };
-// const generateLastEvalKey = (
-//   item: Record<string, AttributeValue>,
-//   keyStructure?: Record<string, AttributeValue>
-// ) => {
-//   const newKeyStructure: Record<string, AttributeValue> = {};
-//   if (!keyStructure) return keyStructure;
-//   const entries = Object.entries(item);
-//   entries.forEach(([key, value]) => {
-//     newKeyStructure[key] = item[key];
-//   });
-//   return newKeyStructure;
-// };
+
 function mergeArrUntilLength<T>(arr1: T[], arr2: T[], maxLength: number) {
   if (arr1.length > maxLength) return arr1.splice(0, maxLength);
   let results = arr1;
@@ -111,7 +100,11 @@ export const queryUntilRequestPageNum = async ({
   tableName,
   maxResults = 50,
   query,
+  partitionKey,
+  sortKey,
 }: {
+  partitionKey: string;
+  sortKey: string;
   query: QueryCommandInput;
   tableName: string;
   successMessage: string;
@@ -154,21 +147,44 @@ export const queryUntilRequestPageNum = async ({
     //over the desired number of documents
     if (numLeft < 0) {
       const docWithNewKeyIdx = results.Items.length + numLeft;
-      const docWithNewKey = unmarshall({ ...results.Items[docWithNewKeyIdx] })
-      const newKey = marshall(
-        { ...docWithNewKey["pk"] },
-        {
-          convertClassInstanceToMap: true,
-          removeUndefinedValues: true,
-        }
-      );
-      marshall(docWithNewKey)
-      results.LastEvaluatedKey = newKey
+      const docWithNewKey = unmarshall({ ...results.Items[docWithNewKeyIdx] });
+      const docKey = marshall(docWithNewKey["pk"], {
+        convertClassInstanceToMap: true,
+        removeUndefinedValues: true,
+      });
+      const docPartitionKey = docKey[partitionKey];
+      const docSortKey = docKey[sortKey];
+      const expression = `#partition = :partitionVal and #sort = :sortVal`;
+      const docWithKeyResult = await queryOnce({
+        tableName,
+        query: {
+          TableName: tableName,
+          KeyConditionExpression: expression,
+          ExpressionAttributeNames: {
+            "#partition": partitionKey,
+            "#sort": sortKey,
+          },
+          ExpressionAttributeValues: {
+            ":partitionVal": docPartitionKey,
+            ":sortVal": docSortKey,
+          },
+          Limit: 1,
+        },
+      });
+      //error encountered retrieving document
+      if (isAPIGatewayResult(docWithKeyResult))
+        return successResponse(results, successMessage);
+      results.LastEvaluatedKey = docWithKeyResult.LastEvaluatedKey;
+      // const newKey = marshall(
+      //   { ...docWithNewKey["pk"] },
+      //   {
+      //     convertClassInstanceToMap: true,
+      //     removeUndefinedValues: true,
+      //   }
+      // );
+      // marshall(docWithNewKey)
+      //results.LastEvaluatedKey = newKey
     }
-    // results.LastEvaluatedKey = generateLastEvalKey(
-    //   results.Items[results.Items.length - 1],
-    //   results.LastEvaluatedKey
-    // );
     results.Count = results.Items.length;
     if (!results.LastEvaluatedKey || numLeft <= 0) {
       lastEval = false;
@@ -182,11 +198,15 @@ export const getTemplate = async ({
   tableName,
   successMessage,
   generateQuery,
+  partitionKey,
+  sortKey,
 }: {
   tableName: string;
   e: APIGatewayProxyEvent;
   successMessage: string;
   generateQuery: (e: APIGatewayProxyEvent) => QueryCommandInput | null;
+  partitionKey: string;
+  sortKey: string;
 }): Promise<APIGatewayProxyResult> => {
   if (e.httpMethod !== "GET")
     return {
@@ -216,6 +236,8 @@ export const getTemplate = async ({
     successMessage,
     maxResults,
     query,
+    partitionKey,
+    sortKey,
   });
   return result;
 };

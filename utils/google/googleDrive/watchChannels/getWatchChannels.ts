@@ -127,6 +127,8 @@ export const getWatchChannels = async ({
     successMessage: "Successfully got watch channels",
     tableName,
     maxResults: 1000,
+    partitionKey: "topMostDirectory",
+    sortKey: "id",
   });
   return result;
 };

@@ -151,6 +151,8 @@ export async function handler(event: APIGatewayEvent) {
     tableName: convertToStr(process.env.AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME),
     successMessage: "Retrieved project results",
     generateQuery,
+    partitionKey: "recordType",
+    sortKey: "startDate",
   });
   const params = event.queryStringParameters;
   if (!params) return projectDocsRes;

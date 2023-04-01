@@ -122,5 +122,7 @@ export async function handler(event: APIGatewayEvent) {
     ),
     successMessage: "Retrieved project results",
     generateQuery,
+    partitionKey: "documentId",
+    sortKey: "googleResourceId",
   });
 }
