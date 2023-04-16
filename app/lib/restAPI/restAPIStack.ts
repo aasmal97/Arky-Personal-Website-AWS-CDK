@@ -8,6 +8,60 @@ import { createAliasRecord } from "../../../utils/createResources/createRecords"
 import { HostingStack } from "../hosting/hostingStack";
 import { searchForSecretsWrapper } from "../../../utils/buildFuncs/searchForSecrets";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
+import { PythonFunction } from "@aws-cdk/aws-lambda-python-alpha";
+import { Runtime } from "aws-cdk-lib/aws-lambda";
+import { createLambdaRole } from "../../../utils/rolesFuncs/createLambdaRole";
+import { createDynamoPolicy } from "../../../utils/rolesFuncs/createDynamoPolicy";
+import { createCronEvent } from "../../../utils/createResources/createCronEvent";
+import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
+export const createSkillCronJob = ({
+  stack,
+  skillsTableInfo,
+  secrets,
+}: {
+  stack: cdk.Stack;
+
+  skillsTableInfo: {
+    name: string;
+    id: string;
+    arn: string;
+  };
+  secrets: { [key: string]: any };
+}) => {
+  const skillsCronLambda = new PythonFunction(stack, "skillsCronJobLambda", {
+    entry: "./resources/skills/cronJob",
+    runtime: Runtime.PYTHON_3_9,
+    index: "main.py",
+    handler: "lambda_handler",
+    timeout: cdk.Duration.minutes(14),
+    role: createLambdaRole(
+      "skillsCronJobLambdaRole",
+      {
+        skillsGetDynamoDBPolicy: createDynamoPolicy("GET", skillsTableInfo),
+        skillsPutDynamoDBPolicy: createDynamoPolicy("PUT", skillsTableInfo),
+        skillsPostDynamoDBPolicy: createDynamoPolicy("POST", skillsTableInfo),
+        skillsDeleteDynamoDBPolicy: createDynamoPolicy(
+          "DELETE",
+          skillsTableInfo
+        ),
+      },
+      stack
+    ),
+    environment: {
+      AMAZON_DYNAMO_DB_TABLE_NAME: skillsTableInfo.name,
+      LINKED_IN_PASSWORD: secrets.LINKED_IN_PASSWORD,
+    },
+  });
+  const skillsCronJobTarget = new LambdaFunction(skillsCronLambda);
+  const skillsCronJobEvent = createCronEvent({
+    stack: stack,
+    id: "skillsCronJobEvent",
+    hours: 23,
+    targets: [skillsCronJobTarget],
+  });
+
+  return skillsCronJobEvent;
+};
 export class RestAPIStack extends cdk.Stack {
   createAPI: (e: HostingStack) => cdk.aws_apigateway.RestApi;
   getRestApi: () => cdk.aws_apigateway.RestApi | undefined;
@@ -54,6 +108,18 @@ export class RestAPIStack extends cdk.Stack {
       pkName: "documentId",
       sortKey: "googleResourceId",
     });
+    const skillsDBTableName = "skills";
+    const skillsDb = createDatabase({
+      stack: this,
+      tableName: skillsDBTableName,
+      pkName: "recordType",
+      sortKey: "name",
+    });
+    const skillsTableInfo = {
+      id: skillsDb.tableName,
+      arn: skillsDb.tableArn,
+      name: skillsDBTableName,
+    };
     const tablesMap = {
       hobbies: {
         name: hobbiesDb.tableName,
@@ -74,6 +140,11 @@ export class RestAPIStack extends cdk.Stack {
     const restApiDomainName = "api.arkyasmal.com";
     let api: cdk.aws_apigateway.RestApi | undefined;
     const parsed = searchForSecretsWrapper(__dirname);
+    createSkillCronJob({
+      stack: this,
+      skillsTableInfo,
+      secrets: parsed,
+    });
     this.getRestApi = () => api;
     this.createAPI = (hostingStack: HostingStack) => {
       api = createApi(

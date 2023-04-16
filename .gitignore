@@ -13,3 +13,5 @@ build/**
 package-lock.json
 .vscode
 .env
+virtual
+/virtual
