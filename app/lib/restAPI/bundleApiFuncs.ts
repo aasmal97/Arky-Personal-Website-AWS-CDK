@@ -4,8 +4,8 @@ import { execShellCommand } from "../../../utils/buildFuncs/execShellCommand";
 import * as fs from "fs-extra";
 import path = require("path");
 async function copyDirectory(sourcePath: string, destPath: string) {
-    await fs.copy(sourcePath, destPath);
-    return `success, copied directory to ${destPath}`;
+  await fs.copy(sourcePath, destPath);
+  return `success, copied directory to ${destPath}`;
 }
 const outPath = "../../../build/app/lib/restAPI/resources";
 const locationFuncMap = createFuncLocationMap(restApiMap({}));
@@ -28,11 +28,12 @@ execShellCommand(
 // Define the source and destination paths
 const generalPath = path.join(__dirname, "./resources/skills/cronJob");
 const skillSourcePath = generalPath;
-const skillDestPath = generalPath.replace(
-  "\\app\\lib\\restAPI\\",
-  "\\build\\app\\lib\\restAPI\\"
-);
-console.log(skillSourcePath, skillDestPath, 'paths');
+const skillDestPath = generalPath
+  //for windows
+  .replace("\\app\\lib\\restAPI\\", "\\build\\app\\lib\\restAPI\\")
+  //for linux
+  .replace("/app/lib/restAPI", "/build/app/lib/restAPI/");
+console.log(skillSourcePath, skillDestPath, "paths");
 copyDirectory(skillSourcePath, skillDestPath)
   .then((e) => {
     console.log(e);
