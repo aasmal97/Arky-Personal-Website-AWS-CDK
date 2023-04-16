@@ -116,9 +116,9 @@ export class RestAPIStack extends cdk.Stack {
       sortKey: "name",
     });
     const skillsTableInfo = {
-      id: skillsDb.tableName,
+      name: skillsDb.tableName,
+      id: skillsDBTableName,
       arn: skillsDb.tableArn,
-      name: skillsDBTableName,
     };
     const tablesMap = {
       hobbies: {
