@@ -6,9 +6,9 @@ import path = require("path");
 async function copyDirectory(sourcePath: string, destPath: string) {
   try {
     await fs.copy(sourcePath, destPath);
-    console.log("Directory copied successfully.");
+    return `success, copied directory to ${destPath}`;
   } catch (err) {
-    console.error(err);
+    return err;
   }
 }
 const outPath = "../../../build/app/lib/restAPI/resources";
