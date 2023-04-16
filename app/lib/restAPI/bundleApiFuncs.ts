@@ -32,7 +32,7 @@ const skillDestPath = generalPath
   //for windows
   .replace("\\app\\lib\\restAPI\\", "\\build\\app\\lib\\restAPI\\")
   //for linux
-  .replace("/app/lib/restAPI", "/build/app/lib/restAPI/");
+  .replace("/app/lib/restAPI/", "/build/app/lib/restAPI/");
 console.log(skillSourcePath, skillDestPath, "paths");
 copyDirectory(skillSourcePath, skillDestPath)
   .then((e) => {
