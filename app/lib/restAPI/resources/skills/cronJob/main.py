@@ -1,5 +1,6 @@
 import os
 import boto3
+import datetime
 from boto3.dynamodb.types import TypeDeserializer
 from boto3.dynamodb.conditions import Key
 from dotenv import load_dotenv
@@ -34,9 +35,11 @@ def get_skills_items() -> List[Dict[str, str]]:
 
 
 def create_skill(name: str):
+    current_timestamp = datetime.datetime.now().timestamp()
     item = {
         "recordType": "skill",
         "name": name,
+        "date_created": current_timestamp
     }
     response = table.put_item(Item=item)
     return response
