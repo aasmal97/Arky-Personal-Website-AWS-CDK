@@ -237,6 +237,26 @@ const restAPIMap = ({
         },
       },
     },
+    skills: {
+      options: {
+        location: generateLocation(["utils", "corsLambda"], __dirname),
+        apiKeyRequired: false,
+      },
+      get: {
+        location: generateLocation(["skills", "get"], __dirname),
+        apiKeyRequired: false,
+        env: {
+          AMAZON_DYNAMO_DB_SKILLS_TABLE_NAME: convertToStr(
+            tablesInfoMap?.["skills"].name
+          ),
+        },
+        role: createLambdaRole("SkillsGetRole", {
+          skillsDynamoDBPolicy: tablesInfoMap
+            ? createDynamoPolicy("GET", tablesInfoMap["skills"])
+            : null,
+        }),
+      },
+    },
   };
 };
 export default restAPIMap;

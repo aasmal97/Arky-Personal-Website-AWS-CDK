@@ -136,6 +136,7 @@ export class RestAPIStack extends cdk.Stack {
         id: projectImagesDBTableName,
         arn: projectImagesDb.tableArn,
       },
+      skills: skillsTableInfo
     };
     const restApiDomainName = "api.arkyasmal.com";
     let api: cdk.aws_apigateway.RestApi | undefined;

@@ -30,7 +30,7 @@ function isProjectQueryProps(e: any): e is ProjectQueryProps {
     return false;
   }
 }
-const generateGetExpression = (query: ProjectQueryProps) => {
+const generateGetExpression = (query: ProjectQueryProps) => {  
   let expression = `#recordTypeAtt = :recordTypeVal`;
   let filterExpArr: string[] = [];
   let scanDirection = true;
