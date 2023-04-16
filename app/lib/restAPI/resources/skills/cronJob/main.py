@@ -86,4 +86,3 @@ def lambda_handler():
     store_res = store_in_db(skills)
     return store_res
 
-lambda_handler()

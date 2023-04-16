@@ -14,13 +14,13 @@ import { createLambdaRole } from "../../../utils/rolesFuncs/createLambdaRole";
 import { createDynamoPolicy } from "../../../utils/rolesFuncs/createDynamoPolicy";
 import { createCronEvent } from "../../../utils/createResources/createCronEvent";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
+import path = require('path')
 export const createSkillCronJob = ({
   stack,
   skillsTableInfo,
   secrets,
 }: {
   stack: cdk.Stack;
-
   skillsTableInfo: {
     name: string;
     id: string;
@@ -29,7 +29,7 @@ export const createSkillCronJob = ({
   secrets: { [key: string]: any };
 }) => {
   const skillsCronLambda = new PythonFunction(stack, "skillsCronJobLambda", {
-    entry: "./resources/skills/cronJob",
+    entry: path.join(__dirname, "./resources/skills/cronJob"),
     runtime: Runtime.PYTHON_3_9,
     index: "main.py",
     handler: "lambda_handler",
