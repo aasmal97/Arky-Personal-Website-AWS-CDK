@@ -1,16 +1,16 @@
 import os
 import boto3
 from boto3.dynamodb.types import TypeDeserializer
+from boto3.dynamodb.conditions import Key
 from dotenv import load_dotenv
 from typing import List, Dict
 from linkedin_api import Linkedin
 
 load_dotenv()
 deserializer = TypeDeserializer()
-# set up DynamoDB client
-dynamodb = boto3.client("dynamodb")
 # specify table name
 table_name = os.getenv("AMAZON_DYNAMO_DB_TABLE_NAME")
+table = boto3.resource("dynamodb", region_name="us-east-1").Table(table_name)
 
 
 def unmarshall(x):
@@ -24,29 +24,25 @@ def get_skills_items() -> List[Dict[str, str]]:
     # define query parameters
     query_params = {
         "TableName": table_name,
-        "KeyConditionExpression": "#pk = :pkval",
-        "ExpressionAttributeNames": {"#pk": "recordType"},
-        "ExpressionAttributeValues": {":pkval": {"S": "skill"}},
+        "KeyConditionExpression": Key("recordType").eq("skill"),
     }
     # make the query to DynamoDB and get results
-    response = dynamodb.query(**query_params)
+    response = table.query(**query_params)
     # print all items returned
     items = response["Items"]
     return [unmarshall(x) for x in items]
 
 
 def create_skill(name: str):
-    table = dynamodb.Table(table_name)
     item = {
         "recordType": "skill",
         "name": name,
     }
-    response = table.put_item(item)
+    response = table.put_item(Item=item)
     return response
 
 
 def delete_skill(name: str):
-    table = dynamodb.Table(table_name)
     response = table.delete_item(
         Key={
             "recordType": "skill",
@@ -59,7 +55,7 @@ def delete_skill(name: str):
 def store_in_db(skills: List[Dict[str, str]]):
     skills_in_db = get_skills_items()
     skills_in_db_hashmap = {d["name"]: d for d in skills_in_db}
-    skills_hashmap = {d["name"]: d for d in skills_in_db}
+    skills_hashmap = {d["name"]: d for d in skills}
     for skill in skills:
         name = skill["name"]
         if name not in skills_in_db_hashmap:
@@ -85,4 +81,3 @@ def lambda_handler():
     skills = get_skills()
     store_res = store_in_db(skills)
     return store_res
-
