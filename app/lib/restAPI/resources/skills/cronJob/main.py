@@ -60,7 +60,10 @@ def update_skill(name: str, order: int | None = None):
             "recordType": "skill",
             "name": name,
         },
-        UpdateExpression="SET order = :order",
+        UpdateExpression="SET #order = :order",
+        ExpressionAttributeNames={
+            "#order": "order"
+        },
         ExpressionAttributeValues={
             ":order": order
         }
