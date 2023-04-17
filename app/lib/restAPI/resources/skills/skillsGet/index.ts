@@ -58,10 +58,10 @@ export async function handler(event: APIGatewayEvent) {
   const projectDocsRes = await getTemplate({
     e: event,
     tableName: convertToStr(process.env.AMAZON_DYNAMO_DB_SKILLS_TABLE_NAME),
-    successMessage: "Retrieved project results",
+    successMessage: "Retrieved skills results",
     generateQuery,
     partitionKey: "recordType",
-    sortKey: "startDate",
+    sortKey: "name",
   });
   return projectDocsRes;
 }
