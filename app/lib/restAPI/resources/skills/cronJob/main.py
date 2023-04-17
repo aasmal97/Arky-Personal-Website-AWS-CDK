@@ -34,16 +34,17 @@ def get_skills_items() -> List[Dict[str, str]]:
     return [unmarshall(x) for x in items]
 
 
-def create_skill(name: str):
+def create_skill(name: str, order: int | None = None):
     current_timestamp = datetime.datetime.now().timestamp()
     item = {
         "recordType": "skill",
         "name": name,
-        "date_created": current_timestamp
+        "date_created": str(current_timestamp),
     }
+    if order is not None:  # if order is provided, add it to the item
+        item["order"] = (order)
     response = table.put_item(Item=item)
     return response
-
 
 def delete_skill(name: str):
     response = table.delete_item(
@@ -53,16 +54,32 @@ def delete_skill(name: str):
         }
     )
     return response
-
+def update_skill(name: str, order: int | None = None):
+    response = table.update_item(
+        Key={
+            "recordType": "skill",
+            "name": name,
+        },
+        UpdateExpression="SET order = :order",
+        ExpressionAttributeValues={
+            ":order": order
+        }
+    )
+    return response
 
 def store_in_db(skills: List[Dict[str, str]]):
     skills_in_db = get_skills_items()
     skills_in_db_hashmap = {d["name"]: d for d in skills_in_db}
     skills_hashmap = {d["name"]: d for d in skills}
-    for skill in skills:
+    for skillIdx in range(0, len(skills)):
+        skill = skills[skillIdx]
         name = skill["name"]
         if name not in skills_in_db_hashmap:
-            create_skill(name)
+            create_skill(name = name, order = skillIdx)
+        else:
+            stored_idx = int(skills_in_db_hashmap[name]["order"])
+            if stored_idx != skillIdx:
+                update_skill(name=name, order = skillIdx)
     for skill in skills_in_db:
         name = skill["name"]
         if name not in skills_hashmap:
