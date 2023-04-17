@@ -47,6 +47,8 @@ jobs:
           ENV_AZURE_COMPUTER_VISION_API_ENDPOINT: ${{secrets.AZURE_COMPUTER_VISION_API_ENDPOINT}}
           ENV_AZURE_COMPUTER_VISION_API_KEY: ${{secrets.AZURE_COMPUTER_VISION_API_KEY}}
           ENV_LINKED_IN_PASSWORD: ${{secrets.LINKED_IN_PASSWORD}}
+          ENV_SES_EMAIL_ADDRESS: ${{secrets.SES_EMAIL_ADDRESS}}
+          ENV_SNS_PHONE_NUMBER: ${{secrets.SNS_PHONE_NUMBER}}
       - name: Generate Cloud Template and Bootstrap
         shell: bash
         run: npm run bootstrap
