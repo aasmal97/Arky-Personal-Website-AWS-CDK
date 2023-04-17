@@ -8,6 +8,7 @@ import {
   RestAPIType,
 } from "../../../utils/createResources/createApiTree";
 import { convertToStr } from "../../../utils/general/convertToStr";
+import createSESPolicy from "../../../utils/rolesFuncs/createSESPolicy";
 const restAPIMap = ({
   hostingStack,
   stack,
@@ -259,6 +260,24 @@ const restAPIMap = ({
         ),
       },
     },
+    contact: {
+      options: {
+        location: generateLocation(["utils", "corsLambda"], __dirname),
+        apiKeyRequired: false,
+      },
+      post: {
+        location: generateLocation(["contact", "post"], __dirname),
+        apiKeyRequired: false,
+        env: {
+          SES_EMAIL_ADDRESS: convertToStr(parsed.SES_EMAIL_ADDRESS),
+          SNS_PHONE_NUMBER: convertToStr(parsed.SNS_PHONE_NUMBER),
+        },
+        // role: createLambdaRole("ContactPostRole", {
+        //   SESFullAccess: createSESPolicy(),
+        //   SNSFullAccess: createSNSPolicy(),
+        // })
+      }
+    }
   };
 };
 export default restAPIMap;
