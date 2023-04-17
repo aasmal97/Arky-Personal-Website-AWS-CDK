@@ -254,7 +254,9 @@ const restAPIMap = ({
           skillsDynamoDBPolicy: tablesInfoMap
             ? createDynamoPolicy("GET", tablesInfoMap["skills"])
             : null,
-        }),
+        },
+          stack
+        ),
       },
     },
   };
