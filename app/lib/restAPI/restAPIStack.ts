@@ -52,7 +52,9 @@ export const createSkillCronJob = ({
       LINKED_IN_PASSWORD: secrets.LINKED_IN_PASSWORD,
     },
   });
-  const skillsCronJobTarget = new LambdaFunction(skillsCronLambda);
+  const skillsCronJobTarget = new LambdaFunction(skillsCronLambda, {
+    retryAttempts: 2
+  });
   const skillsCronJobEvent = createCronEvent({
     stack: stack,
     id: "skillsCronJobEvent",
