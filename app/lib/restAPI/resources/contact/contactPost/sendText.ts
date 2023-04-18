@@ -1,6 +1,7 @@
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 import { ContactMeInputProps } from ".";
 import parsePhoneNumber from "libphonenumber-js";
+import { corsHeaders } from "../../utils/corsLambda";
 export const isPhoneNumber = (phoneNumber: string) => {
   const newNumber = parsePhoneNumber(phoneNumber, "US");
   if (!newNumber) return false;
@@ -17,6 +18,7 @@ export const sendText = async ({
   if (!isPhoneNumber(sender))
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: "Invalid Phone Number",
     };
   const snsClient = new SNSClient({ region: "us-east-1" }); // Replace YOUR_REGION with your AWS region
@@ -29,11 +31,13 @@ export const sendText = async ({
     const response = await snsClient.send(command);
     return {
       statusCode: 200,
+      headers: corsHeaders,
       body: `Succesfully sent message: ${response.MessageId}`,
     };
   } catch (err) {
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: "Bad Request",
     };
   }

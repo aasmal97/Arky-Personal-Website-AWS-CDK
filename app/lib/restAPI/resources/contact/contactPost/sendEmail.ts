@@ -2,6 +2,7 @@ import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { validate } from "email-validator";
 import { ContactMeInputProps } from ".";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
+import { corsHeaders } from "../../utils/corsLambda";
 export const sendEmail = async ({
   sender,
   subject,
@@ -11,6 +12,7 @@ export const sendEmail = async ({
   if (!isEmail)
     return {
       statusCode: 400,
+      headers: corsHeaders,
       body: "Invalid email address",
     };
   const client = new SESClient({ region: "us-east-1" }); // Replace with your desired region
@@ -39,11 +41,14 @@ export const sendEmail = async ({
     const response = await client.send(command);
     return {
       statusCode: 200,
+      headers: corsHeaders,
+
       body: `Succesfully sent email: ${response.MessageId}`,
     };
   } catch (err) {
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: "Bad Request",
     };
   }
