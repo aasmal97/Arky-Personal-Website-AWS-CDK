@@ -1,7 +1,7 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { validate } from "email-validator";
 import { ContactMeInputProps } from ".";
-import { convertToStr } from "../../../../../utils/general/convertToStr";
+import { convertToStr } from "../../../../../../utils/general/convertToStr";
 export const sendEmail = async ({
   sender,
   subject,
