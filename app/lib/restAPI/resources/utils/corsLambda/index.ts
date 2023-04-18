@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent } from "aws-lambda";
 export const corsHeaders = {
   "Content-Type": "application/json",
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "OPTIONS,GET",
+  "Access-Control-Allow-Methods": "OPTIONS,GET,POST",
 };
 export const corsPostHeaders = {
   ...corsHeaders,
