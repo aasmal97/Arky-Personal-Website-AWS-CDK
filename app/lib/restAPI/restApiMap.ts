@@ -9,6 +9,7 @@ import {
 } from "../../../utils/createResources/createApiTree";
 import { convertToStr } from "../../../utils/general/convertToStr";
 import createSESPolicy from "../../../utils/rolesFuncs/createSESPolicy";
+import createSNSPolicy from "../../../utils/rolesFuncs/createSNSPolicy";
 const restAPIMap = ({
   hostingStack,
   stack,
@@ -272,10 +273,10 @@ const restAPIMap = ({
           SES_EMAIL_ADDRESS: convertToStr(parsed.SES_EMAIL_ADDRESS),
           SNS_PHONE_NUMBER: convertToStr(parsed.SNS_PHONE_NUMBER),
         },
-        // role: createLambdaRole("ContactPostRole", {
-        //   SESFullAccess: createSESPolicy(),
-        //   SNSFullAccess: createSNSPolicy(),
-        // })
+        role: createLambdaRole("ContactPostRole", {
+          SESFullAccess: createSESPolicy(),
+          SNSFullAccess: createSNSPolicy(),
+        })
       }
     }
   };
