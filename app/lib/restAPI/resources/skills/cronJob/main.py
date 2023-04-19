@@ -31,8 +31,7 @@ def get_skills_items() -> List[Dict[str, str]]:
     response = table.query(**query_params)
     # print all items returned
     items = response["Items"]
-    return [unmarshall(x) for x in items]
-
+    return items
 
 def create_skill(name: str, order: int | None = None):
     current_timestamp = datetime.datetime.now().timestamp()
