@@ -274,6 +274,7 @@ const restAPIMap = ({
         env: {
           SES_EMAIL_ADDRESS: convertToStr(parsed.SES_EMAIL_ADDRESS),
           SNS_PHONE_NUMBER: convertToStr(parsed.SNS_PHONE_NUMBER),
+          SEND_IN_BLUE_API_KEY: convertToStr(parsed.SEND_IN_BLUE_API_KEY)
         },
         role: createLambdaRole(
           "ContactPostRole",

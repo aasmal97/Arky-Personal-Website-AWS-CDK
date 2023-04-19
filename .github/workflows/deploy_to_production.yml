@@ -49,6 +49,7 @@ jobs:
           ENV_LINKED_IN_PASSWORD: ${{secrets.LINKED_IN_PASSWORD}}
           ENV_SES_EMAIL_ADDRESS: ${{secrets.SES_EMAIL_ADDRESS}}
           ENV_SNS_PHONE_NUMBER: ${{secrets.SNS_PHONE_NUMBER}}
+          ENV_SEND_IN_BLUE_API_KEY: ${{secrets.SEND_IN_BLUE_API_KEY}}
       - name: Generate Cloud Template and Bootstrap
         shell: bash
         run: npm run bootstrap
