@@ -2,7 +2,10 @@ import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { getRepositories } from "../../../../../../../utils/github/getUserRepos";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 import axios, { AxiosError } from "axios";
-import ignoreRepoMap from "../../../github/githubPost/ignoreRepoList";
+import {
+  ignoreRepoMap,
+  includeRepoMapIfPrivate,
+} from "../../../github/githubPost/ignoreRepoList";
 import { getDocuments } from "../../../../../../../utils/crudRestApiMethods/getMethod";
 import { putDocument } from "../../../../../../../utils/crudRestApiMethods/putMethod";
 import { Repository } from "@octokit/webhooks-types";
@@ -109,7 +112,7 @@ const createChannel = async ({
         startDate: created_at ? new Date(created_at).toISOString() : undefined,
         topics: topics,
         appURL: homepage,
-        repoOwner: repoOwner, 
+        repoOwner: repoOwner,
       },
       addedRoute: "projects",
     });
@@ -156,6 +159,7 @@ export const createWatchChannels = async () => {
   const repoNames: (Omit<GithubChannelProps, "githubToken"> | null)[] =
     repositories.map((repo: any) => {
       if (repo.name in ignoreRepoMap) return null;
+      if (repo.isPrivate && !(repo.name in includeRepoMapIfPrivate)) return null;
       const nodes = repo.repositoryTopics.nodes;
       const topicNames = nodes.map((n: any) => n.topic.name);
       return {
