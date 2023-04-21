@@ -4,6 +4,7 @@ import {
   RepositoryDeletedEvent,
   RepositoryArchivedEvent,
   RepositoryRenamedEvent,
+  RepositoryUnarchivedEvent,
 } from "@octokit/webhooks-types";
 import { RepositoryEditedEvent } from "@octokit/webhooks-types";
 import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMethod";
@@ -105,7 +106,7 @@ export const deleteRepo = async ({
   const docKey = {
     recordType: "projects",
     startDate: document.data.result.Items[0].startDate,
-  }
+  };
   const req = await deleteDocument({
     addedRoute: "projects",
     restApiUrl: restApiDomainName,
@@ -120,7 +121,9 @@ export const archivedRepo = async ({
   data,
   apiKey,
   restApiDomainName,
-}: RepoRestApiCallsProps & { data: RepositoryArchivedEvent }) => {
+}: RepoRestApiCallsProps & {
+  data: RepositoryArchivedEvent | RepositoryUnarchivedEvent;
+}) => {
   const { name, archived } = data.repository;
   const document = await getDocuments({
     apiKey,
@@ -156,6 +159,7 @@ export const archivedRepo = async ({
   });
   return req.data;
 };
+
 export const renamedRepo = async ({
   data,
   apiKey,
@@ -224,12 +228,29 @@ export const respondToRepositoryChanges = async ({
     case "deleted":
       result = await deleteRepo({ data, apiKey, restApiDomainName });
       break;
-    case "archived":
-      result = await archivedRepo({ data, apiKey, restApiDomainName });
-      break;
     case "renamed":
       result = await renamedRepo({
         data,
+        apiKey,
+        restApiDomainName,
+      });
+      break;
+    case "archived":
+      result = await archivedRepo({ data, apiKey, restApiDomainName });
+      break;
+    case "unarchived":
+      result = await archivedRepo({ data, apiKey, restApiDomainName });
+      break;
+    case "privatized":
+      result = await deleteRepo({
+        data: { ...data, action: "deleted" },
+        apiKey,
+        restApiDomainName,
+      });
+      break;
+    case "publicized":
+      result = await createRepo({
+        data: data.repository,
         apiKey,
         restApiDomainName,
       });
