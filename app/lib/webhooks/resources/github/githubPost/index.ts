@@ -3,7 +3,6 @@ import * as jwt from "jsonwebtoken";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import { WebhookEvent, RepositoryEvent } from "@octokit/webhooks-types";
 import { respondToRepositoryChanges } from "./repoActions";
-// import { respondToPushChanges } from './pushActions';
 const validateIncomingResponse = (e: APIGatewayEvent) => {
   if (e.httpMethod !== "POST")
     return {

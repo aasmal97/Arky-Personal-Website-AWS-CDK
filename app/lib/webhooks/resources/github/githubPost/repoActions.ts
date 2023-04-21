@@ -10,6 +10,7 @@ import { getDocuments } from "../../../../../../utils/crudRestApiMethods/getMeth
 import { updateDocument } from "../../../../../../utils/crudRestApiMethods/postMethod";
 import { deleteDocument } from "../../../../../../utils/crudRestApiMethods/deleteMethod";
 import { putDocument } from "../../../../../../utils/crudRestApiMethods/putMethod";
+import { ProjectDocument } from "../../../../restAPI/resources/utils/types/projectTypes";
 export type RepoRestApiCallsProps = {
   apiKey: string;
   restApiDomainName: string;
@@ -19,7 +20,8 @@ export const createRepo = async ({
   apiKey,
   restApiDomainName,
 }: RepoRestApiCallsProps & { data: RepositoryCreatedEvent["repository"] }) => {
-  const { name, description, created_at, topics, homepage, html_url, owner } = data;
+  const { name, description, created_at, topics, homepage, html_url, owner } =
+    data;
   const req = await putDocument({
     apiKey,
     restApiUrl: restApiDomainName,
@@ -32,7 +34,7 @@ export const createRepo = async ({
       startDate: new Date(created_at).toISOString(),
       topics: topics,
       appURL: homepage,
-      repoOwner: owner.login, 
+      repoOwner: owner.login,
     },
   });
   return req.data;
@@ -57,7 +59,8 @@ export const editedRepo = async ({
       max: 1,
     },
   });
-  if (document.data.result.Items.length <= 0)
+  const items = document.data.result.Items as ProjectDocument[];
+  if (items.length <= 0)
     return await createRepo({
       data: data.repository,
       apiKey,
@@ -68,7 +71,10 @@ export const editedRepo = async ({
     addedRoute: "projects",
     apiKey,
     data: {
-      key: document.data.result.Items[0].pk,
+      key: {
+        recordType: "projects",
+        startDate: items[0].startDate,
+      },
       description: description,
       projectName: name,
       topics: topics,
@@ -96,12 +102,16 @@ export const deleteRepo = async ({
       max: 1,
     },
   });
+  const docKey = {
+    recordType: "projects",
+    startDate: document.data.result.Items[0].startDate,
+  }
   const req = await deleteDocument({
     addedRoute: "projects",
     restApiUrl: restApiDomainName,
     apiKey,
     params: {
-      key: JSON.stringify(document.data.result.Items[0].pk),
+      key: JSON.stringify(docKey),
     },
   });
   return req.data;
@@ -124,18 +134,23 @@ export const archivedRepo = async ({
       max: 1,
     },
   });
-  if (document.data.result.Items.length <= 0)
+  const items = document.data.result.Items;
+  if (items.length <= 0)
     return await createRepo({
       data: data.repository,
       apiKey,
       restApiDomainName,
     });
+
   const req = await updateDocument({
     apiKey,
     restApiUrl: restApiDomainName,
     addedRoute: "projects",
     data: {
-      key: document.data.result.Items[0].pk,
+      key: {
+        recordType: "projects",
+        startDate: items[0].startDate,
+      },
       archived: archived,
     },
   });
@@ -166,7 +181,8 @@ export const renamedRepo = async ({
       max: 1,
     },
   });
-  if (document.data.result.Items.length <= 0)
+  const items = document.data.result.Items;
+  if (items.length <= 0)
     return await createRepo({
       data: data.repository,
       apiKey,
@@ -178,7 +194,10 @@ export const renamedRepo = async ({
     apiKey,
     restApiUrl: restApiDomainName,
     data: {
-      key: document.data.result.Items[0].pk,
+      key: {
+        recordType: "projects",
+        startDate: items[0].startDate,
+      },
       projectName: name,
     },
   });
