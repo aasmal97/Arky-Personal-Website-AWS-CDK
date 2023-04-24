@@ -1,4 +1,3 @@
-
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import validateWehbookToken from "../../../../../../utils/general/validateWebookTokens";
@@ -88,23 +87,12 @@ export async function handler(
   });
 
   // Call the Step Functions API to start the execution of the state machine
-  sfnClient
-    .send(startExecutionCommand)
-    .then((data) => {
-      console.log("Execution ARN:", data.executionArn);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+  const response = await sfnClient.send(startExecutionCommand);
   return {
     statusCode: 200,
-    body: "State Machine for modifiying resources has started",
+    body: JSON.stringify({
+      message: "State Machine for modifiying resources has started",
+      response: response,
+    }),
   };
-  // //may need to create a step function
-  // //since this is potentially a long running task ~10 mins
-  // //further testing required
-  // return await modifyResources({
-  //   resourceId,
-  //   tokenPayload,
-  // });
 }
