@@ -34,6 +34,8 @@ export const modifyResources = async ({
       statusCode: 403,
       body: "Invalid token payload",
     };
+  const tokenSecret = process.env.WEBHOOKS_API_TOKEN_SECRET;
+  const webhooksAPIDomainName = process.env.WEBHOOKS_API_DOMAIN_NAME
   const webhooksTableName = convertToStr(
     process.env.WEBHOOKS_DYNAMO_DB_TABLE_NAME
   );
@@ -51,6 +53,7 @@ export const modifyResources = async ({
     topMostDirectoryId,
     webhooksTableName,
   });
+  //return fileHistoryResults
   if (isAPIGatewayResult(fileHistoryResults)) return fileHistoryResults;
   const { prevFilesInFolder, currFilesInFolder } = fileHistoryResults;
   //generate object map for O(1) loop up
@@ -62,15 +65,16 @@ export const modifyResources = async ({
   currFilesInFolder.forEach((file) => {
     if (file.id) currFilesMap[file.id] = file;
   });
-  //add resources
+
+  // add resources
   const addResourcePromise = currFilesInFolder.map((file) => {
     if (!file.id) return null;
     if (!(file.id in prevFilesMap)) {
       if (file.mimeType === "application/vnd.google-apps.folder")
         return createChannel({
           parentDirectoryId: resourceId,
-          tokenSecret: process.env.WEBHOOKS_API_TOKEN_SECRET,
-          domain: process.env.WEBHOOKS_API_DOMAIN_NAME,
+          tokenSecret,
+          domain: webhooksAPIDomainName,
           topMostDirectoryId,
           drive,
           tableName: webhooksTableName,

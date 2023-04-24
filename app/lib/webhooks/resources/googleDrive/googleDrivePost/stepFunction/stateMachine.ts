@@ -72,23 +72,27 @@ export const createGoogleDrivePostStateMachine = ({
           ),
         },
         memorySize: 768,
-        role: createLambdaRole("WebhooksGoogleDrivePostRole", {
-          webhooksS3PutRole: s3MediaBucket
-            ? createS3BucketPolicy("PUT", s3MediaBucket)
-            : null,
-          webhooksS3DeleteRole: s3MediaBucket
-            ? createS3BucketPolicy("DELETE", s3MediaBucket)
-            : null,
-          webhooksDynamoPutRole: tableData
-            ? createDynamoPolicy("PUT", tableData?.["activeWebhooks"])
-            : null,
-          webhooksDynamoDeleteRole: tableData
-            ? createDynamoPolicy("DELETE", tableData?.["activeWebhooks"])
-            : null,
-          webhooksDynamoGetRole: tableData
-            ? createDynamoPolicy("GET", tableData?.["activeWebhooks"])
-            : null,
-        }),
+        role: createLambdaRole(
+          "WebhooksGoogleDrivePostRole",
+          {
+            webhooksS3PutRole: s3MediaBucket
+              ? createS3BucketPolicy("PUT", s3MediaBucket)
+              : null,
+            webhooksS3DeleteRole: s3MediaBucket
+              ? createS3BucketPolicy("DELETE", s3MediaBucket)
+              : null,
+            webhooksDynamoPutRole: tableData
+              ? createDynamoPolicy("PUT", tableData?.["activeWebhooks"])
+              : null,
+            webhooksDynamoDeleteRole: tableData
+              ? createDynamoPolicy("DELETE", tableData?.["activeWebhooks"])
+              : null,
+            webhooksDynamoGetRole: tableData
+              ? createDynamoPolicy("GET", tableData?.["activeWebhooks"])
+              : null,
+          },
+          stack
+        ),
       })
     : null;
   const modifyResourcesJob =

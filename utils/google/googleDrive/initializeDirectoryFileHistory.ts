@@ -76,7 +76,7 @@ export const initializeDirectoryFileHistory = async ({
       projectDocPromise,
     ]);
   const activeChannelsParsed = JSON.parse(activeChannelsInDirectory.body);
-  const activeChannels = activeChannelsParsed.result.Items as ChannelDocument[];
+  const activeChannels = activeChannelsParsed.result?.Items as ChannelDocument[];
   const projectDocs = projectDoc.data?.result?.Items as
     | ProjectDocument[]
     | undefined;

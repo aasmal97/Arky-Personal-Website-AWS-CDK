@@ -16,7 +16,7 @@ createChannel({
   drive,
   tableName: convertToStr(process.env.WEBHOOKS_DYNAMO_DB_TABLE_NAME),
   topMostDirectoryId: "1a9hXM7Y1FSNFAvpVOKwkdkImNT7LG517",
-  parentDirectoryId: "1a9hXM7Y1FSNFAvpVOKwkdkImNT7LG517",
+  parentDirectoryId: "14EMSpiQ0GHcTBCEC-4qbVvjcbjQDASTI",
   folderId: "1a9hXM7Y1FSNFAvpVOKwkdkImNT7LG517",
 })
   .then((e) => console.log(e))

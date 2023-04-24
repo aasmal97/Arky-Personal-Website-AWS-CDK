@@ -2,10 +2,10 @@ import { modifyResources } from "../../../../../../../utils/google/googleDrive/r
 import * as dotenv from "dotenv";
 dotenv.config();
 const input = {
-  resourceId: "1Ieo5M80Fvwz4qepvntn4edByqHNfw_AA",
+  resourceId: "1a9hXM7Y1FSNFAvpVOKwkdkImNT7LG517",
   tokenPayload: {
-    folder_id: "1Ieo5M80Fvwz4qepvntn4edByqHNfw_AA",
-    topmost_directory_id: "1a9hXM7Y1FSNFAvpVOKwkdkImNT7LG517",
+    folder_id: "1a9hXM7Y1FSNFAvpVOKwkdkImNT7LG517",
+    topmost_directory_id: "14EMSpiQ0GHcTBCEC-4qbVvjcbjQDASTI",
   },
 };
 modifyResources(input)

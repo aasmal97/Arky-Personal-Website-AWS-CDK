@@ -44,7 +44,7 @@ const webhooksApiMap = ({
     webhooksAPIDomainName,
     restApiDomainName,
     s3MediaBucket,
-    tableData,
+    tableData: tableData,
     location: googleDrivePostStepFunctionLambdaLocation,
   });
   return {

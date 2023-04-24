@@ -58,6 +58,7 @@ export async function handler(
     update: "children",
     trash: "",
     remove: "", 
+    trashed: ""
   };
   if (!(state in supportedStates) || supportedStates[state] !== contentChanged)
     return {
