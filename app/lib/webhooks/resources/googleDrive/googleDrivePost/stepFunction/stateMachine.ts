@@ -114,6 +114,7 @@ export const createGoogleDrivePostStateMachine = ({
               `${googleDrivePostName}LogGroup`
             ),
             level: sfn.LogLevel.ALL,
+            includeExecutionData: true,
           },
         })
       : null;
