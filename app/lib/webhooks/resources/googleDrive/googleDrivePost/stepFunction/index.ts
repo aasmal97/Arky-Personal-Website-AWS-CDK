@@ -5,7 +5,10 @@ type RequestEventProps = {
   resourceId: string;
   tokenPayload: JwtPayload;
 };
-export async function handler(e: string): Promise<APIGatewayProxyResult> {
-  const request = JSON.parse(e) as RequestEventProps;
+export async function handler(
+  e: string | RequestEventProps
+): Promise<APIGatewayProxyResult> {
+  const request =
+    typeof e === "string" ? (JSON.parse(e) as RequestEventProps) : e;
   return await modifyResources(request);
 }
