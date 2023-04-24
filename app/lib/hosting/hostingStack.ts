@@ -4,11 +4,13 @@ import { createCertificate } from "../../../utils/createResources/createCertific
 import { createHostedZone } from "../../../utils/createResources/createHostedZone";
 import { IHostedZone } from "aws-cdk-lib/aws-route53";
 import { mapS3AndCloudfront } from "../../../utils/mapResources/mapS3AndCloudfront";
+import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import {
   createAliasRecord,
   createCnameRecord,
 } from "../../../utils/createResources/createRecords";
 import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
+import { join } from "path";
 export class HostingStack extends cdk.Stack {
   getClientBucket: () => cdk.aws_s3.Bucket;
   getClientCloudfrontDist: () => cdk.aws_cloudfront.Distribution;
@@ -54,15 +56,29 @@ export class HostingStack extends cdk.Stack {
       domainNames: ["mediafiles.arkyasmal.com"],
       certificate: certificate,
     });
+    //add cloudfront function
+    const clientCloudfrontRedirectBehaviorFunc = new cloudfront.Function(
+      this,
+      "clientCloudfrontRedirectBehaviorFunc",
+      {
+        functionName: "ClientCloudfrontRedirectBehaviorFunc",
+        code: cloudfront.FunctionCode.fromFile({
+          filePath: join(__dirname, "clientCloudfrontRedirectBehaviorFunc.js"),
+        }),
+        comment: "Client Cloudfront Redirect Behavior Function",
+      }
+    );
     const [clientBucket, clientDistrubition] = mapS3AndCloudfront({
       stack: this,
       bucketName: "arkyasmal-client-app-bucket",
       domainNames: ["arkyasmal.com", "www.arkyasmal.com"],
       certificate: certificate,
       isWebsite: {
-        rootObjPath: "index.html"
-      }
+        rootObjPath: "index.html",
+        redirectFunc: clientCloudfrontRedirectBehaviorFunc,
+      },
     });
+
     //add records from cloudfront created resources to hosted zone
     const clientDistTarget = new CloudFrontTarget(clientDistrubition);
     const imgDistTarget = new CloudFrontTarget(imgDistrubition);
@@ -91,4 +107,4 @@ export class HostingStack extends cdk.Stack {
     this.getImgCloudfrontDist = () => imgDistrubition;
     this.getCertificate = () => certificate;
   }
-} 
+}

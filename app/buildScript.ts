@@ -2,6 +2,11 @@ import { execShellCommand } from "../utils/buildFuncs/execShellCommand";
 execShellCommand(`tsc`, __dirname)
   .then(async (e) => {
     console.log(e);
+    const hostingBundleResult = await execShellCommand(
+      `npx ts-node ./lib/hosting/hostingBundleApiFuncs.ts`,
+      __dirname
+    );
+    console.log(hostingBundleResult);
     const bundleResult = await execShellCommand(
       `npx ts-node ./lib/restAPI/bundleApiFuncs.ts`,
       __dirname
