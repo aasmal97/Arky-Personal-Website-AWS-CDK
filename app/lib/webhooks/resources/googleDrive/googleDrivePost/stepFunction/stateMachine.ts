@@ -6,6 +6,7 @@ import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 import { createLambdaRole } from "../../../../../../../utils/rolesFuncs/createLambdaRole";
 import { createS3BucketPolicy } from "../../../../../../../utils/rolesFuncs/createS3BucketPolicy";
 import { createDynamoPolicy } from "../../../../../../../utils/rolesFuncs/createDynamoPolicy";
+import * as logs from "aws-cdk-lib/aws-logs";
 export const createGoogleDrivePostStateMachine = ({
   stack,
   parsed,
@@ -107,6 +108,13 @@ export const createGoogleDrivePostStateMachine = ({
       ? new sfn.StateMachine(stack, `${googleDrivePostName}StateMachine`, {
           definition: googleDrivePostDefintion,
           timeout: Duration.minutes(14),
+          logs: {
+            destination: new logs.LogGroup(
+              stack,
+              `${googleDrivePostName}LogGroup`
+            ),
+            level: sfn.LogLevel.ALL,
+          },
         })
       : null;
   return googleDrivePostStateMachine;
