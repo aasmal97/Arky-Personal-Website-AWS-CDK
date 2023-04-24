@@ -1,4 +1,4 @@
-function handler(event: any) {
+ function handler(event: any) {
   var request = event.request;
   var uri = request.uri;
   if (uri.endsWith("/")) {
@@ -8,3 +8,4 @@ function handler(event: any) {
   }
   return request;
 }
+// export default handler

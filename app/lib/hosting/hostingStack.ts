@@ -62,7 +62,8 @@ export class HostingStack extends cdk.Stack {
       "clientCloudfrontRedirectBehaviorFunc",
       {
         functionName: "ClientCloudfrontRedirectBehaviorFunc",
-        code: cloudfront.FunctionCode.fromFile({
+        code: cloudfront.FunctionCode.
+          fromFile({
           filePath: join(__dirname, "clientCloudfrontRedirectBehaviorFunc.js"),
         }),
         comment: "Client Cloudfront Redirect Behavior Function",
