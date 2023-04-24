@@ -1,15 +1,11 @@
 import { APIGatewayProxyResult } from "aws-lambda";
 import { JwtPayload } from "jsonwebtoken";
 import { modifyResources } from "../../../../../../../utils/google/googleDrive/resources/modifyResources";
-export async function handler({
-  resourceId,
-  tokenPayload,
-}: {
+type RequestEventProps = {
   resourceId: string;
   tokenPayload: JwtPayload;
-}): Promise<APIGatewayProxyResult> {
-  return await modifyResources({
-    resourceId,
-    tokenPayload,
-  });
+};
+export async function handler(e: string): Promise<APIGatewayProxyResult> {
+  const request = JSON.parse(e) as RequestEventProps;
+  return await modifyResources(request);
 }
