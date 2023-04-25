@@ -73,7 +73,7 @@ export const createGoogleDrivePostStateMachine = ({
         },
         memorySize: 768,
         role: createLambdaRole(
-          "WebhooksGoogleDrivePostRole",
+          "WebhooksGoogleDriveStepFunctionPostRole",
           {
             webhooksS3PutRole: s3MediaBucket
               ? createS3BucketPolicy("PUT", s3MediaBucket)
