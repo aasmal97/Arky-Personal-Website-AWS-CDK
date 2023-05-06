@@ -107,6 +107,7 @@ export const modifyResources = async ({
         });
       else
         return removeResource({
+          drive,
           restApiUrl,
           bucketName,
           apiKey: restApiKey,
