@@ -11,14 +11,7 @@ import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 import { deleteWatchChannel } from "../../../../../../../utils/google/googleDrive/watchChannels/deleteWatchChannel";
 import { getWatchChannels } from "../../../../../../../utils/google/googleDrive/watchChannels/getWatchChannels";
 import { searchForWatchedResource } from "../../../../../../../utils/google/googleDrive/watchChannels/searchForWatchedResource";
-export async function handler(
-  e: APIGatewayEvent
-): Promise<APIGatewayProxyResult> {
-  if (e.httpMethod !== "PUT")
-    return {
-      statusCode: 405,
-      body: "Wrong http request",
-    };
+export const refreshChannels = async () => {
   const tableName = convertToStr(process.env.WEBHOOKS_DYNAMO_DB_TABLE_NAME);
 
   const drive = initalizeGoogleDrive({
@@ -35,6 +28,7 @@ export async function handler(
     folderName: convertToStr(folderName),
     parentFolder: convertToStr(parentFolder),
   });
+  console.log(topMostDirectoryId)
   if (typeof topMostDirectoryId !== "string") return topMostDirectoryId;
   const currDate = new Date();
   const endWatchDate = add(currDate, {
@@ -51,6 +45,7 @@ export async function handler(
       unixTime: expiration,
     },
   });
+
   if (activeChannels.statusCode !== 200) return activeChannels;
   const channelData = JSON.parse(activeChannels.body);
   const newChannelsArr = channelData.result.Items.map((channel: any) => {
@@ -88,7 +83,7 @@ export async function handler(
       topMostDirectory?: string;
       token?: string;
     };
-    const channelId = convertToStr(watchChannel.id)
+    const channelId = convertToStr(watchChannel.id);
     return deleteWatchChannel({
       drive,
       primaryKey: {
@@ -111,4 +106,14 @@ export async function handler(
       createdChannels: createdChannels,
     }),
   };
+};
+export async function handler(
+  e: APIGatewayEvent
+): Promise<APIGatewayProxyResult> {
+  if (e.httpMethod !== "PUT")
+    return {
+      statusCode: 405,
+      body: "Wrong http request",
+    };
+  return await refreshChannels();
 }

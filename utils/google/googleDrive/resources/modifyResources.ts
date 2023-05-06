@@ -13,6 +13,7 @@ import {
 import { createResource } from "../../../../utils/google/googleDrive/resources/createResource";
 import { removeResource } from "../../../../utils/google/googleDrive/resources/removeResource";
 import { deleteWatchChannel } from "../../../../utils/google/googleDrive/watchChannels/deleteWatchChannel";
+
 export const modifyResources = async ({
   resourceId,
   tokenPayload,
@@ -35,7 +36,7 @@ export const modifyResources = async ({
       body: "Invalid token payload",
     };
   const tokenSecret = process.env.WEBHOOKS_API_TOKEN_SECRET;
-  const webhooksAPIDomainName = process.env.WEBHOOKS_API_DOMAIN_NAME
+  const webhooksAPIDomainName = process.env.WEBHOOKS_API_DOMAIN_NAME;
   const webhooksTableName = convertToStr(
     process.env.WEBHOOKS_DYNAMO_DB_TABLE_NAME
   );
@@ -53,7 +54,7 @@ export const modifyResources = async ({
     topMostDirectoryId,
     webhooksTableName,
   });
-  //return fileHistoryResults
+
   if (isAPIGatewayResult(fileHistoryResults)) return fileHistoryResults;
   const { prevFilesInFolder, currFilesInFolder } = fileHistoryResults;
   //generate object map for O(1) loop up
@@ -90,41 +91,54 @@ export const modifyResources = async ({
           vision,
         });
     }
+
     return null;
   });
-  //delete resources
-  const deleteResourcePromise = prevFilesInFolder.map((file) => {
-    if (!file.id) return null;
-    if (!(file.id in currFilesMap)) {
-      if (isChannelDoc(file.data))
-        return deleteWatchChannel({
-          primaryKey: {
-            topMostDirectory: topMostDirectoryId,
-            id: file.id,
-          },
-          drive,
-          tableName: webhooksTableName,
-        });
-      else
-        return removeResource({
-          restApiUrl,
-          bucketName,
-          apiKey: restApiKey,
-          resourceId: file.id,
-        });
-    }
-    return null;
-  });
+  // //delete resources
+  // const deleteResourcePromise = prevFilesInFolder.map((file) => {
+  //   if (!file.id) return null;
+  //   if (!(file.id in currFilesMap)) {
+  //     if (isChannelDoc(file.data))
+  //       return deleteWatchChannel({
+  //         primaryKey: {
+  //           topMostDirectory: topMostDirectoryId,
+  //           id: file.id,
+  //         },
+  //         drive,
+  //         tableName: webhooksTableName,
+  //       });
+  //     else
+  //       return removeResource({
+  //         restApiUrl,
+  //         bucketName,
+  //         apiKey: restApiKey,
+  //         resourceId: file.id,
+  //       });
+  //   }
+  //   return null;
+  // });
   try {
     const resultsArr = await Promise.all([
       ...addResourcePromise,
-      ...deleteResourcePromise,
+      //...deleteResourcePromise,
     ]);
+    const filteredResults = resultsArr.filter(
+      (result) => result !== null || result !== undefined
+    ) as unknown as any;
+    filteredResults.forEach((result: any) => {
+      result.forEach((item: any) => {
+        delete item["$metadata"]
+        if (item.headers) delete item['headers']
+        if(item.request) delete item['request']
+        if(item.config) delete item['config']
+        if(item.request) delete item['request']
+      });
+    });
     return {
       statusCode: 200,
       body: JSON.stringify({
         //filter out null or undefined values
-        result: resultsArr.filter((e) => e),
+        result: filteredResults,
       }),
     };
   } catch (e) {

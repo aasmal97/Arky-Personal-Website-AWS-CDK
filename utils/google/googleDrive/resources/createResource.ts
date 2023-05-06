@@ -67,13 +67,17 @@ const uploadResourceItems = async ({
     addedRoute,
     data: data,
   });
-  const uploadFile = uploadImgToS3(bucketName, imgKey, new Blob([fileBuffer]));
+  const uploadFile = uploadImgToS3({
+    bucketName,
+    key: imgKey,
+    body: fileBuffer,
+  });
   const uploadPlaceholder = placeholderBuffer
-    ? uploadImgToS3(
+    ? uploadImgToS3({
         bucketName,
-        imgPlaceholderKey,
-        new Blob([placeholderBuffer])
-      )
+        key: imgPlaceholderKey,
+        body: placeholderBuffer,
+      })
     : null;
   const promiseArr = await Promise.all([
     uploadFile,
@@ -201,8 +205,8 @@ const uploadToHobbies = async ({
       imgURL: key,
       googleResourceId: resourceId,
       placeholderUrl: placeholderKey,
-      width: result.file.imageMediaMetadata?.height,
-      height: result.file.imageMediaMetadata?.width,
+      height: result.file.imageMediaMetadata?.height,
+      width: result.file.imageMediaMetadata?.width,
     },
   });
 };
@@ -228,6 +232,8 @@ export const createResource = async ({
   const parentName = result.parents?.name;
   const key = `${parentName}/${resourceId}/image`;
   const placeholderKey = `${key}-placeholder`;
+  const keyWithType = `${key}.${result.file.fileExtension}`;
+  const placeholderKeyWithType = `${placeholderKey}.${result.file.fileExtension}`;
   const fileBuffer = result.fileBlob
     ? Buffer.from(await result.fileBlob.arrayBuffer())
     : null;
@@ -259,8 +265,8 @@ export const createResource = async ({
         newPlaceholderBufferPromise,
         bucketName,
         fileBuffer,
-        key,
-        placeholderKey,
+        key: keyWithType,
+        placeholderKey: placeholderKeyWithType,
         resourceId,
         result,
       });
@@ -272,8 +278,8 @@ export const createResource = async ({
         apiKey,
         bucketName,
         fileBuffer,
-        key,
-        placeholderKey,
+        key: keyWithType,
+        placeholderKey: placeholderKeyWithType,
         result,
         resourceId,
       });

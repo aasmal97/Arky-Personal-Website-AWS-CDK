@@ -17,11 +17,15 @@ export const deleteImgFromS3 = async (bucketName: string, key: string) => {
   const response = await client.send(command);
   return response;
 };
-export const uploadImgToS3 = async (
-  bucketName: string,
-  key: string,
-  body: any
-) => {
+export const uploadImgToS3 = async ({
+  bucketName,
+  key,
+  body,
+}: {
+  bucketName: string;
+  key: string;
+  body: any;
+}) => {
   const client = new S3Client({
     region: "us-east-1",
   });

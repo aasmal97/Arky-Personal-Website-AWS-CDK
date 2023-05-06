@@ -61,12 +61,17 @@ export const deleteWatchChannel = async ({
     }),
   });
 
-  const [dynamo, watch] = await Promise.all([dynamoResult, watchChannel]);
-  return [
-    dynamo,
-    {
-      statusCode: watch.status,
-      data: watch.data,
-    },
-  ];
+  const [dynamo, watch] = await Promise.allSettled([
+    dynamoResult,
+    watchChannel,
+  ]);
+  if (watch.status === "fulfilled")
+    return [
+      dynamo,
+      {
+        statusCode: watch.value.status,
+        data: watch.value.data,
+      },
+    ];
+  else return [dynamo, watch];
 };
