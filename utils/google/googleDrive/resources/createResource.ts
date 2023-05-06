@@ -7,39 +7,9 @@ import { uploadImgToS3 } from "../../../general/s3Actions";
 import { getImgDescription } from "../../../azure/getImgDescription";
 import { ProjectDocument } from "../../../../app/lib/restAPI/resources/utils/types/projectTypes";
 import { corsHeaders } from "../../../../app/lib/restAPI/resources/utils/corsLambda";
+import { determineCategoryType } from "../determineCategoryType";
+import { convertToStr } from "../../../general/convertToStr";
 const topMostDirectoryFolderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
-const categoryTypes: {
-  [key: string]: boolean;
-} = {
-  hobbies: true,
-  projects: true,
-};
-const determineCategoryType = async (
-  drive: drive_v3.Drive,
-  e: {
-    file: drive_v3.Schema$File;
-    fileBlob: Blob | null;
-    parents: null | drive_v3.Schema$File;
-  }
-): Promise<string | undefined> => {
-  //check current file
-  const fileName = e.file.name;
-  const fileType = e.file.mimeType;
-  if (
-    fileName &&
-    fileName in categoryTypes &&
-    fileType === "application/vnd.google-apps.folder"
-  )
-    return fileName;
-  const name = e.parents?.name;
-  //guard clause to stop
-  if (name === topMostDirectoryFolderName) return topMostDirectoryFolderName;
-  if (name && name in categoryTypes) return name;
-  const parentsId = e.parents?.id;
-  if (!parentsId) return topMostDirectoryFolderName;
-  const result = await searchForFileByChildResourceId(drive, parentsId, false);
-  return await determineCategoryType(drive, result);
-};
 const uploadResourceItems = async ({
   restApiUrl,
   apiKey,
@@ -252,7 +222,11 @@ export const createResource = async ({
       (!imageWidth && imageWidth !== 0) || imageWidth > 400 ? 400 : imageWidth,
     vision,
   });
-  const category = await determineCategoryType(drive, result);
+  const category = await determineCategoryType({
+    drive,
+    fileData: result,
+    topMostDirectoryFolderName: convertToStr(topMostDirectoryFolderName),
+  });
   //determine if its a hobbies directory
   //or a project directory
   switch (category) {
