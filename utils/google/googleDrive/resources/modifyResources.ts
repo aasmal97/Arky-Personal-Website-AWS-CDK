@@ -66,7 +66,6 @@ export const modifyResources = async ({
   currFilesInFolder.forEach((file) => {
     if (file.id) currFilesMap[file.id] = file;
   });
-
   // add resources
   const addResourcePromise = currFilesInFolder.map((file) => {
     if (!file.id) return null;
@@ -91,43 +90,42 @@ export const modifyResources = async ({
           vision,
         });
     }
-
     return null;
   });
-  // //delete resources
-  // const deleteResourcePromise = prevFilesInFolder.map((file) => {
-  //   if (!file.id) return null;
-  //   if (!(file.id in currFilesMap)) {
-  //     if (isChannelDoc(file.data))
-  //       return deleteWatchChannel({
-  //         primaryKey: {
-  //           topMostDirectory: topMostDirectoryId,
-  //           id: file.id,
-  //         },
-  //         drive,
-  //         tableName: webhooksTableName,
-  //       });
-  //     else
-  //       return removeResource({
-  //         restApiUrl,
-  //         bucketName,
-  //         apiKey: restApiKey,
-  //         resourceId: file.id,
-  //       });
-  //   }
-  //   return null;
-  // });
+  // delete resources
+  const deleteResourcePromise = prevFilesInFolder.map((file) => {
+    if (!file.id) return null;
+    if (!(file.id in currFilesMap)) {
+      if (isChannelDoc(file.data))
+        return deleteWatchChannel({
+          primaryKey: {
+            topMostDirectory: topMostDirectoryId,
+            id: file.id,
+          },
+          drive,
+          tableName: webhooksTableName,
+        });
+      else
+        return removeResource({
+          restApiUrl,
+          bucketName,
+          apiKey: restApiKey,
+          resourceId: file.id,
+        });
+    }
+    return null;
+  });
   try {
     const resultsArr = await Promise.all([
       ...addResourcePromise,
-      //...deleteResourcePromise,
+      ...deleteResourcePromise,
     ]);
     const filteredResults = resultsArr.filter(
-      (result) => result !== null || result !== undefined
+      (result) => result !== null && result !== undefined
     ) as unknown as any;
     filteredResults.forEach((result: any) => {
       result.forEach((item: any) => {
-        delete item["$metadata"]
+        if (item["$metadata"]) delete item["$metadata"];
         if (item.headers) delete item['headers']
         if(item.request) delete item['request']
         if(item.config) delete item['config']
@@ -141,12 +139,12 @@ export const modifyResources = async ({
         result: filteredResults,
       }),
     };
-  } catch (e) {
+  } catch (err) {
     return {
       statusCode: 500,
       body: JSON.stringify({
         message: "Bad Request",
-        error: e,
+        error: err,
       }),
     };
   }
