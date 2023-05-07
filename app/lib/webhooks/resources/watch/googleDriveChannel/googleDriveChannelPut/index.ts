@@ -5,12 +5,12 @@ import {
 } from "../../../../../../../utils/google/googleDrive/initalizeGoogleDrive";
 import * as jwt from "jsonwebtoken";
 import { drive_v3 } from "googleapis";
-import { getUnixTime, add } from "date-fns";
 import { createChannel } from "../../../../../../../utils/google/googleDrive/watchChannels/createWatchChannel";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 import { deleteWatchChannel } from "../../../../../../../utils/google/googleDrive/watchChannels/deleteWatchChannel";
 import { getWatchChannels } from "../../../../../../../utils/google/googleDrive/watchChannels/getWatchChannels";
 import { searchForWatchedResource } from "../../../../../../../utils/google/googleDrive/watchChannels/searchForWatchedResource";
+//import { getUnixTime, add } from "date-fns";
 export const refreshChannels = async () => {
   const tableName = convertToStr(process.env.WEBHOOKS_DYNAMO_DB_TABLE_NAME);
 
@@ -28,21 +28,20 @@ export const refreshChannels = async () => {
     folderName: convertToStr(folderName),
     parentFolder: convertToStr(parentFolder),
   });
-  console.log(topMostDirectoryId)
   if (typeof topMostDirectoryId !== "string") return topMostDirectoryId;
-  const currDate = new Date();
-  const endWatchDate = add(currDate, {
-    hours: 12,
-  });
-  const expiration = getUnixTime(endWatchDate) * 1000;
+  //const currDate = new Date();
+  // const endWatchDate = add(currDate, {
+  //   hours: 12,
+  // });
+  //const expiration = getUnixTime(endWatchDate) * 1000;
+  // expiration: {
+  //   type: "less than",
+  //   unixTime: expiration,
+  // },
   const activeChannels = await getWatchChannels({
     tableName,
     primaryKey: {
       topMostDirectory: topMostDirectoryId,
-    },
-    expiration: {
-      type: "less than",
-      unixTime: expiration,
     },
   });
 
