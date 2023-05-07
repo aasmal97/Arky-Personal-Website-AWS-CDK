@@ -13,9 +13,10 @@ export const deleteImgFromS3 = async (bucketName: string, key: string) => {
     Key: key,
     Bucket: bucketName,
   };
-  const command = new DeleteObjectCommand(input);
-  const response = await client.send(command);
-  return response;
+    const command = new DeleteObjectCommand(input);
+    const response = await client.send(command);
+    return response;
+
 };
 export const uploadImgToS3 = async ({
   bucketName,
