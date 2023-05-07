@@ -46,7 +46,7 @@ export const createS3BucketPolicy = (
         sid: sid,
         effect: aws_iam.Effect.ALLOW,
         actions: [...actions],
-        resources: bucket.arn ? [bucket.arn] : [],
+        resources: bucket.arn ? [bucket.arn, `${bucket.arn}/*`] : [],
       }),
     ],
   });
