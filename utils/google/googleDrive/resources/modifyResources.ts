@@ -111,7 +111,7 @@ export const modifyResources = async ({
           restApiUrl,
           bucketName,
           apiKey: restApiKey,
-          resourceId: file.id,
+          resource: file.data,
         });
     }
     return null;
