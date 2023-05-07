@@ -92,7 +92,7 @@ const webhooksApiMap = ({
             tableData?.["activeWebhooks"].name
           ),
         },
-        memorySize: 5000,
+        memorySize: 768,
         role: createLambdaRole(
           "WebhooksGoogleDrivePostRole",
           {

@@ -71,7 +71,7 @@ export const createGoogleDrivePostStateMachine = ({
             tableData?.["activeWebhooks"].name
           ),
         },
-        memorySize: 768,
+        memorySize: 5000,
         role: createLambdaRole(
           "WebhooksGoogleDriveStepFunctionPostRole",
           {
