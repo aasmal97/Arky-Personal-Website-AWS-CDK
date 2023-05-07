@@ -124,15 +124,7 @@ export const modifyResources = async ({
     const filteredResults = resultsArr.filter(
       (result) => result !== null && result !== undefined
     ) as unknown as any;
-    filteredResults.forEach((result: any) => {
-      result.forEach((item: any) => {
-        if (item["$metadata"]) delete item["$metadata"];
-        if (item.headers) delete item['headers']
-        if(item.request) delete item['request']
-        if(item.config) delete item['config']
-        if(item.request) delete item['request']
-      });
-    });
+
     return {
       statusCode: 200,
       body: JSON.stringify({

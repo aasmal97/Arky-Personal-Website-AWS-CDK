@@ -22,7 +22,7 @@ export const createS3BucketPolicy = (
   ];
   const deleteActions = [
     "s3:DeleteObject",
-        "s3:DeleteObject*",
+    "s3:DeleteObject*",
     "s3:DeleteObjectTagging",
     "s3:DeleteObjectVersionTagging",
     "s3:DeleteObjectVersion",

@@ -229,9 +229,10 @@ export const createResource = async ({
   });
   //determine if its a hobbies directory
   //or a project directory
+  let results: any;
   switch (category) {
     case "projects":
-      return await uploadToProjects({
+      results = await uploadToProjects({
         restApiUrl,
         apiKey,
         parentName,
@@ -244,8 +245,9 @@ export const createResource = async ({
         resourceId,
         result,
       });
+      break;
     case "hobbies":
-      return await uploadToHobbies({
+      results = await uploadToHobbies({
         getImgDescriptionPromise,
         newPlaceholderBufferPromise,
         restApiUrl,
@@ -257,7 +259,18 @@ export const createResource = async ({
         result,
         resourceId,
       });
+      break;
     default:
       return;
   }
+  return results.map((result: any) => {
+    const newObj = { ...result } as any;
+    if (newObj["$metadata"]) delete newObj["$metadata"];
+    if (newObj["$fault"]) delete newObj["$fault"];
+    if (newObj.headers) delete newObj["headers"];
+    if (newObj.request) delete newObj["request"];
+    if (newObj.config) delete newObj["config"];
+    if (newObj.request) delete newObj["request"];
+    return newObj;
+  });
 };

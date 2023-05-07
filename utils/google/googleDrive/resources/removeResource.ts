@@ -65,5 +65,15 @@ export const removeResource = async ({
     bucketName,
     resource.placeholderURL
   );
-  return await Promise.all([deleteImg, deletePlaceholderImg, resourceDetails]);
+  const results = await  Promise.all([deleteImg, deletePlaceholderImg, resourceDetails]);
+  return results.map((result) => { 
+    const newObj = { ...result } as any;
+    if(newObj['$metadata']) delete newObj['$metadata']
+    if (newObj['$fault']) delete newObj['$fault']
+    if (newObj.headers) delete newObj["headers"];
+    if (newObj.request) delete newObj["request"];
+    if (newObj.config) delete newObj["config"];
+    if (newObj.request) delete newObj["request"];
+    return newObj
+  })
 };
