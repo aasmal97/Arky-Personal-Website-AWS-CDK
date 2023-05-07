@@ -60,6 +60,10 @@ export const removeResource = async ({
       key: key,
     },
   });
-  const deleteObj = deleteImgFromS3(bucketName, resource.googleResourceId);
-  return await Promise.all([deleteObj, resourceDetails]);
+  const deleteImg = deleteImgFromS3(bucketName, resource.imgURL);
+  const deletePlaceholderImg = deleteImgFromS3(
+    bucketName,
+    resource.placeholderURL
+  );
+  return await Promise.all([deleteImg, deletePlaceholderImg, resourceDetails]);
 };
