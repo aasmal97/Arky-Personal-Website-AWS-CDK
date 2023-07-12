@@ -1,5 +1,4 @@
 import { APIGatewayEvent } from "aws-lambda";
-import { sendText } from "./sendText";
 import { sendEmail } from "./sendEmail";
 import { corsPostHeaders} from "../../utils/corsLambda";
 export type ContactMeInputProps = {
@@ -21,7 +20,6 @@ export async function handler(e: APIGatewayEvent) {
         body: "Missing required fields",
       };
     }
-    if (type === "phone") return await sendText({ sender, subject, message });
     if (type === "email") return await sendEmail({ sender, subject, message });
     return {
       statusCode: 400,
