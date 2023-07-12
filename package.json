@@ -38,7 +38,6 @@
     "@aws-cdk/aws-sns-subscriptions": "^1.198.1",
     "@aws-sdk/client-dynamodb": "=3.259.0",
     "@aws-sdk/client-s3": "=3.259.0",
-    "@aws-sdk/client-secrets-manager": "=3.312.0",
     "@aws-sdk/client-ses": "=3.315.0",
     "@aws-sdk/client-sfn": "=3.301.0",
     "@aws-sdk/client-sns": "^3.315.0",
