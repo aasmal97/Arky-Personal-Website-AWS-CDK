@@ -1,7 +1,7 @@
 ## Introduction
 The purpose of this web application is to showcase the projects that Arky has created throughout his software development journey. 
 
-This is entire backend, deployed on AWS. The client side is deployed [here](https://arkyasmal.com)
+This is the entire backend, deployed on AWS. The client side is deployed [here](https://arkyasmal.com)
 
 
 If you are looking for the client side code go [here](https://github.com/aasmal97/Arky-Personal-Website-Client-Side)
