@@ -9,7 +9,7 @@ If you are looking for the client side code go [here](https://github.com/aasmal9
 This app is structured into 3 categories, with important functions associated with each
 1. [Hosting](./app/lib/hosting/) contains the functions required to deploy cloudfront distributions, all domains, and s3 buckets.
 2. [Rest API](./app/lib/restAPI/) contains the function to deploy the monolithic Rest API on API Gateway, as well as every lambda function connected to it.
-3. [Webhooks](./app/lib/webhooks/) contains the functions that deploy a DynamoDB Table that is used to store webhook data, so a cron job can run and refresh them after expiration. This also contains the logic that deploys a seperate API on API Gateway that handle callback events from a github and google drive webhook events. 
+3. [Webhooks](./app/lib/webhooks/) contains the functions that deploy a DynamoDB Table that is used to store webhook data, so a cron job can run and refresh them after expiration. This also contains the logic that deploys a seperate API on API Gateway that handles callback events from a github and google drive webhook event. 
 ## Dependencies
 This app uses a series of dependencies and you can check the list in the following [package.json file](./package.json). Most notably are the following: 
 1. [AWS CDK Lib](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html) which is used to deploy all AWS infastructure, as code.
