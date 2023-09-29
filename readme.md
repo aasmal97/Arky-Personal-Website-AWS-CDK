@@ -26,7 +26,8 @@ This project uses Typescript for type safety, however, AWS lambda functions cann
 This is automated by calling custom build scripts, included in the top-level directories (hosting, rest api and webhooks). These scripts use built-in node libraries, like ```execShellCommand``` and `fs` for initiating build actions, and copying resulting files into the build folder.
 This works suprisingly well, and no issues have been observed so far. However, there is always a chance that files will take to long to copy, and cause a build failure.  
 
-1. To build this project, run ```npm build```
+1. To build this project, to check for type saftey, run npm build
+2. To build this project and migrate compiled files into a build folder and generate a cloudformation template, run ```npm bootstrap```
 
 #### Deployment
 This project is auto deployed through a custom github action, that creates cloudformation templates from the infastructure defined here, and then auto deploys them to AWS.
