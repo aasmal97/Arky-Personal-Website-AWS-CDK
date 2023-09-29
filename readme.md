@@ -30,7 +30,7 @@ This works suprisingly well, and no issues have been observed so far. However, t
 2. To build this project and migrate compiled files into a build folder and generate a cloudformation template, run ```npm bootstrap```
 
 #### Deployment
-This project is auto deployed through a custom github action, that creates cloudformation templates from the infastructure defined here, and then auto deploys them to AWS.
+This project is auto deployed through a custom github action, that creates cloudformation templates and then auto deploys them to AWS.
 
 To initate the deploy process on your local machine you must:
 1. Request access to an account on AWS, that has AWS Lambda, Route 53, API gateway, Cloudfront and/or DynamoDB access. You will only be able to change infastructure that your account has access to.
