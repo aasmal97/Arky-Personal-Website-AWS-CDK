@@ -21,7 +21,7 @@ This app uses a series of dependencies and you can check the list in the followi
 
 ## Build + Deploy
 #### Build 
-This project uses typescript for type safety, however, AWS lambda functions cannot be written as such. Therefore, custom build steps need to be performed to compile typescript to javascript. 
+This project uses Typescript for type safety, however, AWS lambda functions cannot be written as such. Therefore, custom build steps are needed to compile typescript to javascript. 
 
 This is automated by calling custom build scripts, included in the top-level directories (hosting, rest api and webhooks). These scripts use built-in node libraries, like ```execShellCommand``` and `fs` for initiating build actions, and copying resulting files into the build folder.
 This works suprisingly well, and no issues have been observed so far. However, there is always a chance that files will take to long to copy, and cause a build failure.  
