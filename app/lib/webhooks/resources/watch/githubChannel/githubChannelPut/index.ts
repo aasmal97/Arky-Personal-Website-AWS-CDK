@@ -1,10 +1,14 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
-import { getRepositories } from "../../../../../../../utils/github/getUserRepos";
+import {
+  getAllGithubRepos
+} from "../../../../../../../utils/github/getUserRepos";
 import { convertToStr } from "../../../../../../../utils/general/convertToStr";
 import axios, { AxiosError } from "axios";
 import {
+  ignoreOrganization,
   ignoreRepoMap,
   includeRepoMapIfPrivate,
+  includeRepoMapOverwrite,
 } from "../../../github/githubPost/ignoreRepoList";
 import { getDocuments } from "../../../../../../../utils/crudRestApiMethods/getMethod";
 import { putDocument } from "../../../../../../../utils/crudRestApiMethods/putMethod";
@@ -147,19 +151,19 @@ const createChannel = async ({
     return `Error setting up webhook for ${reqUrl}`;
   }
 };
+
 export const createWatchChannels = async () => {
   const githubToken = convertToStr(process.env.GIT_HUB_PERSONAL_ACCESS_TOKEN);
-  const {
-    data: {
-      user: {
-        repositories: { nodes: repositories },
-      },
-    },
-  } = await getRepositories(githubToken);
+  const repositories = await getAllGithubRepos({ token: githubToken });
   const repoNames: (Omit<GithubChannelProps, "githubToken"> | null)[] =
     repositories.map((repo: any) => {
-      if (repo.name in ignoreRepoMap) return null;
-      if (repo.isPrivate && !(repo.name in includeRepoMapIfPrivate)) return null;
+      if (!(repo.name in includeRepoMapOverwrite)) {
+        if ((repo.owner?.login || "") in ignoreOrganization) return null;
+        if (repo.name in ignoreRepoMap) return null;
+        if (repo.isPrivate && !(repo.name in includeRepoMapIfPrivate))
+          return null;
+      }
+      //we continue if repo name is in overwrite, or passes prev conditions
       const nodes = repo.repositoryTopics.nodes;
       const topicNames = nodes.map((n: any) => n.topic.name);
       return {
@@ -177,7 +181,8 @@ export const createWatchChannels = async () => {
         },
       };
     });
-  const promiseArr = repoNames.map((repo) => {
+  const filteredRepoNames = repoNames.filter((r) => r !== null);
+  const promiseArr = filteredRepoNames.map((repo) => {
     if (!repo) return null;
     return createChannel({
       ...repo,
