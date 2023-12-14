@@ -17,9 +17,9 @@ execShellCommand(`tsc`, __dirname)
       __dirname
     );
     console.log(webhooksBundleResult);
-    const cloudFormationResult = await execShellCommand(`cdk synth`, __dirname);
+    const cloudFormationResult = await execShellCommand(`npx cdk synth`, __dirname);
     console.log(cloudFormationResult);
-    const cloudBootstrap = await execShellCommand("cdk bootstrap", __dirname);
+    const cloudBootstrap = await execShellCommand("npx cdk bootstrap", __dirname);
     console.log(cloudBootstrap);
   })
   .catch((err) => {
