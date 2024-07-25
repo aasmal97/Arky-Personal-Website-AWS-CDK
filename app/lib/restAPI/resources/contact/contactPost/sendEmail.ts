@@ -1,57 +1,25 @@
-import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { validate } from "email-validator";
-import { ContactMeInputProps } from ".";
+import { ContactFormSchemaType } from ".";
 import { convertToStr } from "../../../../../../utils/general/convertToStr";
 import { corsHeaders } from "../../utils/corsLambda";
 import axios from "axios";
-//we need to apply for app verification to use this
-export const sendEmailUsingSes = async ({
-  sender,
-  subject,
-  message,
-}: ContactMeInputProps) => {
-  const client = new SESClient({ region: "us-east-1" }); // Replace with your desired region
-  const params = {
-    Destination: {
-      ToAddresses: [
-        convertToStr(process.env.SES_EMAIL_ADDRESS), // Replace with the email address of the recipient
-      ],
-    },
-    Message: {
-      Body: {
-        Html: {
-          Charset: "UTF-8",
-          Data: `<html><body><p>${message}</p></body></html>`, // Replace with the HTML content of your email
-        },
-      },
-      Subject: {
-        Charset: "UTF-8",
-        Data: subject, // Replace with the subject of your email
-      },
-    },
-    Source: sender, // Replace with the email address of the sender
-  };
-  const command = new SendEmailCommand(params);
-  const response = await client.send(command);
-  return {
-    statusCode: 200,
-    headers: corsHeaders,
-    body: `Succesfully sent email: ${response.MessageId}`,
-  };
-};
-//we use send in blue since it doesnt rquire verification, just an account
+//we use send in blue since it doesnt require verification, just an account
 export const sendEmailUsingSendInBlue = async ({
   sender,
   subject,
   message,
-}: ContactMeInputProps) => {
+}: ContactFormSchemaType) => {
   const url = "https://api.sendinblue.com/v3/smtp/email";
   const api_key = convertToStr(process.env.SEND_IN_BLUE_API_KEY);
   const payload = {
-    sender: { email: sender },
+    sender: { email: sender.email },
     to: [{ email: convertToStr(process.env.SES_EMAIL_ADDRESS) }],
-    subject: subject,
-    htmlContent: `<html><body><p>${message}</p></body></html>`,
+    subject: `[Arky's Portfolio Site - ${sender.name}] - ${subject}`,
+    htmlContent: `<html><body><p>Name:<br>${
+      sender.name
+    }</p><br><p>Message:<br>${message}</p><br>${
+      sender.phone ? `<p>Phone:<br>${sender.phone}</p>` : ""
+    }</body></html>`,
   };
   const result = await axios({
     method: "post",
@@ -71,8 +39,8 @@ export const sendEmail = async ({
   sender,
   subject,
   message,
-}: ContactMeInputProps) => {
-  const isEmail = validate(sender);
+}: ContactFormSchemaType) => {
+  const isEmail = validate(sender.email);
   if (!isEmail)
     return {
       statusCode: 400,
