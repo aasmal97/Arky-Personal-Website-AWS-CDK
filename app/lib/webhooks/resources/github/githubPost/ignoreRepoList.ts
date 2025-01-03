@@ -1,5 +1,6 @@
 export const ignoreRepoMap = {
   ".github-private": true,
+  "aasmal97": true,
 };
 export const ignoreOrganization = {
   'chingu-voyages': true,
