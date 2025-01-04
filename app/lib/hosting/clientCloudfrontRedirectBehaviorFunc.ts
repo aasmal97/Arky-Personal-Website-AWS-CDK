@@ -1,5 +1,5 @@
 function handler(event: any) {
-  const updateURL = () => {
+  function updateURL(){
     var request = event.request;
     var uri = request.uri;
     if (uri.endsWith("/")) {
