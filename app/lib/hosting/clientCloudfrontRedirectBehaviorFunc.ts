@@ -18,7 +18,7 @@ function handler(event: any) {
     return request;
   };
   try {
-    updateURL();
+    return updateURL();
   } catch (err) {
     return event.request;
   }
