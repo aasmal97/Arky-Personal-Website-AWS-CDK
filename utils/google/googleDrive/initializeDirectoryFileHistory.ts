@@ -5,7 +5,10 @@ import {
 } from "../../../utils/google/googleDrive/searchForFolder";
 import { ChannelDocument } from "../../../utils/google/googleDrive/watchChannels/createWatchChannel";
 import { getDocuments } from "../../../utils/crudRestApiMethods/getMethod";
-import { ProjectDocument } from "../../../app/lib/restAPI/resources/utils/types/projectTypes";
+import {
+  PDFDocument,
+  ProjectDocument,
+} from "../../../app/lib/restAPI/resources/utils/types/projectTypes";
 import { getWatchChannels } from "../../../utils/google/googleDrive/watchChannels/getWatchChannels";
 import { drive_v3 } from "googleapis";
 import { Image } from "../../../app/lib/restAPI/resources/utils/types/projectTypes";
@@ -28,6 +31,10 @@ export type InitializeFileHistoryProps = {
         id: string;
         data: HobbiesDocument;
       }
+    | {
+        id: string;
+        data: PDFDocument;
+      }
   )[];
   currFilesInFolder: drive_v3.Schema$File[];
 };
@@ -39,8 +46,8 @@ const getHobbiesImages = async ({
 }: {
   restApiKey: string;
   restApiUrl: string;
-  verticalStartKey?: HobbiesDocument["pk"] | null 
-  horizontalStartKey?: HobbiesDocument["pk"] | null 
+  verticalStartKey?: HobbiesDocument["pk"] | null;
+  horizontalStartKey?: HobbiesDocument["pk"] | null;
 }): Promise<APIGatewayProxyResult | [any, any]> => {
   const defaultData = {
     data: {
@@ -235,8 +242,25 @@ export const initializeProjectsHistory = async ({
     id: channel.id,
     data: channel,
   }));
+  const { pk, slidesGoogleResourceId, slidesURL, slidesFileName } =
+    projectDocument;
+  const slidePDFArr: { id: string; data: PDFDocument }[] =
+    slidesGoogleResourceId && pk
+      ? [
+          {
+            id: slidesGoogleResourceId,
+            data: {
+              pk,
+              googleResourceId: slidesGoogleResourceId,
+              slidesURL: slidesURL,
+              name: slidesFileName,
+            },
+          },
+        ]
+      : [];
   const prevFilesInFolder = [
     ...projectDocImagesIds,
+    ...slidePDFArr,
     ...activeChannelDirectoryIds,
   ];
   return {

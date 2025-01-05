@@ -19,15 +19,21 @@ const createDocument = (e: APIGatewayEvent) => {
     endDate,
     topics,
     archived,
+    slidesFileName,
+    slidesURL,
+    slidesGoogleResourceId,
   } = body;
   const document = {
-    appURL: appURL,
-    projectName: projectName,
-    githubURL: githubURL,
-    description: description,
-    endDate: endDate,
-    topics: topics,
-    archived: archived,
+    appURL,
+    projectName,
+    githubURL,
+    description,
+    endDate,
+    topics,
+    archived,
+    slidesFileName,
+    slidesURL,
+    slidesGoogleResourceId,
   };
   return marshall(document, {
     convertClassInstanceToMap: true,

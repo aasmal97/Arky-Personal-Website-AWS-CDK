@@ -13,6 +13,16 @@ export type Image = {
   googleResourceId?: string;
   name?: string;
 };
+export type PDFDocument = {
+  pk?: {
+    recordType: "projects";
+    startDate: string;
+    dateCreated: string;
+  };
+  googleResourceId?: string | null;
+  name?: string | null;
+  slidesURL?: string | null;
+};
 export type ProjectDocument = {
   pk: {
     recordType: "projects";
@@ -32,4 +42,14 @@ export type ProjectDocument = {
   topics?: string[];
   archived?: boolean;
   repoOwner?: string;
+  slidesURL?: string | null;
+  slidesGoogleResourceId?: string | null;
+  slidesFileName?: string | null;
 };
+export function isPDFDocument(e: any): e is PDFDocument {
+  try {
+    return !e.slidesURL;
+  } catch {
+    return false;
+  }
+}

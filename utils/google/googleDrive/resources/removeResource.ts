@@ -5,8 +5,25 @@ import { searchForFileByChildResourceId } from "../searchForFolder";
 import { convertToStr } from "../../../general/convertToStr";
 import { drive_v3 } from "googleapis";
 import { HobbiesDocument } from "../../../../app/lib/restAPI/resources/hobbies/hobbiesPut";
-import { Image } from "../../../../app/lib/restAPI/resources/utils/types/projectTypes";
+import {
+  Image,
+  isPDFDocument,
+  PDFDocument,
+} from "../../../../app/lib/restAPI/resources/utils/types/projectTypes";
+import { updateDocument } from "../../../crudRestApiMethods/postMethod";
+import { marshall } from "@aws-sdk/util-dynamodb";
 const topMostDirectoryFolderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
+const cleanResult = (results: any[]) =>
+  results.map((result) => {
+    const newObj = { ...result } as any;
+    if (newObj["$metadata"]) delete newObj["$metadata"];
+    if (newObj["$fault"]) delete newObj["$fault"];
+    if (newObj.headers) delete newObj["headers"];
+    if (newObj.request) delete newObj["request"];
+    if (newObj.config) delete newObj["config"];
+    if (newObj.request) delete newObj["request"];
+    return newObj;
+  });
 export const removeResource = async ({
   restApiUrl,
   apiKey,
@@ -18,7 +35,7 @@ export const removeResource = async ({
   restApiUrl: string;
   apiKey: string;
   bucketName: string;
-  resource: Image | HobbiesDocument;
+  resource: Image | HobbiesDocument | PDFDocument;
 }) => {
   if (!resource.googleResourceId) return [];
   const result = await searchForFileByChildResourceId(
@@ -32,6 +49,26 @@ export const removeResource = async ({
   });
   let key: string;
   let addedRoute: string;
+  if (isPDFDocument(resource)) {
+    if (!resource.slidesURL || !resource.pk) return [];
+    const resourceDetails = updateDocument({
+      restApiUrl,
+      apiKey,
+      data: {
+        key: marshall(resource.pk, {
+          convertClassInstanceToMap: true,
+          removeUndefinedValues: true,
+        }),
+        slidesURL: null,
+        slidesGoogleResourceId: null,
+        slidesFileName: null,
+      },
+      addedRoute: "projects",
+    });
+    const deleteFile = deleteImgFromS3(bucketName, resource.slidesURL);
+    const results = await Promise.all([deleteFile, resourceDetails]);
+    return cleanResult(results);
+  }
   switch (category) {
     case "hobbies":
       const hobbiesResource = resource as HobbiesDocument;
@@ -65,15 +102,10 @@ export const removeResource = async ({
     bucketName,
     resource.placeholderURL
   );
-  const results = await  Promise.all([deleteImg, deletePlaceholderImg, resourceDetails]);
-  return results.map((result) => { 
-    const newObj = { ...result } as any;
-    if(newObj['$metadata']) delete newObj['$metadata']
-    if (newObj['$fault']) delete newObj['$fault']
-    if (newObj.headers) delete newObj["headers"];
-    if (newObj.request) delete newObj["request"];
-    if (newObj.config) delete newObj["config"];
-    if (newObj.request) delete newObj["request"];
-    return newObj
-  })
+  const results = await Promise.all([
+    deleteImg,
+    deletePlaceholderImg,
+    resourceDetails,
+  ]);
+  return cleanResult(results);
 };

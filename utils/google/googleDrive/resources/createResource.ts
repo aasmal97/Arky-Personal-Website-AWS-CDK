@@ -233,15 +233,15 @@ export const createResource = async ({
   switch (category) {
     case "projects":
       results = await uploadToProjects({
+        getImgDescriptionPromise,
+        newPlaceholderBufferPromise,
+        placeholderKey: placeholderKeyWithType,
         restApiUrl,
         apiKey,
         parentName,
-        getImgDescriptionPromise,
-        newPlaceholderBufferPromise,
         bucketName,
         fileBuffer,
         key: keyWithType,
-        placeholderKey: placeholderKeyWithType,
         resourceId,
         result,
       });
@@ -250,12 +250,12 @@ export const createResource = async ({
       results = await uploadToHobbies({
         getImgDescriptionPromise,
         newPlaceholderBufferPromise,
+        placeholderKey: placeholderKeyWithType,
         restApiUrl,
         apiKey,
         bucketName,
         fileBuffer,
         key: keyWithType,
-        placeholderKey: placeholderKeyWithType,
         result,
         resourceId,
       });

@@ -13,6 +13,7 @@ import {
 import { createResource } from "../../../../utils/google/googleDrive/resources/createResource";
 import { removeResource } from "../../../../utils/google/googleDrive/resources/removeResource";
 import { deleteWatchChannel } from "../../../../utils/google/googleDrive/watchChannels/deleteWatchChannel";
+import { createPDFResource } from "./createPDFResource";
 
 export const modifyResources = async ({
   resourceId,
@@ -70,25 +71,35 @@ export const modifyResources = async ({
   const addResourcePromise = currFilesInFolder.map((file) => {
     if (!file.id) return null;
     if (!(file.id in prevFilesMap)) {
-      if (file.mimeType === "application/vnd.google-apps.folder")
-        return createChannel({
-          parentDirectoryId: resourceId,
-          tokenSecret,
-          domain: webhooksAPIDomainName,
-          topMostDirectoryId,
-          drive,
-          tableName: webhooksTableName,
-          folderId: file.id,
-        });
-      else
-        return createResource({
-          restApiUrl,
-          bucketName,
-          apiKey: restApiKey,
-          drive,
-          resourceId: file.id,
-          vision,
-        });
+      switch (file.mimeType) {
+        case "application/vnd.google-apps.folder":
+          return createChannel({
+            parentDirectoryId: resourceId,
+            tokenSecret,
+            domain: webhooksAPIDomainName,
+            topMostDirectoryId,
+            drive,
+            tableName: webhooksTableName,
+            folderId: file.id,
+          });
+        case "application/pdf":
+          return createPDFResource({
+            restApiUrl,
+            bucketName,
+            apiKey: restApiKey,
+            drive,
+            resourceId: file.id,
+          });
+        default:
+          return createResource({
+            restApiUrl,
+            bucketName,
+            apiKey: restApiKey,
+            drive,
+            resourceId: file.id,
+            vision,
+          });
+      }
     }
     return null;
   });
