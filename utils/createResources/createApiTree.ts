@@ -6,7 +6,7 @@ import createFuncLocationMap, {
   apiMethods,
   camelCase,
 } from "./createFuncLocationMap";
-import { aws_iam, Stack } from "aws-cdk-lib";
+import { aws_iam } from "aws-cdk-lib";
 import { FunctionOptions } from "aws-cdk-lib/aws-lambda";
 import { MethodLoggingLevel } from "aws-cdk-lib/aws-apigateway";
 export const generateLocation = (

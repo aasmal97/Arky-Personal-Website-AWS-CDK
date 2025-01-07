@@ -110,7 +110,9 @@ export const createGoogleDrivePostStateMachine = ({
   const googleDrivePostStateMachine =
     stack && googleDrivePostDefintion
       ? new sfn.StateMachine(stack, `${googleDrivePostName}StateMachine`, {
-          definition: googleDrivePostDefintion,
+          definitionBody: sfn.DefinitionBody.fromChainable(
+            googleDrivePostDefintion
+          ),
           timeout: Duration.minutes(14),
           logs: {
             destination: new logs.LogGroup(

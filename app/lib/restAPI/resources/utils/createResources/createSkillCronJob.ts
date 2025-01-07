@@ -1,18 +1,19 @@
 import * as cdk from "aws-cdk-lib";
-import { PythonFunction } from "@aws-cdk/aws-lambda-python-alpha";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { createLambdaRole } from "../../../../../../utils/rolesFuncs/createLambdaRole";
 import { createDynamoPolicy } from "../../../../../../utils/rolesFuncs/createDynamoPolicy";
 import { createCronEvent } from "../../../../../../utils/createResources/createCronEvent";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+
 import path = require("path");
 export const createSkillCronJob = ({
   stack,
   skillsTableInfo,
-    secrets,
-  dirname
+  secrets,
+  dirname,
 }: {
-    dirname: string;
+  dirname: string;
   stack: cdk.Stack;
   skillsTableInfo: {
     name: string;
@@ -21,12 +22,14 @@ export const createSkillCronJob = ({
   };
   secrets: { [key: string]: any };
 }) => {
-  const skillsCronLambda = new PythonFunction(stack, "skillsCronJobLambda", {
-    entry: path.join(dirname, "./resources/skills/cronJob"),
-    runtime: Runtime.PYTHON_3_9,
-    index: "main.py",
-    handler: "lambda_handler",
+  const skillsCronLambda = new lambda.Function(stack, "skillsCronJobLambda", {
+    runtime: Runtime.NODEJS_20_X,
+    handler: `index.handler`,
+    code: lambda.Code.fromAsset(
+      path.join(dirname, "./resources/skills/cronJob").toString()
+    ),
     timeout: cdk.Duration.minutes(14),
+    memorySize: 512,
     role: createLambdaRole(
       "skillsCronJobLambdaRole",
       {
@@ -42,16 +45,16 @@ export const createSkillCronJob = ({
     ),
     environment: {
       AMAZON_DYNAMO_DB_TABLE_NAME: skillsTableInfo.name,
-      LINKED_IN_PASSWORD: secrets.LINKED_IN_PASSWORD,
+      PROXYCURL_TOKEN: secrets.PROXYCURL_TOKEN,
     },
   });
   const skillsCronJobTarget = new LambdaFunction(skillsCronLambda, {
-    retryAttempts: 2,
+    retryAttempts: 1,
   });
   const skillsCronJobEvent = createCronEvent({
     stack: stack,
     id: "skillsCronJobEvent",
-    hours: 23,
+    hours: 72,
     targets: [skillsCronJobTarget],
   });
 

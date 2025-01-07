@@ -156,38 +156,6 @@ export const queryUntilRequestPageNum = async ({
         [partitionKey]: docKey[partitionKey],
         [sortKey]: docKey[sortKey],
       };
-      // const docPartitionKey = docKey[partitionKey];
-      // const docSortKey = docKey[sortKey];
-      // const expression = `#partition = :partitionVal and #sort = :sortVal`;
-      // const docWithKeyResult = await queryOnce({
-      //   tableName,
-      //   query: {
-      //     TableName: tableName,
-      //     KeyConditionExpression: expression,
-      //     ExpressionAttributeNames: {
-      //       "#partition": partitionKey,
-      //       "#sort": sortKey,
-      //     },
-      //     ExpressionAttributeValues: {
-      //       ":partitionVal": docPartitionKey,
-      //       ":sortVal": docSortKey,
-      //     },
-      //     Limit: 1,
-      //   },
-      // });
-      //error encountered retrieving document
-      //if (isAPIGatewayResult(docWithKeyResult)) return docWithKeyResult;
-      //return successResponse(results, successMessage);
-      //results.LastEvaluatedKey = docWithKeyResult.LastEvaluatedKey;
-      // const newKey = marshall(
-      //   { ...docWithNewKey["pk"] },
-      // {
-      //   convertClassInstanceToMap: true,
-      //   removeUndefinedValues: true,
-      // }
-      // );
-      // marshall(docWithNewKey)
-      //results.LastEvaluatedKey = newKey
     }
     results.Count = results.Items.length;
     if (!results.LastEvaluatedKey || numLeft <= 0) {
