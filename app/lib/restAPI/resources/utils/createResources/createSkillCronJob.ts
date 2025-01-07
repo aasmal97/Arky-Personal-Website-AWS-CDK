@@ -7,6 +7,7 @@ import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 
 import path = require("path");
+import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 export const createSkillCronJob = ({
   stack,
   skillsTableInfo,
@@ -51,12 +52,10 @@ export const createSkillCronJob = ({
   const skillsCronJobTarget = new LambdaFunction(skillsCronLambda, {
     retryAttempts: 1,
   });
-  const skillsCronJobEvent = createCronEvent({
-    stack: stack,
-    id: "skillsCronJobEvent",
-    hours: 72,
+  //run every three days
+  const skillsCronJobEvent = new Rule(stack, "skillsCronJobEvent", {
+    schedule: Schedule.rate(cdk.Duration.days(3)),
     targets: [skillsCronJobTarget],
   });
-
   return skillsCronJobEvent;
 };

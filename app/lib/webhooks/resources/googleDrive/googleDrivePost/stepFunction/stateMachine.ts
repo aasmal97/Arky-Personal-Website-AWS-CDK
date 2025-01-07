@@ -42,7 +42,7 @@ export const createGoogleDrivePostStateMachine = ({
   const googleDrivePostName = "googleDrivePostStepFunction";
   const googleDrivePostStepFunctionLambda = stack
     ? new lambda.Function(stack, `${googleDrivePostName}Lambda`, {
-        runtime: lambda.Runtime.NODEJS_16_X,
+        runtime: lambda.Runtime.NODEJS_20_X,
         code: lambda.Code.fromAsset(location.absolute),
         handler: "index.handler",
         timeout: Duration.minutes(14),
