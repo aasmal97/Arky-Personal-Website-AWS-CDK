@@ -54,7 +54,7 @@ export const createSkillCronJob = ({
   });
   //run every three days
   const skillsCronJobEvent = new Rule(stack, "skillsCronJobEvent", {
-    schedule: Schedule.rate(cdk.Duration.days(3)),
+    schedule: Schedule.rate(cdk.Duration.days(7)),
     targets: [skillsCronJobTarget],
   });
   return skillsCronJobEvent;
