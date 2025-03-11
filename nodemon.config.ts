@@ -8,7 +8,7 @@ nodemon({
     noDefaults: true,
     // verbose: true,
     watch: ["*"],
-    ext: "ts, js, json",
+    ext: "ts, js",
     ignoreRoot: [
         ".git",
         ".vscode",
@@ -20,5 +20,10 @@ nodemon({
         "cdk.out",
         "node_modules",
         "nodemon.config.ts",
+        "package-lock.json",
+        
     ],
+})
+nodemon.on("restart", (files: string[]) => {
+    console.log("App restarted due to: ", files);
 })

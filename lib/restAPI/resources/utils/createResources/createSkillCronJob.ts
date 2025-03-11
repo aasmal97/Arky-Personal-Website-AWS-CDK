@@ -2,12 +2,11 @@ import * as cdk from "aws-cdk-lib";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { createLambdaRole } from "@utils/rolesFuncs/createLambdaRole";
 import { createDynamoPolicy } from "@utils/rolesFuncs/createDynamoPolicy";
-import { createCronEvent } from "@utils/createResources/createCronEvent";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
-import * as lambda from "aws-cdk-lib/aws-lambda";
-
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import path = require("path");
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
+
 export const createSkillCronJob = ({
   stack,
   skillsTableInfo,
@@ -23,14 +22,15 @@ export const createSkillCronJob = ({
   };
   secrets: { [key: string]: any };
 }) => {
-  const skillsCronLambda = new lambda.Function(stack, "skillsCronJobLambda", {
+  const skillsCronLambda = new NodejsFunction(stack, "skillsCronJobLambda", {
     runtime: Runtime.NODEJS_20_X,
-    handler: `index.handler`,
-    code: lambda.Code.fromAsset(
-      path.join(dirname, "./resources/skills/cronJob").toString()
-    ),
+    handler: `handler`,
+    entry: path.join(dirname, "./resources/skills/cronJob/index.ts").toString(),
     timeout: cdk.Duration.minutes(14),
     memorySize: 512,
+    bundling: {
+      minify: true,
+    },
     role: createLambdaRole(
       "skillsCronJobLambdaRole",
       {

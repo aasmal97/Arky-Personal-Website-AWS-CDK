@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import * as lambda from "aws-cdk-lib/aws-lambda";
+import { Runtime } from "aws-cdk-lib/aws-lambda";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import path = require("path");
 import createFuncLocationMap, {
@@ -9,6 +9,7 @@ import createFuncLocationMap, {
 import { aws_iam } from "aws-cdk-lib";
 import { FunctionOptions } from "aws-cdk-lib/aws-lambda";
 import { MethodLoggingLevel } from "aws-cdk-lib/aws-apigateway";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 export const generateLocation = (
   providedPath: string[],
   dirname: string,
@@ -236,10 +237,10 @@ export const createLambdaFuncs = (e: cdk.Stack, restAPIMap: RestAPIType) => {
   //create lambda functions and lambda integrations
   for (let [key, value] of funcLocationArr) {
     const buildPath = value.location;
-    const newFunc = new lambda.Function(e, key, {
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: `index.handler`,
-      code: lambda.Code.fromAsset(buildPath.absolute),
+    const newFunc = new NodejsFunction(e, key, {
+      runtime: Runtime.NODEJS_20_X,
+      handler: `handler`,
+      entry: path.join(buildPath.absolute, "index.ts"),
       role: value.role,
       environment: value.env,
       timeout: cdk.Duration.seconds(28),

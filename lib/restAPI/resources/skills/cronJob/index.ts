@@ -8,12 +8,7 @@ import {
 } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import axios from "axios";
-type SkillsType = {
-  recordType: string;
-  name: string;
-  date_created: number | string;
-  order: number | string;
-};
+import { SkillsType } from "@app/types";
 type DataFuncsParams = Pick<SkillsType, "order"> & {
   skillName: SkillsType["name"];
 };

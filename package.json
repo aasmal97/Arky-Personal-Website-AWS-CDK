@@ -11,6 +11,8 @@
     "app": "npx ts-node -r tsconfig-paths/register --swc ./bin/index.ts",
     "dev": "npx concurrently --kill-others \"npm run app\" \"npm run watch\"",
     "start": "npm run check-types && npm run app",
+    "synth": "npx cdk synth",
+    "bootstrap": "npx cdk bootstrap",
     "deploy": "npx cdk deploy '**' --require-approval never",
     "secrets": "doppler secrets download --no-file --format env > .env"
   },

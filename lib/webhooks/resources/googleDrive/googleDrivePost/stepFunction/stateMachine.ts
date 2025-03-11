@@ -1,4 +1,4 @@
-import * as lambda from "aws-cdk-lib/aws-lambda";
+import { Runtime } from "aws-cdk-lib/aws-lambda";
 import * as sfn from "aws-cdk-lib/aws-stepfunctions";
 import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 import { Stack, Duration } from "aws-cdk-lib";
@@ -7,6 +7,8 @@ import { createLambdaRole } from "@utils/rolesFuncs/createLambdaRole";
 import { createS3BucketPolicy } from "@utils/rolesFuncs/createS3BucketPolicy";
 import { createDynamoPolicy } from "@utils/rolesFuncs/createDynamoPolicy";
 import * as logs from "aws-cdk-lib/aws-logs";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { join } from "path";
 export const createGoogleDrivePostStateMachine = ({
   stack,
   parsed,
@@ -41,11 +43,14 @@ export const createGoogleDrivePostStateMachine = ({
 }) => {
   const googleDrivePostName = "googleDrivePostStepFunction";
   const googleDrivePostStepFunctionLambda = stack
-    ? new lambda.Function(stack, `${googleDrivePostName}Lambda`, {
-        runtime: lambda.Runtime.NODEJS_20_X,
-        code: lambda.Code.fromAsset(location.absolute),
-        handler: "index.handler",
+    ? new NodejsFunction(stack, `${googleDrivePostName}Lambda`, {
+        runtime: Runtime.NODEJS_20_X,
+        entry: join(location.absolute, "index.ts"),
+        handler: "handler",
         timeout: Duration.minutes(14),
+        bundling: {
+          minify: true,
+        },
         environment: {
           S3_MEDIA_FILES_BUCKET_NAME: convertToStr(s3MediaBucket?.name),
           AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
