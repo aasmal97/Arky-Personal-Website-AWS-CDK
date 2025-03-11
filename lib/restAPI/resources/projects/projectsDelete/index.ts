@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { deleteTemplate } from "@utils/apiTemplates/deleteTemplate";
-import { ProjectDocument } from "../../utils/types/projectTypes";
+import { ProjectDocument } from "@app/types";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { convertToStr } from "@utils/general/convertToStr";
 export async function handler(

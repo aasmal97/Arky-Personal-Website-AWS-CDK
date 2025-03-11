@@ -1,16 +1,12 @@
-import { deleteDocument } from "../../../crudRestApiMethods/deleteMethod";
-import { deleteImgFromS3 } from "../../../general/s3Actions";
+import { deleteDocument } from "@utils/crudRestApiMethods/deleteMethod";
+import { deleteImgFromS3 } from "@utils/general/s3Actions";
 import { determineCategoryType } from "../determineCategoryType";
 import { searchForFileByChildResourceId } from "../searchForFolder";
-import { convertToStr } from "../../../general/convertToStr";
+import { convertToStr } from "@utils/general/convertToStr";
 import { drive_v3 } from "googleapis";
-import { HobbiesDocument } from "@restAPI/resources/hobbies/hobbiesPut";
-import {
-  Image,
-  isPDFDocument,
-  PDFDocument,
-} from "@restAPI/resources/utils/types/projectTypes";
-import { updateDocument } from "../../../crudRestApiMethods/postMethod";
+import { HobbiesDocument } from "@app/types";
+import { Image, isPDFDocument, PDFDocument } from "@app/types";
+import { updateDocument } from "@utils/crudRestApiMethods/postMethod";
 import { marshall } from "@aws-sdk/util-dynamodb";
 const topMostDirectoryFolderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
 const cleanResult = (results: any[]) =>

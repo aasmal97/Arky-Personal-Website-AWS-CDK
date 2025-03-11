@@ -5,11 +5,11 @@ import {
   SuccessResponseProps,
 } from "@utils/apiTemplates/getTemplate";
 import { marshall } from "@aws-sdk/util-dynamodb";
-import { Image, ProjectDocument } from "../../utils/types/projectTypes";
+import { Image, ProjectDocument } from "@app/types";
 import { getDocuments } from "@utils/crudRestApiMethods/getMethod";
 import { convertToStr } from "@utils/general/convertToStr";
 import { validateGeneralGetQuery } from "@utils/apiTemplates/generateDynamoQueries";
-import { corsHeaders } from "../../utils/corsLambda";
+import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
 export type ProjectQueryProps = {
   recordType: "projects";
   id?: string;

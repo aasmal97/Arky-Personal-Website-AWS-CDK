@@ -1,6 +1,6 @@
 import { APIGatewayEvent } from "aws-lambda";
 import { sendEmail } from "./sendEmail";
-import { corsPostHeaders } from "../../utils/corsLambda";
+import { corsPostHeaders } from "@restAPI/resources/utils/corsLambda";
 import { z } from "zod";
 import parsePhoneNumber, { AsYouType } from "libphonenumber-js";
 export function isOnlyCountryCode(number: string) {

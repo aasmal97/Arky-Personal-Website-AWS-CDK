@@ -1,14 +1,14 @@
 import { drive_v3 } from "googleapis";
 import { searchForFileByChildResourceId } from "../searchForFolder";
-import { getDocuments } from "../../../crudRestApiMethods/getMethod";
-import { putDocument } from "../../../crudRestApiMethods/putMethod";
-import { resizeImg } from "../../../general/resizeImg";
-import { uploadImgToS3 } from "../../../general/s3Actions";
-import { getImgDescription } from "../../../azure/getImgDescription";
-import { ProjectDocument } from "@restAPI/resources/utils/types/projectTypes";
+import { getDocuments } from "@utils/crudRestApiMethods/getMethod";
+import { putDocument } from "@utils/crudRestApiMethods/putMethod";
+import { resizeImg } from "@utils/general/resizeImg";
+import { uploadImgToS3 } from "@utils/general/s3Actions";
+import { getImgDescription } from "@utils/azure/getImgDescription";
+import { ProjectDocument } from "@app/types";
 import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
 import { determineCategoryType } from "../determineCategoryType";
-import { convertToStr } from "../../../general/convertToStr";
+import { convertToStr } from "@utils/general/convertToStr";
 const topMostDirectoryFolderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
 const uploadResourceItems = async ({
   restApiUrl,

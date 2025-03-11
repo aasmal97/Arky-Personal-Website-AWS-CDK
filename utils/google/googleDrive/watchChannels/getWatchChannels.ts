@@ -3,8 +3,8 @@ import { marshall } from "@aws-sdk/util-dynamodb";
 import {
   initializeQueryResources,
   addParamater,
-} from "../../../apiTemplates/generateDynamoQueries";
-import { queryUntilRequestPageNum } from "../../../apiTemplates/getTemplate";
+} from "@utils/apiTemplates/generateDynamoQueries";
+import { queryUntilRequestPageNum } from "@utils/apiTemplates/getTemplate";
 import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
 const generateQuery = ({
   tableName,

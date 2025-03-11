@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import { initalizeGoogleDrive } from "../initalizeGoogleDrive";
 import { unescapeNewLines } from "../initalizeGoogleDrive";
-import { convertToStr } from "../../../general/convertToStr";
+import { convertToStr } from "@utils/general/convertToStr";
 import { searchForFileByChildResourceId } from "../searchForFolder";
 dotenv.config();
 const drive = initalizeGoogleDrive({

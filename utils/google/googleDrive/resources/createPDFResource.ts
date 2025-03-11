@@ -1,12 +1,12 @@
 import { drive_v3 } from "googleapis";
 import { searchForFileByChildResourceId } from "../searchForFolder";
 import { determineCategoryType } from "../determineCategoryType";
-import { convertToStr } from "../../../general/convertToStr";
-import { getDocuments } from "../../../crudRestApiMethods/getMethod";
-import { ProjectDocument } from "@restAPI/resources/utils/types/projectTypes";
+import { convertToStr } from "@utils/general/convertToStr";
+import { getDocuments } from "@utils/crudRestApiMethods/getMethod";
+import { ProjectDocument } from "@app/types";
 import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
-import { uploadImgToS3 } from "../../../general/s3Actions";
-import { updateDocument } from "../../../crudRestApiMethods/postMethod";
+import { uploadImgToS3 } from "@utils/general/s3Actions";
+import { updateDocument } from "@utils/crudRestApiMethods/postMethod";
 import { marshall } from "@aws-sdk/util-dynamodb";
 
 export type CreatePDFResourceProps = {

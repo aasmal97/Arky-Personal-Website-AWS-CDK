@@ -11,7 +11,7 @@ import { getDocuments } from "@utils/crudRestApiMethods/getMethod";
 import { updateDocument } from "@utils/crudRestApiMethods/postMethod";
 import { deleteDocument } from "@utils/crudRestApiMethods/deleteMethod";
 import { putDocument } from "@utils/crudRestApiMethods/putMethod";
-import { ProjectDocument } from "../../../../restAPI/resources/utils/types/projectTypes";
+import { ProjectDocument } from "@app/types";
 export type RepoRestApiCallsProps = {
   apiKey: string;
   restApiDomainName: string;

@@ -1,9 +1,9 @@
 import { drive_v3 } from "googleapis";
 import { v4 as uuid } from "uuid";
 import { getUnixTime, add } from "date-fns";
-import { convertToStr } from "../../../general/convertToStr";
+import { convertToStr } from "@utils/general/convertToStr";
 import * as jwt from "jsonwebtoken";
-import { dynamoPutDocument } from "../../../apiTemplates/putTemplate";
+import { dynamoPutDocument } from "@utils/apiTemplates/putTemplate";
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { searchForWatchedResource } from "./searchForWatchedResource";
 export type ChannelDocument = {

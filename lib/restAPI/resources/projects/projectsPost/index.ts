@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { postTemplate } from "@utils/apiTemplates/postTemplate";
-import { ProjectDocument } from "../../utils/types/projectTypes";
+import { ProjectDocument } from "@app/types";
 import { convertToStr } from "@utils/general/convertToStr";
 import { marshall } from "@aws-sdk/util-dynamodb";
 

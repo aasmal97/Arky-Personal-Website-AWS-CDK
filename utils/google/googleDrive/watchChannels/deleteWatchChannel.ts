@@ -1,6 +1,6 @@
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { drive_v3 } from "googleapis";
-import { deleteTemplate } from "../../../apiTemplates/deleteTemplate";
+import { deleteTemplate } from "@utils/apiTemplates/deleteTemplate";
 import { getWatchChannels } from "./getWatchChannels";
 import { ChannelDocument } from "./createWatchChannel";
 type FileWatchChannelProps = drive_v3.Schema$Channel & {

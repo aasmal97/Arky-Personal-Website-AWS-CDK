@@ -7,7 +7,7 @@ import {
 import { marshall } from "@aws-sdk/util-dynamodb";
 import { v4 as uuid } from "uuid";
 import { convertToStr } from "@utils/general/convertToStr";
-import { ProjectDocument } from "../../utils/types/projectTypes";
+import { ProjectDocument } from "@app/types";
 const isString = (e: any): e is string => {
   return typeof e === "string";
 };

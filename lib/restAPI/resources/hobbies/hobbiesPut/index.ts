@@ -3,23 +3,6 @@ import { v4 as uuid } from "uuid";
 import { putTemplate, isString } from "@utils/apiTemplates/putTemplate";
 import { convertToStr } from "@utils/general/convertToStr";
 import { marshall } from "@aws-sdk/util-dynamodb";
-export type HobbiesDocument = {
-  pk: {
-    orientation: string;
-    dateCreated: string;
-  };
-  recordType: string;
-  id: string;
-  name: string;
-  imgDescription: string;
-  imgURL: string;
-  googleResourceId: string;
-  placeholderURL: any;
-  width: number;
-  height: number;
-  dateCreated: string;
-  orientation: string;
-};
 const createDocument = (e: APIGatewayEvent) => {
   if (!e.body)
     return {

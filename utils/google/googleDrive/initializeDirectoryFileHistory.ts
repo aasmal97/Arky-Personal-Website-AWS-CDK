@@ -5,17 +5,14 @@ import {
 } from "@utils/google/googleDrive/searchForFolder";
 import { ChannelDocument } from "@utils/google/googleDrive/watchChannels/createWatchChannel";
 import { getDocuments } from "@utils/crudRestApiMethods/getMethod";
-import {
-  PDFDocument,
-  ProjectDocument,
-} from "@restAPI/resources/utils/types/projectTypes";
+import { PDFDocument, ProjectDocument } from "@app/types";
 import { getWatchChannels } from "@utils/google/googleDrive/watchChannels/getWatchChannels";
 import { drive_v3 } from "googleapis";
-import { Image } from "@restAPI/resources/utils/types/projectTypes";
+import { Image } from "@app/types";
 import { determineCategoryType } from "./determineCategoryType";
-import { convertToStr } from "../../general/convertToStr";
-import { isAPIGatewayResult } from "../../general/isApiGatewayResult";
-import { HobbiesDocument } from "@restAPI/resources/hobbies/hobbiesPut";
+import { convertToStr } from "@utils/general/convertToStr";
+import { isAPIGatewayResult } from "@utils/general/isApiGatewayResult";
+import { HobbiesDocument } from "@app/types";
 const topMostDirectoryFolderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;
 export type InitializeFileHistoryProps = {
   prevFilesInFolder: (

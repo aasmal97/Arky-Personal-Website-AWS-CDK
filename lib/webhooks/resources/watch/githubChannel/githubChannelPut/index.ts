@@ -7,7 +7,7 @@ import {
   ignoreRepoMap,
   includeRepoMapIfPrivate,
   includeRepoMapOverwrite,
-} from "../../../github/githubPost/ignoreRepoList";
+} from "@webhooks/resources/github/githubPost/ignoreRepoList";
 import { getDocuments } from "@utils/crudRestApiMethods/getMethod";
 import { putDocument } from "@utils/crudRestApiMethods/putMethod";
 import { Repository } from "@octokit/webhooks-types";

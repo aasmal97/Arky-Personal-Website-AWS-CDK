@@ -24,7 +24,8 @@
       "@lib/*": ["./lib/*"],
       "@hosting/*": ["./lib/hosting/*"],
       "@restAPI/*": ["./lib/restAPI/*"],
-      "@webhooks/*": ["./lib/webhooks/*"]
+      "@webhooks/*": ["./lib/webhooks/*"],
+      "@app/*": ["./*"]
     }
   },
   "exclude": ["build", "node_modules", "cdk.out"]

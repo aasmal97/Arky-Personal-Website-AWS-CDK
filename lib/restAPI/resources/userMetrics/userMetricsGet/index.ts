@@ -4,7 +4,7 @@ import { convert } from "html-to-text";
 import { sub } from "date-fns";
 import * as dotenv from "dotenv";
 import { getRepoCount, callGithubGraphQL } from "@utils/github/getUserRepos";
-import { corsHeaders } from "../../utils/corsLambda";
+import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
 dotenv.config();
 type ContributionsObj = {
   totalCommitContributions: number;
