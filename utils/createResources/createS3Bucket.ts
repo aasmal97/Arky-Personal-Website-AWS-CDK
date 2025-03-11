@@ -10,15 +10,21 @@ const createS3Bucket = (
   }
 ) => {
   let addProps: s3.BucketProps = {
-    websiteErrorDocument: isWebsite? isWebsite.errorDocPath: undefined,
-    websiteIndexDocument: isWebsite ? isWebsite.rootObjPath : undefined
-  }
-
+    websiteErrorDocument: isWebsite ? isWebsite.errorDocPath : undefined,
+    websiteIndexDocument: isWebsite ? isWebsite.rootObjPath : undefined,
+  };
   const bucket = new s3.Bucket(stack, name, {
     publicReadAccess: true,
     bucketName: name,
-    ...addProps
+    blockPublicAccess: {
+      blockPublicAcls: false,
+      blockPublicPolicy: false,
+      ignorePublicAcls: false,
+      restrictPublicBuckets: false,
+    },
+    ...addProps,
   });
   return bucket;
+  
 };
 export default createS3Bucket;

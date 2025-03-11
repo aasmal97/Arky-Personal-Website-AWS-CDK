@@ -39,3 +39,4 @@ webhooksStack.createAPI(
   s3MediaBucketData
 );
 webhooksStack.mapAPIToHostedZone(hostingZone, webhooksCertificate);
+app.synth();
