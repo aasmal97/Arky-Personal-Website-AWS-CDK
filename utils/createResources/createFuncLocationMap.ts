@@ -1,4 +1,8 @@
-import { isRestAPILambdaProps, RestAPILambdaProps, RestAPIType } from "../../utils/createResources/createApiTree";
+import {
+  isRestAPILambdaProps,
+  RestAPILambdaProps,
+  RestAPIType,
+} from "@utils/createResources/createApiTree";
 
 export const apiMethods = {
   options: true,
@@ -34,11 +38,11 @@ export function hasEndingMethod(str: string): string {
   return ending;
 }
 export const createFuncLocationMap = (apiMap: RestAPIType, id?: string) => {
-  let map: { [key: string]: RestAPILambdaProps} = {};
+  let map: { [key: string]: RestAPILambdaProps } = {};
   const entries = Object.entries(apiMap);
   for (let [key, value] of entries) {
     let newKey = `${id ? id + " " : ""}${key}`;
-    let addMap: { [key: string]: RestAPILambdaProps} = {};
+    let addMap: { [key: string]: RestAPILambdaProps } = {};
     if (key in apiMethods && isRestAPILambdaProps(value))
       addMap[camelCase(newKey)] = value;
     else if (!isRestAPILambdaProps(value))

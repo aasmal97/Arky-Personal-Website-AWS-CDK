@@ -18,7 +18,14 @@
     "inlineSources": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
+    "paths": {
+      "@utils/*": ["./utils/*"],
+      "@lib/*": ["./lib/*"],
+      "@hosting/*": ["./lib/hosting/*"],
+      "@restAPI/*": ["./lib/restAPI/*"],
+      "@webhooks/*": ["./lib/webhooks/*"]
+    }
   },
-  "exclude": ["build", "node_modules", "app/cdk.out"]
+  "exclude": ["build", "node_modules", "cdk.out"]
 }

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ignoreOrganization } from "../../app/lib/webhooks/resources/github/githubPost/ignoreRepoList";
+import { ignoreOrganization } from "@webhooks/resources/github/githubPost/ignoreRepoList";
 export const callGithubGraphQL = async ({
   query,
   variables,
@@ -32,9 +32,7 @@ export const getOrgRepos = async ({
   const query = `query {
     viewer{
       organization(login: "${org}"){
-          repositories(first:100, after:${
-            cursor ? `"${cursor}"` : cursor
-          }){
+          repositories(first:100, after:${cursor ? `"${cursor}"` : cursor}){
             totalCount
             pageInfo {
               endCursor
@@ -55,12 +53,12 @@ export const getOrgRepos = async ({
   });
   return data;
 };
-export const getAllGithubOrgRepos = async({
+export const getAllGithubOrgRepos = async ({
   token,
-  org
-}:{
-  token: string
-  org: string
+  org,
+}: {
+  token: string;
+  org: string;
 }) => {
   const repositories: any[] = [];
   let hasEnded = false;
@@ -75,7 +73,9 @@ export const getAllGithubOrgRepos = async({
           },
         },
       } = await getOrgRepos({
-        token, org, cursor: nextCursor,
+        token,
+        org,
+        cursor: nextCursor,
       });
       hasEnded = !hasNextPage as boolean;
       nextCursor = endCursor as string;
@@ -85,8 +85,8 @@ export const getAllGithubOrgRepos = async({
       break;
     }
   }
-  return repositories
-}
+  return repositories;
+};
 export const getRepositories = async ({
   token,
   cursor = null,
@@ -136,11 +136,7 @@ export const getRepositories = async ({
   });
   return data;
 };
-export const getAllGithubRepos = async({
-  token
-}:{
-  token: string
-}) => {
+export const getAllGithubRepos = async ({ token }: { token: string }) => {
   const repositories: any[] = [];
   let hasEnded = false;
   let nextCursor: string | null = null;
@@ -167,11 +163,11 @@ export const getAllGithubRepos = async({
       break;
     }
   }
-  return repositories
-}
+  return repositories;
+};
 export const getRepoCount = async (token?: string) => {
   const orgRepoCountsPromise = Object.entries(ignoreOrganization).map(
-    ([key, value]) => getOrgRepos({ token, org: key})
+    ([key, value]) => getOrgRepos({ token, org: key })
   );
   const dataPromise = getRepositories({ token });
   const results = await Promise.all([...orgRepoCountsPromise, dataPromise]);

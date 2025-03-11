@@ -4,12 +4,12 @@ import { determineCategoryType } from "../determineCategoryType";
 import { searchForFileByChildResourceId } from "../searchForFolder";
 import { convertToStr } from "../../../general/convertToStr";
 import { drive_v3 } from "googleapis";
-import { HobbiesDocument } from "../../../../app/lib/restAPI/resources/hobbies/hobbiesPut";
+import { HobbiesDocument } from "@restAPI/resources/hobbies/hobbiesPut";
 import {
   Image,
   isPDFDocument,
   PDFDocument,
-} from "../../../../app/lib/restAPI/resources/utils/types/projectTypes";
+} from "@restAPI/resources/utils/types/projectTypes";
 import { updateDocument } from "../../../crudRestApiMethods/postMethod";
 import { marshall } from "@aws-sdk/util-dynamodb";
 const topMostDirectoryFolderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;

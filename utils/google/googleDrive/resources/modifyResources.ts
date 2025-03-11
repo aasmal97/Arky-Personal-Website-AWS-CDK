@@ -1,18 +1,18 @@
-import { convertToStr } from "../../../../utils/general/convertToStr";
+import { convertToStr } from "@utils/general/convertToStr";
 import {
   initalizeGoogleDrive,
   unescapeNewLines,
-} from "../../../../utils/google/googleDrive/initalizeGoogleDrive";
-import { initializeDirectoryFileHistory } from "../../../../utils/google/googleDrive/initializeDirectoryFileHistory";
-import { isAPIGatewayResult } from "../../../../utils/general/isApiGatewayResult";
+} from "@utils/google/googleDrive/initalizeGoogleDrive";
+import { initializeDirectoryFileHistory } from "@utils/google/googleDrive/initializeDirectoryFileHistory";
+import { isAPIGatewayResult } from "@utils/general/isApiGatewayResult";
 import { JwtPayload } from "jsonwebtoken";
 import {
   createChannel,
   isChannelDoc,
-} from "../../../../utils/google/googleDrive/watchChannels/createWatchChannel";
-import { createResource } from "../../../../utils/google/googleDrive/resources/createResource";
-import { removeResource } from "../../../../utils/google/googleDrive/resources/removeResource";
-import { deleteWatchChannel } from "../../../../utils/google/googleDrive/watchChannels/deleteWatchChannel";
+} from "@utils/google/googleDrive/watchChannels/createWatchChannel";
+import { createResource } from "@utils/google/googleDrive/resources/createResource";
+import { removeResource } from "@utils/google/googleDrive/resources/removeResource";
+import { deleteWatchChannel } from "@utils/google/googleDrive/watchChannels/deleteWatchChannel";
 import { createPDFResource } from "./createPDFResource";
 
 export const modifyResources = async ({
