@@ -25,7 +25,7 @@
     "@types/jest": "=29.2.5",
     "@types/jsonwebtoken": "=9.0.1",
     "@types/lodash": "=4.14.191",
-    "@types/node": "18.11.18",
+    "@types/node": "^20.17.24",
     "@types/request": "=2.48.8",
     "@types/uuid": "=9.0.0",
     "aws-cdk": "=2.115.0",

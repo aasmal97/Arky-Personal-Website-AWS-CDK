@@ -5,7 +5,7 @@ export const getImgDescription = async ({
   buffer,
   vision,
   mimeType,
-  imgWidth
+  imgWidth,
 }: {
   buffer: Buffer;
   imgWidth: number;
@@ -22,6 +22,7 @@ export const getImgDescription = async ({
   });
   const encodedImg = newImg?.buffer;
   if (!encodedImg) return "";
+  const blobData = new Blob([encodedImg]);
   try {
     const description = await axios({
       url: `${vision.apiEndpoint}/vision/v3.2/describe`,
@@ -30,7 +31,7 @@ export const getImgDescription = async ({
         "Ocp-Apim-Subscription-Key": vision.apiKey,
         "Content-Type": "application/octet-stream",
       },
-      data: new Blob([encodedImg]),
+      data: blobData,
     });
     return description.data?.description?.captions?.[0]?.text;
   } catch (err) {

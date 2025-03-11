@@ -3,7 +3,7 @@ import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import { RestAPIStack } from "@restAPI/restAPIStack";
 import { WebhooksStack } from "@webhooks/webhooksStack";
-import { HostingStack } from @lib/hosting/hostingStack";
+import { HostingStack } from "@lib/hosting/hostingStack";
 const app = new cdk.App();
 const hostingStack = new HostingStack(app, "HostingStack");
 const restAPIStack = new RestAPIStack(app, "RestApiStack", {
