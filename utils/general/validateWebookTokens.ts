@@ -1,6 +1,6 @@
 import * as jwt from "jsonwebtoken";
 import { convertToStr } from "@utils/general/convertToStr";
-import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
+import { corsHeaders } from "@app/types";
 const validateWehbookToken = (token?: string) => {
   if (!token)
     return {

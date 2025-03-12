@@ -9,7 +9,7 @@ import { Image, ProjectDocument } from "@app/types";
 import { getDocuments } from "@utils/crudRestApiMethods/getMethod";
 import { convertToStr } from "@utils/general/convertToStr";
 import { validateGeneralGetQuery } from "@utils/apiTemplates/generateDynamoQueries";
-import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
+import { corsHeaders } from "@app/types";
 export type ProjectQueryProps = {
   recordType: "projects";
   id?: string;

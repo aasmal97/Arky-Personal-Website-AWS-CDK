@@ -7,7 +7,7 @@ import {
   AttributeValue,
 } from "@aws-sdk/client-dynamodb";
 import { unmarshall, marshall } from "@aws-sdk/util-dynamodb";
-import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
+import { corsHeaders } from "@app/types";
 export type SuccessResponseProps = {
   message: string;
   result: Omit<QueryCommandOutput, "$metadata" | "Items"> & {

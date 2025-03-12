@@ -6,7 +6,7 @@ import { resizeImg } from "@utils/general/resizeImg";
 import { uploadImgToS3 } from "@utils/general/s3Actions";
 import { getImgDescription } from "@utils/azure/getImgDescription";
 import { ProjectDocument } from "@app/types";
-import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
+import { corsHeaders } from "@app/types";
 import { determineCategoryType } from "../determineCategoryType";
 import { convertToStr } from "@utils/general/convertToStr";
 const topMostDirectoryFolderName = process.env.GOOGLE_DRIVE_FOLDER_NAME;

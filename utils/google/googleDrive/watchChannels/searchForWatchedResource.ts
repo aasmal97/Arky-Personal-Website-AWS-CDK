@@ -1,7 +1,7 @@
 import { searchForFolderByName } from "../searchForFolder";
 import identifyCorrectFolder from "../identifyCorrectFolder";
 import { drive_v3 } from "googleapis";
-import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
+import { corsHeaders } from "@app/types";
 export const searchForWatchedResource = async ({
   drive,
   folderName,

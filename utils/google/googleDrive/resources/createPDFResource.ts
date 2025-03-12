@@ -4,7 +4,7 @@ import { determineCategoryType } from "../determineCategoryType";
 import { convertToStr } from "@utils/general/convertToStr";
 import { getDocuments } from "@utils/crudRestApiMethods/getMethod";
 import { ProjectDocument } from "@app/types";
-import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
+import { corsHeaders } from "@app/types";
 import { uploadImgToS3 } from "@utils/general/s3Actions";
 import { updateDocument } from "@utils/crudRestApiMethods/postMethod";
 import { marshall } from "@aws-sdk/util-dynamodb";

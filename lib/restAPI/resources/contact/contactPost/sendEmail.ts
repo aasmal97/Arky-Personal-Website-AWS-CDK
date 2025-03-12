@@ -1,7 +1,7 @@
 import { validate } from "email-validator";
 import { ContactFormSchemaType } from ".";
 import { convertToStr } from "@utils/general/convertToStr";
-import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
+import { corsHeaders } from "@app/types";
 import axios from "axios";
 //we use send in blue since it doesnt require verification, just an account
 export const sendEmailUsingSendInBlue = async ({

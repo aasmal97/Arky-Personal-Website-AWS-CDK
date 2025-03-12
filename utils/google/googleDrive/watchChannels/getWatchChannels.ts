@@ -5,7 +5,7 @@ import {
   addParamater,
 } from "@utils/apiTemplates/generateDynamoQueries";
 import { queryUntilRequestPageNum } from "@utils/apiTemplates/getTemplate";
-import { corsHeaders } from "@restAPI/resources/utils/corsLambda";
+import { corsHeaders } from "@app/types";
 const generateQuery = ({
   tableName,
   primaryKey,
