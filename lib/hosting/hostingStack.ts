@@ -11,6 +11,20 @@ import {
 } from "@utils/createResources/createRecords";
 import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 import { join } from "path";
+import {
+  CLIENT_CLOUDFRONT_REDIRECT_BEHAVIOR_FUNC_NAME,
+  CLIENT_FILES_S3_BUCKET_NAME,
+  CLOUDFRONT_CLIENT_ALIAS_RECORD_NAME,
+  CLOUDFRONT_MEDIA_FILES_ALIAS_RECORD_NAME,
+  GENERAL_CERTIFICATE_NAME,
+  DOMAIN_NAME,
+  HOSTED_ZONE_NAME,
+  MEDIA_FILES_DOMAIN_NAME,
+  MEDIA_FILES_S3_BUCKET_NAME,
+  REST_API_DOMAIN_NAME,
+  WWW_CNAME_RECORD_NAME,
+  WWW_DOMAIN_NAME,
+} from "@app/constants";
 export class HostingStack extends cdk.Stack {
   getClientBucket: () => cdk.aws_s3.Bucket;
   getClientCloudfrontDist: () => cdk.aws_cloudfront.Distribution;
@@ -26,42 +40,42 @@ export class HostingStack extends cdk.Stack {
     super(scope, id, props);
     const hostedZone = createHostedZone({
       stack: this,
-      domainName: "arkyasmal.com",
-      zoneName: "arkyasmalCom",
+      domainName: DOMAIN_NAME,
+      zoneName: HOSTED_ZONE_NAME,
     });
     //add a cname record that maps www domain to main one
     const wwwCnameRecord = createCnameRecord({
       stack: this,
-      recordName: "www.arkyasmal.com",
-      domainName: "arkyasmal.com",
+      recordName: WWW_DOMAIN_NAME,
+      domainName: DOMAIN_NAME,
       zone: hostedZone,
-      id: "wwwCnameRecord",
+      id: WWW_CNAME_RECORD_NAME,
     });
     const domainNames = {
-      "arkyasmal.com": hostedZone,
-      "www.arkyasmal.com": hostedZone,
-      "mediafiles.arkyasmal.com": hostedZone,
-      "api.arkyasmal.com": hostedZone,
+      DOMAIN_NAME: hostedZone,
+      [WWW_DOMAIN_NAME]: hostedZone,
+      [MEDIA_FILES_DOMAIN_NAME]: hostedZone,
+      [REST_API_DOMAIN_NAME]: hostedZone,
     };
 
     const certificate = createCertificate({
       stack: this,
-      certName: "generalCertificate",
-      primaryDomainName: "arkyasmal.com",
+      certName: GENERAL_CERTIFICATE_NAME,
+      primaryDomainName: DOMAIN_NAME,
       domainValidations: domainNames,
     });
     const [imgBucket, imgDistrubition] = mapS3AndCloudfront({
       stack: this,
-      bucketName: "arkyasmal-media-files-bucket",
-      domainNames: ["mediafiles.arkyasmal.com"],
+      bucketName: MEDIA_FILES_S3_BUCKET_NAME,
+      domainNames: [MEDIA_FILES_DOMAIN_NAME],
       certificate: certificate,
     });
     //add cloudfront function
     const clientCloudfrontRedirectBehaviorFunc = new cloudfront.Function(
       this,
-      "clientCloudfrontRedirectBehaviorFunc",
+      CLIENT_CLOUDFRONT_REDIRECT_BEHAVIOR_FUNC_NAME,
       {
-        functionName: "ClientCloudfrontRedirectBehaviorFunc",
+        functionName: CLIENT_CLOUDFRONT_REDIRECT_BEHAVIOR_FUNC_NAME,
         code: cloudfront.FunctionCode.fromFile({
           filePath: join(__dirname, "clientCloudfrontRedirectBehaviorFunc.js"),
         }),
@@ -70,8 +84,8 @@ export class HostingStack extends cdk.Stack {
     );
     const [clientBucket, clientDistrubition] = mapS3AndCloudfront({
       stack: this,
-      bucketName: "arkyasmal-client-app-bucket",
-      domainNames: ["arkyasmal.com", "www.arkyasmal.com"],
+      bucketName: CLIENT_FILES_S3_BUCKET_NAME,
+      domainNames: [DOMAIN_NAME, WWW_DOMAIN_NAME],
       certificate: certificate,
       isWebsite: {
         rootObjPath: "index.html",
@@ -86,15 +100,15 @@ export class HostingStack extends cdk.Stack {
       zone: hostedZone,
       aliasTarget: clientDistTarget,
       stack: this,
-      id: "clientCloudfrontAliasRecord",
-      recordName: "arkyasmal.com",
+      id: CLOUDFRONT_CLIENT_ALIAS_RECORD_NAME,
+      recordName: DOMAIN_NAME,
     });
     const imgAliasRecord = createAliasRecord({
       zone: hostedZone,
       aliasTarget: imgDistTarget,
       stack: this,
-      id: "imgCloudfrontAliasRecord",
-      recordName: "mediafiles.arkyasmal.com",
+      id: CLOUDFRONT_MEDIA_FILES_ALIAS_RECORD_NAME,
+      recordName: MEDIA_FILES_DOMAIN_NAME,
     });
     //assign resources to created methods
     this.getClientAliasRecord = () => clientAliasRecord;

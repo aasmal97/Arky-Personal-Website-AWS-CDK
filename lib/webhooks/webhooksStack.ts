@@ -10,6 +10,22 @@ import { convertToStr } from "@utils/general/convertToStr";
 import { searchForSecretsWrapper } from "@utils/buildFuncs/searchForSecrets";
 import { createDatabase } from "@utils/createResources/createDatabase";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import {
+  GITHUB_WATCH_CRON_JOB_NAME,
+  GOOGLE_DRIVE_WATCH_CRON_JOB_NAME,
+  WEBHOOKS_API_GATEWAY_CERTIFICATE_NAME,
+  WEBHOOKS_API_GATEWAY_KEY_NAME,
+  WEBHOOKS_API_GATEWAY_NAME,
+  WEBHOOKS_API_GATEWAY_USAGE_PLAN,
+  WEBHOOKS_DOMAIN_API_GATEWAY_NAME,
+  WEBHOOKS_DOMAIN_NAME,
+  WEBHOOKS_DOMAIN_NAME_ALIAS_RECORD_NAME,
+  WEBHOOKS_TABLE_DEFAULT_PK_KEY,
+  WEBHOOKS_TABLE_DEFAULT_SORT_KEY,
+  WEBHOOKS_TABLE_NAME,
+  WEBHOOKS_TABLE_SECONDARY_INDEX_NAME,
+  WEBHOOKS_TABLE_SECONDARY_SORT_KEY,
+} from "@app/constants";
 
 export class WebhooksStack extends cdk.Stack {
   createCertificate: (
@@ -30,25 +46,23 @@ export class WebhooksStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     let api: cdk.aws_apigateway.RestApi | undefined;
-    const webhooksAPIDomainName = "webhooks.api.arkyasmal.com";
     const parsed = searchForSecretsWrapper(__dirname);
-    const webhooksTableName = "activeWebhooksTable";
     const webhooksTable = createDatabase({
       stack: this,
-      tableName: webhooksTableName,
-      pkName: "topMostDirectory",
-      sortKey: "id",
+      tableName: WEBHOOKS_TABLE_NAME,
+      pkName: WEBHOOKS_TABLE_DEFAULT_PK_KEY,
+      sortKey: WEBHOOKS_TABLE_DEFAULT_SORT_KEY,
       secondaryIndex: {
-        indexName: "SearchByExpiration",
+        indexName: WEBHOOKS_TABLE_SECONDARY_INDEX_NAME,
         sortKey: {
-          name: "expiration",
+          name: WEBHOOKS_TABLE_SECONDARY_SORT_KEY,
           type: dynamodb.AttributeType.NUMBER,
         },
       },
     });
     const tableData = {
       activeWebhooks: {
-        id: webhooksTableName,
+        id: WEBHOOKS_TABLE_NAME,
         name: webhooksTable.tableName,
         arn: webhooksTable.tableArn,
       },
@@ -58,23 +72,23 @@ export class WebhooksStack extends cdk.Stack {
       api = createApi(
         this,
         webhooksApiMap({
-          webhooksAPIDomainName: webhooksAPIDomainName,
+          webhooksAPIDomainName: WEBHOOKS_DOMAIN_NAME,
           restApiDomainName: restApiDomainName,
           s3MediaBucket: s3MediaBucket,
           tableData: tableData,
           stack: this,
         }),
-        "webhooks-api"
+        WEBHOOKS_API_GATEWAY_NAME
       );
-      const plan = api.addUsagePlan("webhooksUsagePlan", {
-        name: "webhooksEasyPlan",
+      const plan = api.addUsagePlan(WEBHOOKS_API_GATEWAY_USAGE_PLAN, {
+        name: WEBHOOKS_API_GATEWAY_USAGE_PLAN,
         throttle: {
           rateLimit: 200,
           burstLimit: 30,
         },
       });
       //add api key
-      const key = api.addApiKey("webhooksApiKey", {
+      const key = api.addApiKey(WEBHOOKS_API_GATEWAY_KEY_NAME, {
         value: convertToStr(process.env.WEBHOOKS_API_KEY),
       });
       plan.addApiKey(key);
@@ -91,40 +105,40 @@ export class WebhooksStack extends cdk.Stack {
       };
       const driveWatchChannelCron = createApiGatewayCronJob({
         ...cronProps,
-        id: "googleDriveWatchChannelJob",
+        id: GOOGLE_DRIVE_WATCH_CRON_JOB_NAME,
         path: "/watch/googleDriveChannel",
       });
       const githubWatchChannelCron = createApiGatewayCronJob({
         ...cronProps,
-        id: "githubWatchChannelJob",
+        id: GITHUB_WATCH_CRON_JOB_NAME,
         path: "/watch/githubChannel",
       });
       return api;
     };
     this.createCertificate = (hostedZone) => {
       const webhookDomainNames = {
-        [webhooksAPIDomainName]: hostedZone,
+        [WEBHOOKS_DOMAIN_NAME]: hostedZone,
       };
       const certificate = createCertificate({
         stack: this,
-        certName: "webhooksCertificate",
-        primaryDomainName: webhooksAPIDomainName,
+        certName: WEBHOOKS_API_GATEWAY_CERTIFICATE_NAME,
+        primaryDomainName: WEBHOOKS_DOMAIN_NAME,
         domainValidations: webhookDomainNames,
       });
       return certificate;
     };
     this.mapAPIToHostedZone = (zone, certificate) => {
       if (!api) return null;
-      api.addDomainName("webhooksAPIDefaultDomainName", {
-        domainName: webhooksAPIDomainName,
+      api.addDomainName(WEBHOOKS_DOMAIN_API_GATEWAY_NAME, {
+        domainName: WEBHOOKS_DOMAIN_NAME,
         certificate: certificate,
       });
       const record = createAliasRecord({
         stack: this,
         zone: zone,
-        id: "webhooksAPIARecord",
+        id: WEBHOOKS_DOMAIN_NAME_ALIAS_RECORD_NAME,
         aliasTarget: new targets.ApiGateway(api),
-        recordName: webhooksAPIDomainName,
+        recordName: WEBHOOKS_DOMAIN_NAME,
       });
       return [record, api];
     };

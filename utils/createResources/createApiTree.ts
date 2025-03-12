@@ -238,7 +238,7 @@ export const createLambdaFuncs = (e: cdk.Stack, restAPIMap: RestAPIType) => {
   for (let [key, value] of funcLocationArr) {
     const buildPath = value.location;
     const newFunc = new NodejsFunction(e, key, {
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_22_X,
       handler: `handler`,
       entry: path.join(buildPath.absolute, "index.ts"),
       role: value.role,
