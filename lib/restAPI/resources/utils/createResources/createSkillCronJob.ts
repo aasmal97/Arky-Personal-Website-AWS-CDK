@@ -5,7 +5,12 @@ import { createDynamoPolicy } from "@utils/rolesFuncs/createDynamoPolicy";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
-import { SKILLS_CRON_JOB_NAME } from "@app/constants";
+import {
+  AMAZON_DYNAMO_DB_SKILLS_TABLE_ENV_NAME,
+  PROXYCURL_TOKEN_ENV_NAME,
+  PROXYCURL_TOKEN_ENV_VALUE,
+  SKILLS_CRON_JOB_NAME,
+} from "@lib/constants";
 import path = require("path");
 
 export const createSkillCronJob = ({
@@ -51,8 +56,8 @@ export const createSkillCronJob = ({
         stack
       ),
       environment: {
-        AMAZON_DYNAMO_DB_TABLE_NAME: skillsTableInfo.name,
-        PROXYCURL_TOKEN: secrets.PROXYCURL_TOKEN,
+        [AMAZON_DYNAMO_DB_SKILLS_TABLE_ENV_NAME]: skillsTableInfo.name,
+        [PROXYCURL_TOKEN_ENV_NAME]: PROXYCURL_TOKEN_ENV_VALUE,
       },
     }
   );

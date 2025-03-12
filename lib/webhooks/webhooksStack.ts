@@ -25,7 +25,7 @@ import {
   WEBHOOKS_TABLE_NAME,
   WEBHOOKS_TABLE_SECONDARY_INDEX_NAME,
   WEBHOOKS_TABLE_SECONDARY_SORT_KEY,
-} from "@app/constants";
+} from "@lib/constants";
 
 export class WebhooksStack extends cdk.Stack {
   createCertificate: (

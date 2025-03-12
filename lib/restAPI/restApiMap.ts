@@ -1,4 +1,3 @@
-import { searchForSecretsWrapper } from "@utils/buildFuncs/searchForSecrets";
 import { Stack } from "aws-cdk-lib";
 import { createLambdaRole } from "@utils/rolesFuncs/createLambdaRole";
 import { createDynamoPolicy } from "@utils/rolesFuncs/createDynamoPolicy";
@@ -10,6 +9,24 @@ import {
 import { convertToStr } from "@utils/general/convertToStr";
 import createSESPolicy from "@utils/rolesFuncs/createSESPolicy";
 import createSNSPolicy from "@utils/rolesFuncs/createSNSPolicy";
+import {
+  AMAZON_DYNAMO_DB_HOBBIES_TABLE_ENV_NAME,
+  AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_ENV_NAME,
+  AMAZON_DYNAMO_DB_PROJECT_TABLE_ENV_NAME,
+  AMAZON_DYNAMO_DB_SKILLS_TABLE_ENV_NAME,
+  AMAZON_REST_API_DOMAIN_ENV_NAME,
+  AMAZON_REST_API_KEY_ENV_NAME,
+  AMAZON_REST_API_KEY_ENV_VALUE,
+  GITHUB_PERSONAL_ACCESS_TOKEN_ENV_NAME,
+  GITHUB_PERSONAL_ACCESS_TOKEN_ENV_VALUE,
+  S3_MEDIA_FILES_BUCKET_ENV_NAME,
+  SEND_IN_BLUE_API_KEY_ENV_NAME,
+  SEND_IN_BLUE_API_KEY_ENV_VALUE,
+  SES_EMAIL_ADDRESS_ENV_NAME,
+  SES_EMAIL_ADDRESS_ENV_VALUE,
+  SNS_PHONE_NUMBER_ENV_NAME,
+  SNS_PHONE_NUMBER_ENV_VALUE,
+} from "@lib/constants";
 const restAPIMap = ({
   hostingStack,
   stack,
@@ -27,7 +44,6 @@ const restAPIMap = ({
     };
   };
 }): RestAPIType => {
-  const parsed = searchForSecretsWrapper(__dirname);
   return {
     userMetrics: {
       options: {
@@ -37,9 +53,8 @@ const restAPIMap = ({
       get: {
         location: generateLocation(["userMetrics", "get"], __dirname),
         env: {
-          GIT_HUB_PERSONAL_ACCESS_TOKEN: parsed.GIT_HUB_PERSONAL_ACCESS_TOKEN
-            ? parsed.GIT_HUB_PERSONAL_ACCESS_TOKEN
-            : "",
+          [GITHUB_PERSONAL_ACCESS_TOKEN_ENV_NAME]:
+            GITHUB_PERSONAL_ACCESS_TOKEN_ENV_VALUE,
         },
       },
     },
@@ -60,7 +75,7 @@ const restAPIMap = ({
           stack
         ),
         env: {
-          AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME: convertToStr(
+          [AMAZON_DYNAMO_DB_HOBBIES_TABLE_ENV_NAME]: convertToStr(
             tablesInfoMap?.["hobbies"].name
           ),
         },
@@ -77,7 +92,7 @@ const restAPIMap = ({
           stack
         ),
         env: {
-          AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME: convertToStr(
+          [AMAZON_DYNAMO_DB_HOBBIES_TABLE_ENV_NAME]: convertToStr(
             tablesInfoMap?.["hobbies"].name
           ),
         },
@@ -94,7 +109,7 @@ const restAPIMap = ({
           stack
         ),
         env: {
-          AMAZON_DYNAMO_DB_HOBBIES_TABLE_NAME: convertToStr(
+          [AMAZON_DYNAMO_DB_HOBBIES_TABLE_ENV_NAME]: convertToStr(
             tablesInfoMap?.["hobbies"].name
           ),
         },
@@ -113,9 +128,9 @@ const restAPIMap = ({
         get: {
           location: generateLocation(["projects", "images", "get"], __dirname),
           env: {
-            AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
-            AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
-            AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_NAME: convertToStr(
+            [AMAZON_REST_API_KEY_ENV_NAME]: AMAZON_REST_API_KEY_ENV_VALUE,
+            [AMAZON_REST_API_DOMAIN_ENV_NAME]: convertToStr(restApiDomainName),
+            [AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_ENV_NAME]: convertToStr(
               tablesInfoMap?.["projectImages"].name
             ),
           },
@@ -144,7 +159,7 @@ const restAPIMap = ({
             stack
           ),
           env: {
-            AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_NAME: convertToStr(
+            [AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_ENV_NAME]: convertToStr(
               tablesInfoMap?.["projectImages"].name
             ),
           },
@@ -161,7 +176,7 @@ const restAPIMap = ({
             stack
           ),
           env: {
-            AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_NAME: convertToStr(
+            [AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_ENV_NAME]: convertToStr(
               tablesInfoMap?.["projectImages"].name
             ),
           },
@@ -179,7 +194,7 @@ const restAPIMap = ({
           stack
         ),
         env: {
-          AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME: convertToStr(
+          [AMAZON_DYNAMO_DB_PROJECT_TABLE_ENV_NAME]: convertToStr(
             tablesInfoMap?.["projects"].name
           ),
         },
@@ -196,7 +211,7 @@ const restAPIMap = ({
           stack
         ),
         env: {
-          AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME: convertToStr(
+          [AMAZON_DYNAMO_DB_PROJECT_TABLE_ENV_NAME]: convertToStr(
             tablesInfoMap?.["projects"].name
           ),
         },
@@ -213,7 +228,7 @@ const restAPIMap = ({
           stack
         ),
         env: {
-          AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME: convertToStr(
+          [AMAZON_DYNAMO_DB_PROJECT_TABLE_ENV_NAME]: convertToStr(
             tablesInfoMap?.["projects"].name
           ),
         },
@@ -230,10 +245,10 @@ const restAPIMap = ({
           stack
         ),
         env: {
-          S3_MEDIA_FILES_BUCKET_NAME: hostingStack
+          [S3_MEDIA_FILES_BUCKET_ENV_NAME]: hostingStack
             ? hostingStack.getImgBucket().bucketName
             : "",
-          AMAZON_DYNAMO_DB_PROJECT_TABLE_NAME: convertToStr(
+          [AMAZON_DYNAMO_DB_PROJECT_TABLE_ENV_NAME]: convertToStr(
             tablesInfoMap?.["projects"].name
           ),
         },
@@ -248,7 +263,7 @@ const restAPIMap = ({
         location: generateLocation(["skills", "get"], __dirname),
         apiKeyRequired: false,
         env: {
-          AMAZON_DYNAMO_DB_SKILLS_TABLE_NAME: convertToStr(
+          [AMAZON_DYNAMO_DB_SKILLS_TABLE_ENV_NAME]: convertToStr(
             tablesInfoMap?.["skills"].name
           ),
         },
@@ -272,9 +287,9 @@ const restAPIMap = ({
         location: generateLocation(["contact", "post"], __dirname),
         apiKeyRequired: false,
         env: {
-          SES_EMAIL_ADDRESS: convertToStr(parsed.SES_EMAIL_ADDRESS),
-          SNS_PHONE_NUMBER: convertToStr(parsed.SNS_PHONE_NUMBER),
-          SEND_IN_BLUE_API_KEY: convertToStr(parsed.SEND_IN_BLUE_API_KEY),
+          [SES_EMAIL_ADDRESS_ENV_NAME]: SES_EMAIL_ADDRESS_ENV_VALUE,
+          [SNS_PHONE_NUMBER_ENV_NAME]: SNS_PHONE_NUMBER_ENV_VALUE,
+          [SEND_IN_BLUE_API_KEY_ENV_NAME]: SEND_IN_BLUE_API_KEY_ENV_VALUE,
         },
         role: createLambdaRole(
           "ContactPostRole",

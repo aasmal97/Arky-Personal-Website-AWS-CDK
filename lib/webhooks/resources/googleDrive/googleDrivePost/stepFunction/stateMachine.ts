@@ -9,9 +9,28 @@ import { createDynamoPolicy } from "@utils/rolesFuncs/createDynamoPolicy";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { join } from "path";
+import {
+  AMAZON_REST_API_DOMAIN_ENV_NAME,
+  AMAZON_REST_API_KEY_ENV_NAME,
+  AMAZON_REST_API_KEY_ENV_VALUE,
+  AZURE_COMPUTER_VISION_API_ENDPOINT_ENV_NAME,
+  AZURE_COMPUTER_VISION_API_ENDPOINT_ENV_VALUE,
+  AZURE_COMPUTER_VISION_API_KEY_ENV_NAME,
+  AZURE_COMPUTER_VISION_API_KEY_ENV_VALUE,
+  GOOGLE_SERVICE_ACCOUNT_EMAIL_ENV_NAME,
+  GOOGLE_SERVICE_ACCOUNT_EMAIL_ENV_VALUE,
+  GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ENV_NAME,
+  GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ENV_VALUE,
+  S3_MEDIA_FILES_BUCKET_ENV_NAME,
+  WEBHOOKS_API_DOMAIN_ENV_NAME,
+  WEBHOOKS_API_KEY_ENV_NAME,
+  WEBHOOKS_API_KEY_ENV_VALUE,
+  WEBHOOKS_API_TOKEN_SECRET_ENV_NAME,
+  WEBHOOKS_API_TOKEN_SECRET_ENV_VALUE,
+  WEBHOOKS_DYNAMO_DB_TABLE_ENV_NAME,
+} from "@lib/constants";
 export const createGoogleDrivePostStateMachine = ({
   stack,
-  parsed,
   webhooksAPIDomainName,
   restApiDomainName,
   s3MediaBucket,
@@ -23,9 +42,6 @@ export const createGoogleDrivePostStateMachine = ({
     relative: string;
   };
   stack?: Stack;
-  parsed: {
-    [key: string]: string | undefined;
-  };
   restApiDomainName?: string;
   webhooksAPIDomainName?: string;
   s3MediaBucket?: {
@@ -52,29 +68,24 @@ export const createGoogleDrivePostStateMachine = ({
           minify: true,
         },
         environment: {
-          S3_MEDIA_FILES_BUCKET_NAME: convertToStr(s3MediaBucket?.name),
-          AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
-          AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
-          WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
-          WEBHOOKS_API_KEY: convertToStr(parsed.WEBHOOKS_API_KEY),
-          WEBHOOKS_API_TOKEN_SECRET: convertToStr(
-            parsed.WEBHOOKS_API_TOKEN_SECRET
-          ),
-          AZURE_COMPUTER_VISION_API_ENDPOINT: convertToStr(
-            parsed.AZURE_COMPUTER_VISION_API_ENDPOINT
-          ),
-          AZURE_COMPUTER_VISION_API_KEY: convertToStr(
-            parsed.AZURE_COMPUTER_VISION_API_KEY
-          ),
-          GOOGLE_SERVICE_ACCOUNT_EMAIL: convertToStr(
-            parsed.GOOGLE_SERVICE_ACCOUNT_EMAIL
-          ),
-          GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: convertToStr(
-            parsed.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
-          ),
-          WEBHOOKS_DYNAMO_DB_TABLE_NAME: convertToStr(
+          [S3_MEDIA_FILES_BUCKET_ENV_NAME]: convertToStr(s3MediaBucket?.name),
+          [AMAZON_REST_API_DOMAIN_ENV_NAME]: convertToStr(restApiDomainName),
+          [AMAZON_REST_API_KEY_ENV_NAME]: AMAZON_REST_API_KEY_ENV_VALUE,
+          [WEBHOOKS_API_DOMAIN_ENV_NAME]: convertToStr(webhooksAPIDomainName),
+          [WEBHOOKS_API_KEY_ENV_NAME]: WEBHOOKS_API_KEY_ENV_VALUE,
+          [WEBHOOKS_API_TOKEN_SECRET_ENV_NAME]:
+            WEBHOOKS_API_TOKEN_SECRET_ENV_VALUE,
+          [AZURE_COMPUTER_VISION_API_ENDPOINT_ENV_NAME]:
+            AZURE_COMPUTER_VISION_API_ENDPOINT_ENV_VALUE,
+          [AZURE_COMPUTER_VISION_API_KEY_ENV_NAME]:
+            AZURE_COMPUTER_VISION_API_KEY_ENV_VALUE,
+          [WEBHOOKS_DYNAMO_DB_TABLE_ENV_NAME]: convertToStr(
             tableData?.["activeWebhooks"].name
           ),
+          [GOOGLE_SERVICE_ACCOUNT_EMAIL_ENV_NAME]:
+            GOOGLE_SERVICE_ACCOUNT_EMAIL_ENV_VALUE,
+          [GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ENV_NAME]:
+            GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ENV_VALUE,
         },
         memorySize: 5000,
         role: createLambdaRole(

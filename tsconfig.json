@@ -27,7 +27,7 @@
       "@restAPI/*": ["./lib/restAPI/*"],
       "@webhooks/*": ["./lib/webhooks/*"],
       "@app/*": ["./*"],
-      "@contants/*": ["./constants/*"]
+      "@contants/*": ["./lib/constants/*"]
     }
   },
   "exclude": ["build", "node_modules", "cdk.out"]

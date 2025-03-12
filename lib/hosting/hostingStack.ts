@@ -24,7 +24,7 @@ import {
   REST_API_DOMAIN_NAME,
   WWW_CNAME_RECORD_NAME,
   WWW_DOMAIN_NAME,
-} from "@app/constants";
+} from "@lib/constants";
 export class HostingStack extends cdk.Stack {
   getClientBucket: () => cdk.aws_s3.Bucket;
   getClientCloudfrontDist: () => cdk.aws_cloudfront.Distribution;
@@ -52,7 +52,7 @@ export class HostingStack extends cdk.Stack {
       id: WWW_CNAME_RECORD_NAME,
     });
     const domainNames = {
-      DOMAIN_NAME: hostedZone,
+      [DOMAIN_NAME]: hostedZone,
       [WWW_DOMAIN_NAME]: hostedZone,
       [MEDIA_FILES_DOMAIN_NAME]: hostedZone,
       [REST_API_DOMAIN_NAME]: hostedZone,

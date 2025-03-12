@@ -3,13 +3,39 @@ import {
   generateLocation,
 } from "@utils/createResources/createApiTree";
 import { Stack } from "aws-cdk-lib";
-import { searchForSecretsWrapper } from "@utils/buildFuncs/searchForSecrets";
 import { convertToStr } from "@utils/general/convertToStr";
 import { createLambdaRole } from "@utils/rolesFuncs/createLambdaRole";
 import { createS3BucketPolicy } from "@utils/rolesFuncs/createS3BucketPolicy";
 import { createDynamoPolicy } from "@utils/rolesFuncs/createDynamoPolicy";
 import { createGoogleDrivePostStateMachine } from "./resources/googleDrive/googleDrivePost/stepFunction/stateMachine";
 import { createStateMachinePolicy } from "@utils/rolesFuncs/createStateMachinePolicy";
+import {
+  AMAZON_REST_API_DOMAIN_ENV_NAME,
+  AMAZON_REST_API_KEY_ENV_NAME,
+  AMAZON_REST_API_KEY_ENV_VALUE,
+  AZURE_COMPUTER_VISION_API_ENDPOINT_ENV_NAME,
+  AZURE_COMPUTER_VISION_API_ENDPOINT_ENV_VALUE,
+  AZURE_COMPUTER_VISION_API_KEY_ENV_NAME,
+  AZURE_COMPUTER_VISION_API_KEY_ENV_VALUE,
+  GITHUB_PERSONAL_ACCESS_TOKEN_ENV_NAME,
+  GITHUB_PERSONAL_ACCESS_TOKEN_ENV_VALUE,
+  GOOGLE_DRIVE_FOLDER_ENV_NAME,
+  GOOGLE_DRIVE_FOLDER_ENV_VALUE,
+  GOOGLE_DRIVE_PARENT_FOLDER_ENV_NAME,
+  GOOGLE_DRIVE_PARENT_FOLDER_ENV_VALUE,
+  GOOGLE_DRIVE_POST_STATE_MACHINE_ARN_ENV_NAME,
+  GOOGLE_SERVICE_ACCOUNT_EMAIL_ENV_NAME,
+  GOOGLE_SERVICE_ACCOUNT_EMAIL_ENV_VALUE,
+  GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ENV_NAME,
+  GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ENV_VALUE,
+  S3_MEDIA_FILES_BUCKET_ENV_NAME,
+  WEBHOOKS_API_DOMAIN_ENV_NAME,
+  WEBHOOKS_API_KEY_ENV_NAME,
+  WEBHOOKS_API_KEY_ENV_VALUE,
+  WEBHOOKS_API_TOKEN_SECRET_ENV_NAME,
+  WEBHOOKS_API_TOKEN_SECRET_ENV_VALUE,
+  WEBHOOKS_DYNAMO_DB_TABLE_ENV_NAME,
+} from "@lib/constants";
 const webhooksApiMap = ({
   webhooksAPIDomainName,
   restApiDomainName,
@@ -33,14 +59,12 @@ const webhooksApiMap = ({
     };
   };
 }): RestAPIType => {
-  const parsed = searchForSecretsWrapper(__dirname);
   const googleDrivePostStepFunctionLambdaLocation = generateLocation(
     ["googleDrive", "post", "stepFunction"],
     __dirname
   );
   const googlePostDriveStateMachine = createGoogleDrivePostStateMachine({
     stack,
-    parsed,
     webhooksAPIDomainName,
     restApiDomainName,
     s3MediaBucket,
@@ -52,11 +76,10 @@ const webhooksApiMap = ({
       post: {
         location: generateLocation(["github", "post"], __dirname),
         env: {
-          AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
-          WEBHOOKS_API_TOKEN_SECRET: convertToStr(
-            parsed.WEBHOOKS_API_TOKEN_SECRET
-          ),
-          AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
+          [AMAZON_REST_API_DOMAIN_ENV_NAME]: convertToStr(restApiDomainName),
+          [WEBHOOKS_API_TOKEN_SECRET_ENV_NAME]:
+            WEBHOOKS_API_TOKEN_SECRET_ENV_VALUE,
+          [AMAZON_REST_API_KEY_ENV_NAME]: AMAZON_REST_API_KEY_ENV_VALUE,
         },
         apiKeyRequired: false,
       },
@@ -65,32 +88,27 @@ const webhooksApiMap = ({
       post: {
         location: generateLocation(["googleDrive", "post"], __dirname),
         env: {
-          GOOGLE_DRIVE_POST_STATE_MACHINE_ARN: convertToStr(
-            googlePostDriveStateMachine?.stateMachineArn
-          ),
-          S3_MEDIA_FILES_BUCKET_NAME: convertToStr(s3MediaBucket?.name),
-          AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
-          AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
-          WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
-          WEBHOOKS_API_KEY: convertToStr(parsed.WEBHOOKS_API_KEY),
-          WEBHOOKS_API_TOKEN_SECRET: convertToStr(
-            parsed.WEBHOOKS_API_TOKEN_SECRET
-          ),
-          AZURE_COMPUTER_VISION_API_ENDPOINT: convertToStr(
-            parsed.AZURE_COMPUTER_VISION_API_ENDPOINT
-          ),
-          AZURE_COMPUTER_VISION_API_KEY: convertToStr(
-            parsed.AZURE_COMPUTER_VISION_API_KEY
-          ),
-          GOOGLE_SERVICE_ACCOUNT_EMAIL: convertToStr(
-            parsed.GOOGLE_SERVICE_ACCOUNT_EMAIL
-          ),
-          GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: convertToStr(
-            parsed.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
-          ),
-          WEBHOOKS_DYNAMO_DB_TABLE_NAME: convertToStr(
+          [S3_MEDIA_FILES_BUCKET_ENV_NAME]: convertToStr(s3MediaBucket?.name),
+          [AMAZON_REST_API_DOMAIN_ENV_NAME]: convertToStr(restApiDomainName),
+          [AMAZON_REST_API_KEY_ENV_NAME]: AMAZON_REST_API_KEY_ENV_VALUE,
+          [WEBHOOKS_API_DOMAIN_ENV_NAME]: convertToStr(webhooksAPIDomainName),
+          [WEBHOOKS_API_TOKEN_SECRET_ENV_NAME]:
+            WEBHOOKS_API_TOKEN_SECRET_ENV_VALUE,
+          [WEBHOOKS_DYNAMO_DB_TABLE_ENV_NAME]: convertToStr(
             tableData?.["activeWebhooks"].name
           ),
+          [WEBHOOKS_API_KEY_ENV_NAME]: WEBHOOKS_API_KEY_ENV_VALUE,
+          [AZURE_COMPUTER_VISION_API_ENDPOINT_ENV_NAME]:
+            AZURE_COMPUTER_VISION_API_ENDPOINT_ENV_VALUE,
+          [AZURE_COMPUTER_VISION_API_KEY_ENV_NAME]:
+            AZURE_COMPUTER_VISION_API_KEY_ENV_VALUE,
+          [GOOGLE_DRIVE_POST_STATE_MACHINE_ARN_ENV_NAME]: convertToStr(
+            googlePostDriveStateMachine?.stateMachineArn
+          ),
+          [GOOGLE_SERVICE_ACCOUNT_EMAIL_ENV_NAME]:
+            GOOGLE_SERVICE_ACCOUNT_EMAIL_ENV_VALUE,
+          [GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ENV_NAME]:
+            GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ENV_VALUE,
         },
         memorySize: 768,
         role: createLambdaRole(
@@ -130,15 +148,13 @@ const webhooksApiMap = ({
             __dirname
           ),
           env: {
-            GIT_HUB_PERSONAL_ACCESS_TOKEN: convertToStr(
-              parsed.GIT_HUB_PERSONAL_ACCESS_TOKEN
-            ),
-            WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
-            WEBHOOKS_API_TOKEN_SECRET: convertToStr(
-              parsed.WEBHOOKS_API_TOKEN_SECRET
-            ),
-            AMAZON_REST_API_DOMAIN_NAME: convertToStr(restApiDomainName),
-            AMAZON_REST_API_KEY: convertToStr(parsed.AMAZON_REST_API_KEY),
+            [WEBHOOKS_API_DOMAIN_ENV_NAME]: convertToStr(webhooksAPIDomainName),
+            [WEBHOOKS_API_TOKEN_SECRET_ENV_NAME]:
+              WEBHOOKS_API_TOKEN_SECRET_ENV_VALUE,
+            [GITHUB_PERSONAL_ACCESS_TOKEN_ENV_NAME]:
+              GITHUB_PERSONAL_ACCESS_TOKEN_ENV_VALUE,
+            [AMAZON_REST_API_DOMAIN_ENV_NAME]: convertToStr(restApiDomainName),
+            [AMAZON_REST_API_KEY_ENV_NAME]: AMAZON_REST_API_KEY_ENV_VALUE,
           },
         },
       },
@@ -149,25 +165,19 @@ const webhooksApiMap = ({
             __dirname
           ),
           env: {
-            GOOGLE_SERVICE_ACCOUNT_EMAIL: convertToStr(
-              parsed.GOOGLE_SERVICE_ACCOUNT_EMAIL
-            ),
-            GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: convertToStr(
-              parsed.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
-            ),
-            WEBHOOKS_API_DOMAIN_NAME: convertToStr(webhooksAPIDomainName),
-            WEBHOOKS_API_TOKEN_SECRET: convertToStr(
-              parsed.WEBHOOKS_API_TOKEN_SECRET
-            ),
-            GOOGLE_DRIVE_FOLDER_NAME: convertToStr(
-              parsed.GOOGLE_DRIVE_FOLDER_NAME
-            ),
-            GOOGLE_DRIVE_PARENT_FOLDER_NAME: convertToStr(
-              parsed.GOOGLE_DRIVE_PARENT_FOLDER_NAME
-            ),
-            WEBHOOKS_DYNAMO_DB_TABLE_NAME: convertToStr(
+            [WEBHOOKS_API_DOMAIN_ENV_NAME]: convertToStr(webhooksAPIDomainName),
+            [WEBHOOKS_API_TOKEN_SECRET_ENV_NAME]:
+              WEBHOOKS_API_TOKEN_SECRET_ENV_VALUE,
+            [WEBHOOKS_DYNAMO_DB_TABLE_ENV_NAME]: convertToStr(
               tableData?.["activeWebhooks"].name
             ),
+            [GOOGLE_SERVICE_ACCOUNT_EMAIL_ENV_NAME]:
+              GOOGLE_SERVICE_ACCOUNT_EMAIL_ENV_VALUE,
+            [GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ENV_NAME]:
+              GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ENV_VALUE,
+            [GOOGLE_DRIVE_FOLDER_ENV_NAME]: GOOGLE_DRIVE_FOLDER_ENV_VALUE,
+            [GOOGLE_DRIVE_PARENT_FOLDER_ENV_NAME]:
+              GOOGLE_DRIVE_PARENT_FOLDER_ENV_VALUE,
           },
           role: createLambdaRole(
             "WebhooksGoogleDriveWatchChannelRole",

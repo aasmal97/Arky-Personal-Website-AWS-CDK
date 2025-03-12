@@ -9,10 +9,11 @@ import {
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import axios from "axios";
 import { SkillsType } from "@app/types";
+import { AMAZON_DYNAMO_DB_SKILLS_TABLE_ENV_NAME } from "@lib/constants";
 type DataFuncsParams = Pick<SkillsType, "order"> & {
   skillName: SkillsType["name"];
 };
-const tableName = process.env.AMAZON_DYNAMO_DB_TABLE_NAME;
+const tableName = process.env[AMAZON_DYNAMO_DB_SKILLS_TABLE_ENV_NAME];
 
 const client = new DynamoDBClient({
   region: "us-east-1",

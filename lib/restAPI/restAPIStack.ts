@@ -32,7 +32,7 @@ import {
   SKILLS_DB_DEFAULT_SORT_KEY,
   PROJECTS_IMAGES_DB_DEFAULT_PK_KEY,
   PROJECTS_IMAGES_DB_DEFAULT_SORT_KEY,
-} from "@app/constants";
+} from "@lib/constants";
 
 export class RestAPIStack extends cdk.Stack {
   createAPI: (e: HostingStack) => cdk.aws_apigateway.RestApi;
