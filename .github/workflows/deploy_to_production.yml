@@ -12,11 +12,11 @@ jobs:
       name: prd
       url: https://www.arkyasmal.com
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - name: Install dependencies
         shell: bash
         run: npm install
@@ -32,7 +32,7 @@ jobs:
           APP_SECRETS: ${{toJSON(secrets)}}
       - name: Generate Cloud Template and Bootstrap
         shell: bash
-        run: npm run bootstrap
+        run: npm run synth
       - name: Deploy To AWS
         shell: bash
         run: npm run deploy

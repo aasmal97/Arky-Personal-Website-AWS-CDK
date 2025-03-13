@@ -19,19 +19,25 @@ This app uses a series of dependencies and you can check the list in the followi
 5. [Email validator](https://github.com/manishsaraan/email-validator) for validating email structures, and [date-fns](https://date-fns.org/) for validating dates
 6. [Azure's Computer Vision AI API](https://azure.microsoft.com/en-ca/products/cognitive-services/computer-vision) that is used to generate a caption to an uploaded image. 
 
-## Build + Deploy
+## Develop, Build, & Deploy
+
+#### Understanding the Output of an AWS CDK App
+Using the `AWS-CDK`, running & building the app means we are generating the AWS VALID CloudFormation Template Files to deploy our infastructure. When we run the app for development, we are simply checking for type saftey and proper linking within our AWS CDK application. To achieve these upon hot reloading, or on command you can use the following commands:
+
+#### Local Development
+To run this command, ensure you have Docker installed on your machine. This will hot reload the CloudFromation template files output, and check types, every time a change is made
+```bash
+npm run dev
+```
 #### Build 
-This project uses Typescript for type safety, however, AWS lambda functions cannot be written as such. Therefore, custom build steps are needed to compile typescript to javascript. 
-
-This is automated by calling custom build scripts, included in the top-level directories (hosting, rest api and webhooks). These scripts use built-in node libraries, like ```execShellCommand``` and `fs` for initiating build actions, and copying resulting files into the build folder.
-This works suprisingly well, and no issues have been observed so far. However, there is always a chance that files will take to long to copy, and cause a build failure.  
-
-1. To build this project, to check for type saftey, run npm build
-2. To build this project and migrate compiled files into a build folder and generate a cloudformation template, run ```npm bootstrap```
-
+This command generates the CloudFromation template files output, only. For this command to work, you must have run `npm install` prior.
+```bash 
+npm run synth
+```
 #### Deployment
-This project is auto deployed through a custom github action, that creates cloudformation templates and then auto deploys them to AWS.
+This project is auto deployed through a custom GitHub Action, that creates CloudFormation Templates and then auto deploys them to AWS.
 
-To initate the deploy process on your local machine you must:
+For deployment from your current machine you must:
 1. Request access to an account on AWS, that has AWS Lambda, Route 53, API gateway, Cloudfront and/or DynamoDB access. You will only be able to change infastructure that your account has access to.
-2. Run ```npm serve```
+2. Run ```npm i```.
+3. Run ```npm run deploy```
