@@ -32,7 +32,11 @@ import {
   SKILLS_DB_DEFAULT_SORT_KEY,
   PROJECTS_IMAGES_DB_DEFAULT_PK_KEY,
   PROJECTS_IMAGES_DB_DEFAULT_SORT_KEY,
+  METRIC_DB_TABLE_NAME,
+  METRICS_DB_DEFAULT_PK_KEY,
+  METRICS_DB_DEFAULT_SORT_KEY,
 } from "@lib/constants";
+import { createUserMetricCronJob } from "./resources/utils/createResources/createUserMetricsCronJob";
 
 export class RestAPIStack extends cdk.Stack {
   createAPI: (e: HostingStack) => cdk.aws_apigateway.RestApi;
@@ -78,6 +82,12 @@ export class RestAPIStack extends cdk.Stack {
       pkName: PROJECTS_IMAGES_DB_DEFAULT_PK_KEY,
       sortKey: PROJECTS_IMAGES_DB_DEFAULT_SORT_KEY,
     });
+    const metricsDb = createDatabase({
+      stack: this,
+      tableName: METRIC_DB_TABLE_NAME,
+      pkName: METRICS_DB_DEFAULT_PK_KEY,
+      sortKey: METRICS_DB_DEFAULT_SORT_KEY,
+    });
     const skillsDb = createDatabase({
       stack: this,
       tableName: SKILLS_DB_TABLE_NAME,
@@ -89,32 +99,43 @@ export class RestAPIStack extends cdk.Stack {
       id: SKILLS_DB_TABLE_NAME,
       arn: skillsDb.tableArn,
     };
+    const metricTableInfo = {
+      name: metricsDb.tableName,
+      id: METRIC_DB_TABLE_NAME,
+      arn: metricsDb.tableArn,
+    };
     const tablesMap = {
-      hobbies: {
+      [HOBBIES_DB_TABLE_NAME]: {
         name: hobbiesDb.tableName,
         id: HOBBIES_DB_TABLE_NAME,
         arn: hobbiesDb.tableArn,
       },
-      projects: {
+      [PROJECTS_DB_TABLE_NAME]: {
         name: projectsDb.tableName,
         id: PROJECTS_DB_TABLE_NAME,
         arn: projectsDb.tableArn,
       },
-      projectImages: {
+      [PROJECTS_IMAGES_DB_TABLE_NAME]: {
         name: projectImagesDb.tableName,
         id: PROJECTS_IMAGES_DB_TABLE_NAME,
         arn: projectImagesDb.tableArn,
       },
-      skills: skillsTableInfo,
+      [SKILLS_DB_TABLE_NAME]: skillsTableInfo,
+      [METRIC_DB_TABLE_NAME]: metricTableInfo,
     };
     let api: cdk.aws_apigateway.RestApi | undefined;
     const parsed = searchForSecretsWrapper(__dirname);
     createSkillCronJob({
       stack: this,
       skillsTableInfo,
-      secrets: parsed,
       dirname: __dirname,
     });
+    createUserMetricCronJob({
+      stack: this,
+      userMetricsTableInfo: metricTableInfo,
+      dirname: __dirname,
+    });
+
     this.getRestApi = () => api;
     this.createAPI = (hostingStack: HostingStack) => {
       api = createApi(

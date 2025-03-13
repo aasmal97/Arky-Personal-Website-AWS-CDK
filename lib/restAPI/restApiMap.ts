@@ -11,19 +11,23 @@ import createSESPolicy from "@utils/rolesFuncs/createSESPolicy";
 import createSNSPolicy from "@utils/rolesFuncs/createSNSPolicy";
 import {
   AMAZON_DYNAMO_DB_HOBBIES_TABLE_ENV_NAME,
+  AMAZON_DYNAMO_DB_METRICS_TABLE_ENV_NAME,
   AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_ENV_NAME,
   AMAZON_DYNAMO_DB_PROJECT_TABLE_ENV_NAME,
   AMAZON_DYNAMO_DB_SKILLS_TABLE_ENV_NAME,
   AMAZON_REST_API_DOMAIN_ENV_NAME,
   AMAZON_REST_API_KEY_ENV_NAME,
   AMAZON_REST_API_KEY_ENV_VALUE,
-  GITHUB_PERSONAL_ACCESS_TOKEN_ENV_NAME,
-  GITHUB_PERSONAL_ACCESS_TOKEN_ENV_VALUE,
+  HOBBIES_DB_TABLE_NAME,
+  METRIC_DB_TABLE_NAME,
+  PROJECTS_DB_TABLE_NAME,
+  PROJECTS_IMAGES_DB_TABLE_NAME,
   S3_MEDIA_FILES_BUCKET_ENV_NAME,
   SEND_IN_BLUE_API_KEY_ENV_NAME,
   SEND_IN_BLUE_API_KEY_ENV_VALUE,
   SES_EMAIL_ADDRESS_ENV_NAME,
   SES_EMAIL_ADDRESS_ENV_VALUE,
+  SKILLS_DB_TABLE_NAME,
   SNS_PHONE_NUMBER_ENV_NAME,
   SNS_PHONE_NUMBER_ENV_VALUE,
 } from "@lib/constants";
@@ -53,9 +57,19 @@ const restAPIMap = ({
       get: {
         location: generateLocation(["userMetrics", "get"], __dirname),
         env: {
-          [GITHUB_PERSONAL_ACCESS_TOKEN_ENV_NAME]:
-            GITHUB_PERSONAL_ACCESS_TOKEN_ENV_VALUE,
+          [AMAZON_DYNAMO_DB_METRICS_TABLE_ENV_NAME]: convertToStr(
+            tablesInfoMap?.[METRIC_DB_TABLE_NAME].name
+          ),
         },
+        role: createLambdaRole(
+          "UserMetricsGetRole",
+          {
+            metricsDynamoDBPolicy: tablesInfoMap
+              ? createDynamoPolicy("GET", tablesInfoMap[METRIC_DB_TABLE_NAME])
+              : null,
+          },
+          stack
+        ),
       },
     },
     hobbies: {
@@ -69,14 +83,14 @@ const restAPIMap = ({
           "HobbiesGetRole",
           {
             hobbiesDynamoDBPolicy: tablesInfoMap
-              ? createDynamoPolicy("GET", tablesInfoMap["hobbies"])
+              ? createDynamoPolicy("GET", tablesInfoMap[HOBBIES_DB_TABLE_NAME])
               : null,
           },
           stack
         ),
         env: {
           [AMAZON_DYNAMO_DB_HOBBIES_TABLE_ENV_NAME]: convertToStr(
-            tablesInfoMap?.["hobbies"].name
+            tablesInfoMap?.[HOBBIES_DB_TABLE_NAME].name
           ),
         },
       },
@@ -86,14 +100,14 @@ const restAPIMap = ({
           "HobbiesPutRole",
           {
             hobbiesDynamoDBPolicy: tablesInfoMap
-              ? createDynamoPolicy("PUT", tablesInfoMap["hobbies"])
+              ? createDynamoPolicy("PUT", tablesInfoMap[HOBBIES_DB_TABLE_NAME])
               : null,
           },
           stack
         ),
         env: {
           [AMAZON_DYNAMO_DB_HOBBIES_TABLE_ENV_NAME]: convertToStr(
-            tablesInfoMap?.["hobbies"].name
+            tablesInfoMap?.[HOBBIES_DB_TABLE_NAME].name
           ),
         },
       },
@@ -103,14 +117,17 @@ const restAPIMap = ({
           "HobbiesDeleteRole",
           {
             hobbiesDynamoDBPolicy: tablesInfoMap
-              ? createDynamoPolicy("DELETE", tablesInfoMap["hobbies"])
+              ? createDynamoPolicy(
+                  "DELETE",
+                  tablesInfoMap[HOBBIES_DB_TABLE_NAME]
+                )
               : null,
           },
           stack
         ),
         env: {
           [AMAZON_DYNAMO_DB_HOBBIES_TABLE_ENV_NAME]: convertToStr(
-            tablesInfoMap?.["hobbies"].name
+            tablesInfoMap?.[HOBBIES_DB_TABLE_NAME].name
           ),
         },
       },
@@ -131,14 +148,17 @@ const restAPIMap = ({
             [AMAZON_REST_API_KEY_ENV_NAME]: AMAZON_REST_API_KEY_ENV_VALUE,
             [AMAZON_REST_API_DOMAIN_ENV_NAME]: convertToStr(restApiDomainName),
             [AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_ENV_NAME]: convertToStr(
-              tablesInfoMap?.["projectImages"].name
+              tablesInfoMap?.[PROJECTS_IMAGES_DB_TABLE_NAME].name
             ),
           },
           role: createLambdaRole(
             "ProjectImagesGetRole",
             {
               projectsDynamoDBPolicy: tablesInfoMap
-                ? createDynamoPolicy("GET", tablesInfoMap["projectImages"])
+                ? createDynamoPolicy(
+                    "GET",
+                    tablesInfoMap[PROJECTS_IMAGES_DB_TABLE_NAME]
+                  )
                 : null,
             },
             stack
@@ -153,14 +173,17 @@ const restAPIMap = ({
             "ProjectImagesDeleteRole",
             {
               projectsDynamoDBPolicy: tablesInfoMap
-                ? createDynamoPolicy("DELETE", tablesInfoMap["projectImages"])
+                ? createDynamoPolicy(
+                    "DELETE",
+                    tablesInfoMap[PROJECTS_IMAGES_DB_TABLE_NAME]
+                  )
                 : null,
             },
             stack
           ),
           env: {
             [AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_ENV_NAME]: convertToStr(
-              tablesInfoMap?.["projectImages"].name
+              tablesInfoMap?.[PROJECTS_IMAGES_DB_TABLE_NAME].name
             ),
           },
         },
@@ -170,14 +193,17 @@ const restAPIMap = ({
             "ProjectImagesPutRole",
             {
               projectsDynamoDBPolicy: tablesInfoMap
-                ? createDynamoPolicy("PUT", tablesInfoMap["projectImages"])
+                ? createDynamoPolicy(
+                    "PUT",
+                    tablesInfoMap[PROJECTS_IMAGES_DB_TABLE_NAME]
+                  )
                 : null,
             },
             stack
           ),
           env: {
             [AMAZON_DYNAMO_DB_PROJECT_IMAGES_TABLE_ENV_NAME]: convertToStr(
-              tablesInfoMap?.["projectImages"].name
+              tablesInfoMap?.[PROJECTS_IMAGES_DB_TABLE_NAME].name
             ),
           },
         },
@@ -188,14 +214,14 @@ const restAPIMap = ({
           "ProjectsGetRole",
           {
             projectsDynamoDBPolicy: tablesInfoMap
-              ? createDynamoPolicy("GET", tablesInfoMap["projects"])
+              ? createDynamoPolicy("GET", tablesInfoMap[PROJECTS_DB_TABLE_NAME])
               : null,
           },
           stack
         ),
         env: {
           [AMAZON_DYNAMO_DB_PROJECT_TABLE_ENV_NAME]: convertToStr(
-            tablesInfoMap?.["projects"].name
+            tablesInfoMap?.[PROJECTS_DB_TABLE_NAME].name
           ),
         },
       },
@@ -205,14 +231,17 @@ const restAPIMap = ({
           "ProjectsPostRole",
           {
             projectsDynamoDBPolicy: tablesInfoMap
-              ? createDynamoPolicy("POST", tablesInfoMap["projects"])
+              ? createDynamoPolicy(
+                  "POST",
+                  tablesInfoMap[PROJECTS_DB_TABLE_NAME]
+                )
               : null,
           },
           stack
         ),
         env: {
           [AMAZON_DYNAMO_DB_PROJECT_TABLE_ENV_NAME]: convertToStr(
-            tablesInfoMap?.["projects"].name
+            tablesInfoMap?.[PROJECTS_DB_TABLE_NAME].name
           ),
         },
       },
@@ -222,14 +251,14 @@ const restAPIMap = ({
           "ProjectsPutRole",
           {
             projectsDynamoDBPolicy: tablesInfoMap
-              ? createDynamoPolicy("PUT", tablesInfoMap["projects"])
+              ? createDynamoPolicy("PUT", tablesInfoMap[PROJECTS_DB_TABLE_NAME])
               : null,
           },
           stack
         ),
         env: {
           [AMAZON_DYNAMO_DB_PROJECT_TABLE_ENV_NAME]: convertToStr(
-            tablesInfoMap?.["projects"].name
+            tablesInfoMap?.[PROJECTS_DB_TABLE_NAME].name
           ),
         },
       },
@@ -239,7 +268,10 @@ const restAPIMap = ({
           "ProjectsDeleteRole",
           {
             projectsDynamoDBPolicy: tablesInfoMap
-              ? createDynamoPolicy("DELETE", tablesInfoMap["projects"])
+              ? createDynamoPolicy(
+                  "DELETE",
+                  tablesInfoMap[PROJECTS_DB_TABLE_NAME]
+                )
               : null,
           },
           stack
@@ -249,7 +281,7 @@ const restAPIMap = ({
             ? hostingStack.getImgBucket().bucketName
             : "",
           [AMAZON_DYNAMO_DB_PROJECT_TABLE_ENV_NAME]: convertToStr(
-            tablesInfoMap?.["projects"].name
+            tablesInfoMap?.[PROJECTS_DB_TABLE_NAME].name
           ),
         },
       },
@@ -264,14 +296,14 @@ const restAPIMap = ({
         apiKeyRequired: false,
         env: {
           [AMAZON_DYNAMO_DB_SKILLS_TABLE_ENV_NAME]: convertToStr(
-            tablesInfoMap?.["skills"].name
+            tablesInfoMap?.[SKILLS_DB_TABLE_NAME].name
           ),
         },
         role: createLambdaRole(
           "SkillsGetRole",
           {
             skillsDynamoDBPolicy: tablesInfoMap
-              ? createDynamoPolicy("GET", tablesInfoMap["skills"])
+              ? createDynamoPolicy("GET", tablesInfoMap[SKILLS_DB_TABLE_NAME])
               : null,
           },
           stack

@@ -182,5 +182,10 @@ export async function handler() {
   //this means failure, as LinkedIn skills will never be at zero
   if (linkedInSkills.length <= 0) return;
   const res = storeInDatabase(linkedInSkills);
-  return res;
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      message: "Successfully got LinkedIn skills",
+    }),
+  };
 }

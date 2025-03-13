@@ -16,7 +16,6 @@ import path = require("path");
 export const createSkillCronJob = ({
   stack,
   skillsTableInfo,
-  secrets,
   dirname,
 }: {
   dirname: string;
@@ -26,7 +25,6 @@ export const createSkillCronJob = ({
     id: string;
     arn: string;
   };
-  secrets: { [key: string]: any };
 }) => {
   const skillsCronLambda = new NodejsFunction(
     stack,
@@ -42,6 +40,7 @@ export const createSkillCronJob = ({
       bundling: {
         minify: true,
       },
+      retryAttempts: 1,
       role: createLambdaRole(
         `${SKILLS_CRON_JOB_NAME}LambdaRole`,
         {
@@ -61,13 +60,10 @@ export const createSkillCronJob = ({
       },
     }
   );
-  const skillsCronJobTarget = new LambdaFunction(skillsCronLambda, {
-    retryAttempts: 1,
-  });
   //run every three days
   const skillsCronJobEvent = new Rule(stack, `${SKILLS_CRON_JOB_NAME}Event`, {
     schedule: Schedule.rate(cdk.Duration.days(7)),
-    targets: [skillsCronJobTarget],
   });
+  skillsCronJobEvent.addTarget(new LambdaFunction(skillsCronLambda));
   return skillsCronJobEvent;
 };
