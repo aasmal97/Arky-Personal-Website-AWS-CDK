@@ -9,6 +9,7 @@ import { HostingStack } from "../hosting/hostingStack";
 import { searchForSecretsWrapper } from "@utils/buildFuncs/searchForSecrets";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
 import { createSkillCronJob } from "./resources/utils/createResources/createSkillCronJob";
+import { createUserMetricCronJob } from "./resources/utils/createResources/createUserMetricsCronJob";
 import {
   HOBBIES_DB_TABLE_NAME,
   PROJECTS_DB_TABLE_NAME,
@@ -36,7 +37,6 @@ import {
   METRICS_DB_DEFAULT_PK_KEY,
   METRICS_DB_DEFAULT_SORT_KEY,
 } from "@lib/constants";
-import { createUserMetricCronJob } from "./resources/utils/createResources/createUserMetricsCronJob";
 
 export class RestAPIStack extends cdk.Stack {
   createAPI: (e: HostingStack) => cdk.aws_apigateway.RestApi;
