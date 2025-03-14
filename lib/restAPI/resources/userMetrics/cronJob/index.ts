@@ -160,9 +160,7 @@ export const handler = async () => {
   const [stackOverflowData, githubData] = await Promise.all(promiseArr);
   //ensure data is not null, else don't update
   const dateModified = new Date().toISOString();
-  const newMetrics: Partial<UserMetricDocument> = {
-    dateModified,
-  };
+  const newMetrics: Partial<UserMetricDocument> = {};
   if (stackOverflowData) {
     newMetrics.stackOverflowData = stackOverflowData;
   }
