@@ -24,7 +24,7 @@ export async function handler(
       "#rt": METRICS_DB_DEFAULT_PK_KEY,
     },
     ExpressionAttributeValues: {
-      ":mType": {
+      ":mtype": {
         S: METRIC_TYPE.PERSONAL,
       },
     },
