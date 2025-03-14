@@ -9,9 +9,13 @@ import {
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import axios from "axios";
 import { SkillsType } from "@app/types";
-import { AMAZON_DYNAMO_DB_SKILLS_TABLE_ENV_NAME } from "@lib/constants";
+import {
+  AMAZON_DYNAMO_DB_SKILLS_TABLE_ENV_NAME,
+  SKILLS_DB_DEFAULT_PK_KEY,
+  SKILLS_DB_DEFAULT_SORT_KEY,
+} from "@lib/constants";
 type DataFuncsParams = Pick<SkillsType, "order"> & {
-  skillName: SkillsType["name"];
+  skillName: SkillsType[typeof SKILLS_DB_DEFAULT_SORT_KEY];
 };
 const tableName = process.env[AMAZON_DYNAMO_DB_SKILLS_TABLE_ENV_NAME];
 
@@ -21,8 +25,8 @@ const client = new DynamoDBClient({
 const createSkill = async ({ skillName, order }: DataFuncsParams) => {
   const currentTimestamp = Date.now();
   const item = {
-    recordType: "skill",
-    name: skillName,
+    [SKILLS_DB_DEFAULT_PK_KEY]: "skill",
+    [SKILLS_DB_DEFAULT_SORT_KEY]: skillName,
     date_created: currentTimestamp.toString(),
     order,
   };
@@ -40,8 +44,8 @@ const deleteSkill = async (skillName: string) => {
     TableName: tableName,
     Key: marshall(
       {
-        recordType: "skill",
-        name: skillName,
+        [SKILLS_DB_DEFAULT_PK_KEY]: "skill",
+        [SKILLS_DB_DEFAULT_SORT_KEY]: skillName,
       },
       {
         convertClassInstanceToMap: true,
@@ -56,8 +60,8 @@ const updateSkill = async ({ skillName, order }: DataFuncsParams) => {
     TableName: tableName,
     Key: marshall(
       {
-        recordType: "skill",
-        name: skillName,
+        [SKILLS_DB_DEFAULT_PK_KEY]: "skill",
+        [SKILLS_DB_DEFAULT_SORT_KEY]: skillName,
       },
       {
         convertClassInstanceToMap: true,
@@ -94,7 +98,7 @@ const getSkillsInDynamoDbTable = async () => {
     TableName: tableName,
     KeyConditionExpression: "#rt = :skill",
     ExpressionAttributeNames: {
-      "#rt": "recordType",
+      "#rt": SKILLS_DB_DEFAULT_PK_KEY,
     },
     ExpressionAttributeValues: expVal,
   };
@@ -117,7 +121,7 @@ const getLinkedInSkills = async () => {
       params: {
         url: "https://linkedin.com/in/arky-asmal/",
         fallback_to_cache: "on-error",
-        use_cache: "if-present",
+        use_cache: "if-recent",
         skills: "include",
       },
     });
