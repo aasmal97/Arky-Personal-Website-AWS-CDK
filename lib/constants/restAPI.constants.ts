@@ -12,7 +12,7 @@ export const HOBBIES_DB_TABLE_NAME = "hobbies" as const;
 export const PROJECTS_DB_TABLE_NAME = "projects" as const;
 export const PROJECTS_IMAGES_DB_TABLE_NAME = "projectImages" as const;
 export const SKILLS_DB_TABLE_NAME = "skills" as const;
-export const METRIC_DB_TABLE_NAME = "metricsDb" as const;
+export const METRIC_DB_TABLE_NAME = "metrics" as const;
 //hobbies table key names
 export const HOBBIES_DB_DEFAULT_PK_KEY = "orientation" as const;
 export const HOBBIES_DB_DEFAULT_SORT_KEY = "dateCreated" as const;
