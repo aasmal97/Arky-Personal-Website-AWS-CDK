@@ -2,7 +2,7 @@ import { corsHeaders } from "@app/types";
 import { METRIC_TYPE, UserMetricDocument } from "@app/types/userMetrics.types";
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
-import { AMAZON_DYNAMO_DB_METRICS_TABLE_ENV_NAME } from "@lib/constants";
+import { AMAZON_DYNAMO_DB_METRICS_TABLE_ENV_NAME, METRICS_DB_DEFAULT_PK_KEY } from "@lib/constants";
 import { APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 const tableName = process.env[AMAZON_DYNAMO_DB_METRICS_TABLE_ENV_NAME];
 const client = new DynamoDBClient({
@@ -21,13 +21,15 @@ export async function handler(
     TableName: tableName,
     KeyConditionExpression: "#rt = :mtype",
     ExpressionAttributeNames: {
-      "#rt": "metricType",
+      "#rt": METRICS_DB_DEFAULT_PK_KEY,
     },
     ExpressionAttributeValues: {
       ":mType": {
         S: METRIC_TYPE.PERSONAL,
       },
     },
+    ScanIndexForward: false,
+    Limit: 1,
   });
   const queryCommandRes = await client.send(queryCommand);
   const rawDocument = queryCommandRes.Items?.[0];

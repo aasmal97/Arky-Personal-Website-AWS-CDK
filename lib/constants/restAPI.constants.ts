@@ -31,7 +31,7 @@ export const SKILLS_DB_DEFAULT_PK_KEY = "recordType" as const;
 export const SKILLS_DB_DEFAULT_SORT_KEY = "name" as const;
 //metric table key names
 export const METRICS_DB_DEFAULT_PK_KEY = "metricType" as const;
-export const METRICS_DB_DEFAULT_SORT_KEY = "date" as const;
+export const METRICS_DB_DEFAULT_SORT_KEY = "dateModified" as const;
 const parsed = searchForSecretsWrapper(__dirname);
 //env key names & values
 export const GITHUB_PERSONAL_ACCESS_TOKEN_ENV_NAME =

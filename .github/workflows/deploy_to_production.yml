@@ -30,6 +30,9 @@ jobs:
         uses: aasmal97/create-env-file@v3.1.2
         with:
           APP_SECRETS: ${{toJSON(secrets)}}
+      - name: Check types
+        shell: bash
+        run: npm run check-types
       - name: Generate Cloud Template and Bootstrap
         shell: bash
         run: npm run synth

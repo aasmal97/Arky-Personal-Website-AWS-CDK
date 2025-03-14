@@ -3,7 +3,11 @@ import { convert } from "html-to-text";
 import { sub } from "date-fns";
 import { getRepoCount, callGithubGraphQL } from "@utils/github/getUserRepos";
 import { corsHeaders } from "@app/types";
-import { AMAZON_DYNAMO_DB_METRICS_TABLE_ENV_NAME } from "@lib/constants";
+import {
+  AMAZON_DYNAMO_DB_METRICS_TABLE_ENV_NAME,
+  METRICS_DB_DEFAULT_PK_KEY,
+  METRICS_DB_DEFAULT_SORT_KEY,
+} from "@lib/constants";
 import {
   AttributeValue,
   DynamoDBClient,
@@ -155,8 +159,9 @@ export const handler = async () => {
   //grab data
   const [stackOverflowData, githubData] = await Promise.all(promiseArr);
   //ensure data is not null, else don't update
+  const dateModified = new Date().toISOString();
   const newMetrics: Partial<UserMetricDocument> = {
-    dateModified: new Date().toISOString(),
+    dateModified,
   };
   if (stackOverflowData) {
     newMetrics.stackOverflowData = stackOverflowData;
@@ -169,12 +174,19 @@ export const handler = async () => {
 
   const command = new UpdateItemCommand({
     TableName: tableName,
-    Key: marshall({ metricType: METRIC_TYPE.PERSONAL }),
+    Key: marshall({
+      [METRICS_DB_DEFAULT_PK_KEY]: METRIC_TYPE.PERSONAL,
+      [METRICS_DB_DEFAULT_SORT_KEY]: dateModified,
+    }),
     ...constructUpdateExpression(parsedMetrics),
   });
   const res = await client.send(command);
   if (res.$metadata.httpStatusCode !== 200)
-    return { statusCode: 500, headers: corsHeaders, body: "Could not update user metrics" };
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: "Could not update user metrics",
+    };
   return {
     statusCode: 200,
     headers: corsHeaders,
